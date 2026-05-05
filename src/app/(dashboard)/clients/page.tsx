@@ -15,6 +15,7 @@ type Client = {
 
 export default function ClientsPage() {
   const [clients, setClients] = useState<Client[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [editingClient, setEditingClient] = useState<Client | null>(null);
 
@@ -126,6 +127,12 @@ export default function ClientsPage() {
     fetchClients();
   }, []);
 
+  const filteredClients = clients.filter((client) =>
+    `${client.name} ${client.email} ${client.service} ${client.status}`
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase())
+  );
+
   return (
     <>
       <section className="space-y-7">
@@ -161,10 +168,17 @@ export default function ClientsPage() {
                 Live client data fetched from Supabase.
               </p>
             </div>
+
+            <input
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search clients..."
+              className="rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm text-white outline-none placeholder:text-white/40"
+            />
           </div>
 
           <div className="space-y-3">
-            {clients.map((client) => (
+            {filteredClients.map((client) => (
               <div
                 key={client.id}
                 className="grid grid-cols-[1.5fr_1.5fr_1fr_1fr] items-center rounded-[26px] border border-white/10 bg-[#0B0B0B] p-5"
