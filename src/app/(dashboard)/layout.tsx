@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-
 import {
   LayoutDashboard,
   Users,
@@ -10,6 +9,8 @@ import {
   Briefcase,
   BarChart3,
   Settings,
+  Search,
+  Bell,
 } from "lucide-react";
 
 const navItems = [
@@ -29,56 +30,68 @@ export default function DashboardLayout({
   const pathname = usePathname();
 
   return (
-    <div className="flex min-h-screen bg-[#020617] text-white">
-      
-      {/* SIDEBAR */}
-      <aside className="w-72 bg-[#020617] border-r border-white/10 p-6 flex flex-col">
-        
-        {/* LOGO */}
-        <div className="mb-10">
-          <div className="mb-2 flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-lg font-bold text-[#020617]">
-            CP
+    <div className="min-h-screen bg-[#050505] text-white">
+      <div className="flex min-h-screen">
+        <aside className="w-[280px] border-r border-white/10 bg-[#070707] px-6 py-7">
+          <div className="mb-12">
+            <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#D7FF5F] text-lg font-black text-black">
+              CP
+            </div>
+
+            <h1 className="text-2xl font-black tracking-tight">ClientPilot</h1>
+            <p className="mt-1 text-sm text-white/40">Service business command center</p>
           </div>
-          <h1 className="text-2xl font-bold">ClientPilot</h1>
-          <p className="text-sm text-white/50">Business command center</p>
-        </div>
 
-        {/* NAV */}
-        <nav className="space-y-2">
-          {navItems.map(({ name, icon: Icon, path }) => {
-            const isActive =
-              path === "/"
-                ? pathname === "/"
-                : pathname.startsWith(path);
+          <nav className="space-y-2">
+            {navItems.map(({ name, icon: Icon, path }) => {
+              const isActive =
+                path === "/" ? pathname === "/" : pathname.startsWith(path);
 
-            return (
-              <Link
-                key={name}
-                href={path}
-                className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition ${
-                  isActive
-                    ? "bg-white text-[#020617] shadow-md"
-                    : "text-white/60 hover:bg-white/10 hover:text-white"
-                }`}
-              >
-                <Icon className="h-4 w-4" />
-                {name}
-              </Link>
-            );
-          })}
-        </nav>
+              return (
+                <Link
+                  key={name}
+                  href={path}
+                  className={`flex items-center gap-3 rounded-2xl px-4 py-3 text-sm transition ${
+                    isActive
+                      ? "bg-[#D7FF5F] text-black"
+                      : "text-white/45 hover:bg-white/10 hover:text-white"
+                  }`}
+                >
+                  <Icon className="h-4 w-4" />
+                  {name}
+                </Link>
+              );
+            })}
+          </nav>
+        </aside>
 
-        {/* FOOTER SPACE */}
-        <div className="mt-auto" />
-      </aside>
+        <main className="flex-1 overflow-hidden bg-[radial-gradient(circle_at_top_right,#2d1b69_0%,transparent_32%),radial-gradient(circle_at_top_left,#103d2d_0%,transparent_28%),#050505]">
+          <div className="border-b border-white/10 px-8 py-5">
+            <div className="flex items-center justify-between">
+              <div className="flex w-[420px] items-center gap-3 rounded-full border border-white/10 bg-white/[0.06] px-5 py-3 text-white/40">
+                <Search className="h-4 w-4" />
+                <span className="text-sm">Search clients, bookings, services...</span>
+              </div>
 
-      {/* MAIN CONTENT */}
-      <main className="flex-1 bg-[#0F172A] text-white p-6">
-        <div className="max-w-7xl mx-auto">
-          {children}
-        </div>
-      </main>
+              <div className="flex items-center gap-3">
+                <button className="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/[0.06]">
+                  <Bell className="h-4 w-4 text-white/70" />
+                </button>
 
+                <div className="flex items-center gap-3 rounded-full border border-white/10 bg-white/[0.06] px-3 py-2">
+                  <div className="h-9 w-9 rounded-full bg-gradient-to-br from-[#D7FF5F] to-[#9D7CFF]" />
+                  <div>
+                    <p className="text-sm font-semibold">Natasha</p>
+                    <p className="text-xs text-white/40">Owner</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="p-8">{children}</div>
+        </main>
+      </div>
     </div>
   );
 }
