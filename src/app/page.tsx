@@ -16,8 +16,8 @@ const stats = [
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-[#F5F6F8] p-4 text-[#111827]">
-      <div className="flex min-h-[calc(100vh-32px)] overflow-hidden rounded-[32px] border border-black/5 bg-white shadow-sm">
+    <div className="min-h-screen bg-[#F5F6F8] text-[#111827]">
+      <div className="flex min-h-screen overflow-hidden">
         {/* Sidebar */}
         <aside className="w-72 bg-[#0B0F17] p-6 text-white">
           <div className="mb-10">
