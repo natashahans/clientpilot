@@ -27,85 +27,125 @@ const chartData = [
 
 export default function DashboardPage() {
   return (
-    <section>
-      <div className="mb-8 flex items-end justify-between">
+    <section className="space-y-6">
+      {/* Header */}
+      <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-4xl font-bold tracking-tight">Welcome back 👋</h1>
-          <p className="mt-2 text-gray-500">
+          <p className="text-sm font-medium text-emerald-400">Overview</p>
+          <h1 className="mt-2 text-5xl font-bold tracking-tight text-white">
+            Welcome back 👋
+          </h1>
+          <p className="mt-3 max-w-2xl text-white/55">
             Here’s what’s happening across your clients, bookings, and services today.
           </p>
         </div>
 
-        <div className="hidden rounded-2xl bg-white px-5 py-4 text-sm shadow-sm ring-1 ring-black/5 lg:block">
-          <p className="font-semibold">Smart Insight</p>
-          <p className="mt-1 text-gray-500">Friday is your busiest booking day.</p>
+        <div className="hidden rounded-3xl border border-white/10 bg-white/5 px-5 py-4 text-sm shadow-2xl shadow-black/20 backdrop-blur-xl lg:block">
+          <p className="font-semibold text-white">Smart Insight</p>
+          <p className="mt-1 text-white/50">Friday is your busiest booking day.</p>
         </div>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+      {/* Stats */}
+      <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
         {stats.map((stat, index) => (
           <div
             key={stat.label}
-            className={`group relative overflow-hidden rounded-[28px] p-6 transition-all duration-300 ${
+            className={`group relative overflow-hidden rounded-[30px] p-6 transition-all duration-300 ${
               index === 0
-                ? "bg-gradient-to-br from-emerald-600 to-emerald-800 text-white shadow-lg"
-                : "bg-white shadow-sm ring-1 ring-black/5 hover:shadow-md"
+                ? "border border-emerald-400/30 bg-gradient-to-br from-emerald-400 via-emerald-600 to-emerald-950 text-white shadow-2xl shadow-emerald-950/40"
+                : "border border-white/10 bg-white/[0.06] text-white shadow-2xl shadow-black/20 backdrop-blur-xl hover:bg-white/[0.09]"
             }`}
           >
             {index === 0 && (
-              <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-2xl"></div>
+              <>
+                <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/20 blur-3xl" />
+                <div className="absolute bottom-0 left-0 h-24 w-full bg-gradient-to-t from-black/20 to-transparent" />
+              </>
             )}
 
-            <div className="flex items-start justify-between">
+            <div className="relative flex items-start justify-between">
               <div>
-                <p className={`text-sm ${index === 0 ? "text-white/70" : "text-gray-500"}`}>
-                  {stat.label}
-                </p>
-                <h3 className="mt-4 text-4xl font-bold tracking-tight">{stat.value}</h3>
+                <p className="text-sm text-white/55">{stat.label}</p>
+                <h3 className="mt-4 text-4xl font-bold tracking-tight">
+                  {stat.value}
+                </h3>
               </div>
 
               <div
-                className={`flex h-10 w-10 items-center justify-center rounded-full transition ${
-                  index === 0 ? "bg-white/20" : "bg-[#F3F4F6] group-hover:bg-[#E5E7EB]"
+                className={`flex h-11 w-11 items-center justify-center rounded-full transition ${
+                  index === 0
+                    ? "bg-white/20 text-white"
+                    : "bg-white/10 text-white/70 group-hover:bg-white/15"
                 }`}
               >
                 ↗
               </div>
             </div>
 
-            <p className={`mt-6 text-sm ${index === 0 ? "text-white/70" : "text-gray-500"}`}>
-              {stat.change}
-            </p>
+            <p className="relative mt-7 text-sm text-white/55">{stat.change}</p>
           </div>
         ))}
       </div>
 
-      <div className="mt-6 grid gap-6 xl:grid-cols-[1.5fr_1fr]">
-        <div className="rounded-[28px] bg-white p-6 shadow-sm ring-1 ring-black/5">
+      {/* Main Grid */}
+      <div className="grid gap-6 xl:grid-cols-[1.55fr_1fr]">
+        {/* Chart */}
+        <div className="rounded-[32px] border border-white/10 bg-white/[0.06] p-6 shadow-2xl shadow-black/20 backdrop-blur-xl">
           <div className="mb-6 flex items-center justify-between">
             <div>
-              <h3 className="text-xl font-bold">Booking Activity</h3>
-              <p className="text-sm text-gray-500">Weekly appointment overview</p>
+              <h3 className="text-2xl font-bold text-white">Booking Activity</h3>
+              <p className="mt-1 text-sm text-white/45">
+                Weekly appointment overview
+              </p>
             </div>
-            <button className="rounded-full border border-black/10 px-4 py-2 text-sm">
+
+            <button className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/80 transition hover:bg-white/10">
               View report
             </button>
           </div>
 
-          <div className="h-64">
+          <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={chartData}>
-                <XAxis dataKey="day" stroke="#9CA3AF" />
-                <Tooltip />
-                <Bar dataKey="value" fill="#059669" radius={[8, 8, 0, 0]} />
+                <XAxis
+                  dataKey="day"
+                  stroke="#94A3B8"
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <Tooltip
+                  cursor={{ fill: "rgba(255,255,255,0.06)" }}
+                  contentStyle={{
+                    background: "#020617",
+                    border: "1px solid rgba(255,255,255,0.12)",
+                    borderRadius: "16px",
+                    color: "#fff",
+                  }}
+                />
+                <Bar
+                  dataKey="value"
+                  fill="#10B981"
+                  radius={[12, 12, 12, 12]}
+                  barSize={58}
+                />
               </BarChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-        <div className="rounded-[28px] bg-[#111827] p-6 text-white shadow-sm">
-          <h3 className="text-xl font-bold">Upcoming Appointments</h3>
-          <p className="mt-1 text-sm text-white/50">Next bookings for today</p>
+        {/* Upcoming Appointments */}
+        <div className="rounded-[32px] border border-white/10 bg-[#020617] p-6 text-white shadow-2xl shadow-black/30">
+          <div className="flex items-start justify-between">
+            <div>
+              <h3 className="text-2xl font-bold">Upcoming Appointments</h3>
+              <p className="mt-1 text-sm text-white/45">Next bookings for today</p>
+            </div>
+
+            <div className="rounded-full bg-emerald-400/10 px-3 py-1 text-xs font-medium text-emerald-300">
+              Today
+            </div>
+          </div>
 
           <div className="mt-6 space-y-4">
             {[
@@ -113,24 +153,30 @@ export default function DashboardPage() {
               ["12:30 PM", "Follow-up Session", "Sarah Ahmed"],
               ["03:00 PM", "Service Booking", "Hamza Malik"],
             ].map(([time, title, client]) => (
-              <div key={time} className="rounded-2xl bg-white/10 p-4 ring-1 ring-white/10">
-                <p className="text-sm text-emerald-300">{time}</p>
-                <p className="mt-1 font-semibold">{title}</p>
-                <p className="text-sm text-white/50">{client}</p>
+              <div
+                key={time}
+                className="rounded-3xl border border-white/10 bg-white/[0.07] p-5 transition hover:bg-white/[0.1]"
+              >
+                <p className="text-sm font-medium text-emerald-300">{time}</p>
+                <p className="mt-2 font-semibold text-white">{title}</p>
+                <p className="text-sm text-white/45">{client}</p>
               </div>
             ))}
           </div>
         </div>
       </div>
 
-      <div className="mt-6 rounded-[28px] bg-white p-6 shadow-sm ring-1 ring-black/5">
+      {/* Recent Clients */}
+      <div className="rounded-[32px] border border-white/10 bg-white/[0.06] p-6 shadow-2xl shadow-black/20 backdrop-blur-xl">
         <div className="mb-6 flex items-center justify-between">
           <div>
-            <h3 className="text-xl font-bold">Recent Clients</h3>
-            <p className="text-sm text-gray-500">Latest client activity and booking history</p>
+            <h3 className="text-2xl font-bold text-white">Recent Clients</h3>
+            <p className="mt-1 text-sm text-white/45">
+              Latest client activity and booking history
+            </p>
           </div>
 
-          <button className="rounded-full border border-black/10 px-4 py-2 text-sm">
+          <button className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/80 transition hover:bg-white/10">
             View all
           </button>
         </div>
@@ -144,24 +190,27 @@ export default function DashboardPage() {
           ].map(([name, service, status, date]) => (
             <div
               key={name}
-              className="flex items-center justify-between rounded-2xl border border-black/5 bg-[#F9FAFB] p-4"
+              className="flex items-center justify-between rounded-3xl border border-white/10 bg-white/[0.05] p-4 transition hover:bg-white/[0.08]"
             >
               <div className="flex items-center gap-4">
-                <div className="flex h-11 w-11 items-center justify-center rounded-full bg-emerald-100 text-sm font-bold text-emerald-700">
-                  {name.split(" ").map((word) => word[0]).join("")}
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-400/15 text-sm font-bold text-emerald-300 ring-1 ring-emerald-300/20">
+                  {name
+                    .split(" ")
+                    .map((word) => word[0])
+                    .join("")}
                 </div>
 
                 <div>
-                  <p className="font-semibold">{name}</p>
-                  <p className="text-sm text-gray-500">{service}</p>
+                  <p className="font-semibold text-white">{name}</p>
+                  <p className="text-sm text-white/45">{service}</p>
                 </div>
               </div>
 
               <div className="flex items-center gap-6">
-                <span className="rounded-full bg-white px-3 py-1 text-xs font-medium text-gray-600 ring-1 ring-black/5">
+                <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium text-white/70">
                   {status}
                 </span>
-                <p className="w-24 text-right text-sm text-gray-400">{date}</p>
+                <p className="w-24 text-right text-sm text-white/40">{date}</p>
               </div>
             </div>
           ))}

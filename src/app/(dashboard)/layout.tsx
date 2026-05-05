@@ -26,48 +26,59 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-    const pathname = usePathname();
+  const pathname = usePathname();
+
   return (
-    <div className="flex min-h-screen bg-[#F5F6F8] text-[#111827]">
-      {/* Sidebar */}
-      <aside className="w-72 bg-[#0B0F17] p-6 text-white flex flex-col">
+    <div className="flex min-h-screen bg-[#020617] text-white">
+      
+      {/* SIDEBAR */}
+      <aside className="w-72 bg-[#020617] border-r border-white/10 p-6 flex flex-col">
+        
+        {/* LOGO */}
         <div className="mb-10">
-          <div className="mb-2 flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-lg font-bold text-[#0B0F17]">
+          <div className="mb-2 flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-lg font-bold text-[#020617]">
             CP
           </div>
           <h1 className="text-2xl font-bold">ClientPilot</h1>
           <p className="text-sm text-white/50">Business command center</p>
         </div>
 
+        {/* NAV */}
         <nav className="space-y-2">
-        {navItems.map(({ name, icon: Icon, path }) => {
+          {navItems.map(({ name, icon: Icon, path }) => {
             const isActive =
-            path === "/"
+              path === "/"
                 ? pathname === "/"
                 : pathname.startsWith(path);
 
             return (
-            <Link
+              <Link
                 key={name}
                 href={path}
-                className={`group flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm transition ${
-                isActive
-                    ? "bg-white text-[#0B0F17] shadow-sm"
+                className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition ${
+                  isActive
+                    ? "bg-white text-[#020617] shadow-md"
                     : "text-white/60 hover:bg-white/10 hover:text-white"
                 }`}
-            >
+              >
                 <Icon className="h-4 w-4" />
                 {name}
-            </Link>
+              </Link>
             );
-        })}
+          })}
         </nav>
+
+        {/* FOOTER SPACE */}
+        <div className="mt-auto" />
       </aside>
 
-      {/* Main content */}
-      <main className="flex-1 p-8">
-        {children}
+      {/* MAIN CONTENT */}
+      <main className="flex-1 bg-[#0F172A] text-white p-6">
+        <div className="max-w-7xl mx-auto">
+          {children}
+        </div>
       </main>
+
     </div>
   );
 }
