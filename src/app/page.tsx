@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 import {
   LayoutDashboard,
   Users,
@@ -59,9 +61,14 @@ export default function Home() {
 
           <nav className="space-y-2">
             {navItems.map(({ name, icon: Icon }) => (
-              <button
+              <Link
                 key={name}
-                className={`group flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-sm transition ${
+                href={
+                  name === "Dashboard"
+                    ? "/"
+                    : `/${name.toLowerCase()}`
+                }
+                className={`group flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm transition ${
                   name === "Dashboard"
                     ? "bg-white text-[#0B0F17] shadow-sm"
                     : "text-white/60 hover:bg-white/10 hover:text-white"
@@ -69,7 +76,7 @@ export default function Home() {
               >
                 <Icon className="h-4 w-4" />
                 {name}
-              </button>
+              </Link>
             ))}
           </nav>
 
