@@ -16,21 +16,41 @@ type Client = {
 export default function ClientsPage() {
   const [clients, setClients] = useState<Client[]>([]);
 
-  useEffect(() => {
-    async function fetchClients() {
-      const { data, error } = await supabase
-        .from("clients")
-        .select("*")
-        .order("id", { ascending: true });
+  async function fetchClients() {
+    const { data, error } = await supabase
+      .from("clients")
+      .select("*")
+      .order("id", { ascending: true });
 
-      if (error) {
-        console.log("CLIENTS ERROR:", error);
-        return;
-      }
-
-      setClients(data || []);
+    if (error) {
+      console.log("CLIENTS ERROR:", error);
+      return;
     }
 
+    setClients(data || []);
+  }
+
+  async function addClient() {
+    const { error } = await supabase.from("clients").insert([
+      {
+        name: "New Client",
+        email: "new@email.com",
+        phone: "03000000000",
+        service: "Haircut",
+        status: "Active",
+        last_visit: "Today",
+      },
+    ]);
+
+    if (error) {
+      console.log("INSERT ERROR:", error);
+      return;
+    }
+
+    fetchClients();
+  }
+
+  useEffect(() => {
     fetchClients();
   }, []);
 
@@ -49,7 +69,10 @@ export default function ClientsPage() {
           </p>
         </div>
 
-        <button className="rounded-full bg-[#D7FF5F] px-5 py-3 text-sm font-bold text-black">
+        <button
+          onClick={addClient}
+          className="rounded-full bg-[#D7FF5F] px-5 py-3 text-sm font-bold text-black"
+        >
           Add Client
         </button>
       </div>
