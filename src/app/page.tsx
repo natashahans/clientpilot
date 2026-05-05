@@ -217,6 +217,54 @@ export default function Home() {
                 </div>
               </div>
             </div>
+
+            <div className="mt-6 rounded-[28px] bg-white p-6 shadow-sm ring-1 ring-black/5">
+              <div className="mb-6 flex items-center justify-between">
+                <div>
+                  <h3 className="text-xl font-bold">Recent Clients</h3>
+                  <p className="text-sm text-gray-500">Latest client activity and booking history</p>
+                </div>
+
+                <button className="rounded-full border border-black/10 px-4 py-2 text-sm">
+                  View all
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                {[
+                  ["Ali Khan", "Haircut Consultation", "Active", "Today"],
+                  ["Sarah Ahmed", "Follow-up Session", "Returning", "Yesterday"],
+                  ["Hamza Malik", "Service Booking", "New", "2 days ago"],
+                  ["Ayesha Noor", "Premium Package", "Active", "3 days ago"],
+                ].map(([name, service, status, date]) => (
+                  <div
+                    key={name}
+                    className="flex items-center justify-between rounded-2xl border border-black/5 bg-[#F9FAFB] p-4"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="flex h-11 w-11 items-center justify-center rounded-full bg-emerald-100 text-sm font-bold text-emerald-700">
+                        {name
+                          .split(" ")
+                          .map((word) => word[0])
+                          .join("")}
+                      </div>
+
+                      <div>
+                        <p className="font-semibold">{name}</p>
+                        <p className="text-sm text-gray-500">{service}</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-6">
+                      <span className="rounded-full bg-white px-3 py-1 text-xs font-medium text-gray-600 ring-1 ring-black/5">
+                        {status}
+                      </span>
+                      <p className="w-24 text-right text-sm text-gray-400">{date}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </section>
         </main>
       </div>
