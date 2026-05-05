@@ -90,16 +90,21 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
               {stats.map((stat, index) => (
                 <div
                   key={stat.label}
-                  className={`rounded-[28px] p-6 shadow-sm ring-1 ring-black/5 ${
+                  className={`group relative overflow-hidden rounded-[28px] p-6 transition-all duration-300 ${
                     index === 0
-                      ? "bg-[#0F5132] text-white"
-                      : "bg-white text-[#111827]"
+                      ? "bg-gradient-to-br from-emerald-600 to-emerald-800 text-white shadow-lg"
+                      : "bg-white shadow-sm ring-1 ring-black/5 hover:shadow-md"
                   }`}
                 >
+                  {/* subtle glow effect */}
+                  {index === 0 && (
+                    <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-2xl"></div>
+                  )}
+
                   <div className="flex items-start justify-between">
                     <div>
                       <p
@@ -109,16 +114,17 @@ export default function Home() {
                       >
                         {stat.label}
                       </p>
+
                       <h3 className="mt-4 text-4xl font-bold tracking-tight">
                         {stat.value}
                       </h3>
                     </div>
 
                     <div
-                      className={`flex h-10 w-10 items-center justify-center rounded-full ${
+                      className={`flex h-10 w-10 items-center justify-center rounded-full transition ${
                         index === 0
-                          ? "bg-white/15 text-white"
-                          : "bg-[#F5F6F8] text-gray-500"
+                          ? "bg-white/20"
+                          : "bg-[#F3F4F6] group-hover:bg-[#E5E7EB]"
                       }`}
                     >
                       ↗
