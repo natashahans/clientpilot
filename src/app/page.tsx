@@ -19,7 +19,7 @@ export default function Home() {
     <div className="min-h-screen bg-[#F5F6F8] text-[#111827]">
       <div className="flex min-h-screen overflow-hidden">
         {/* Sidebar */}
-        <aside className="w-72 bg-[#0B0F17] p-6 text-white">
+        <aside className="w-72 bg-[#0B0F17] p-6 text-white flex flex-col">
           <div className="mb-10">
             <div className="mb-2 flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-lg font-bold text-[#0B0F17]">
               CP
@@ -32,12 +32,21 @@ export default function Home() {
             {navItems.map((item) => (
               <button
                 key={item}
-                className={`w-full rounded-2xl px-4 py-3 text-left text-sm transition ${
+                className={`group flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-sm transition ${
                   item === "Dashboard"
                     ? "bg-white text-[#0B0F17] shadow-sm"
                     : "text-white/60 hover:bg-white/10 hover:text-white"
                 }`}
               >
+                {/* Fake icon */}
+                <span
+                  className={`h-2.5 w-2.5 rounded-full ${
+                    item === "Dashboard"
+                      ? "bg-[#0B0F17]"
+                      : "bg-white/40 group-hover:bg-white"
+                  }`}
+                ></span>
+
                 {item}
               </button>
             ))}
