@@ -1,13 +1,7 @@
 "use client";
 
-import {
-  CalendarDays,
-  Clock,
-  Sparkles,
-  TrendingUp,
-  Users,
-  Wallet,
-} from "lucide-react";
+import { useEffect, useState } from "react";
+import { CalendarDays, Clock, Sparkles, Users, Wallet } from "lucide-react";
 import {
   Area,
   AreaChart,
@@ -15,6 +9,17 @@ import {
   Tooltip,
   XAxis,
 } from "recharts";
+import { supabase } from "@/lib/supabase";
+
+type Client = {
+  id: number;
+  name: string;
+  email: string | null;
+  phone: string | null;
+  service: string | null;
+  status: string | null;
+  last_visit: string | null;
+};
 
 const revenueData = [
   { day: "Mon", value: 28 },
@@ -26,28 +31,54 @@ const revenueData = [
   { day: "Sun", value: 49 },
 ];
 
-const stats = [
-  {
-    label: "Active Clients",
-    value: "124",
-    change: "+12.4%",
-    icon: Users,
-  },
-  {
-    label: "Today’s Bookings",
-    value: "8",
-    change: "3 completed",
-    icon: CalendarDays,
-  },
-  {
-    label: "Revenue",
-    value: "$1,240",
-    change: "+18.2%",
-    icon: Wallet,
-  },
-];
-
 export default function DashboardPage() {
+  const [clients, setClients] = useState<Client[]>([]);
+
+  useEffect(() => {
+    async function fetchClients() {
+      const { data, error } = await supabase
+        .from("clients")
+        .select("*")
+        .order("id", { ascending: false });
+
+      if (error) {
+        console.log("DASHBOARD CLIENTS ERROR:", error);
+        return;
+      }
+
+      setClients(data || []);
+    }
+
+    fetchClients();
+  }, []);
+
+  const totalClients = clients.length;
+  const activeClients = clients.filter((client) => client.status === "Active").length;
+  const newClients = clients.filter((client) => client.status === "New").length;
+
+  const stats = [
+    {
+      label: "Total Clients",
+      value: totalClients.toString(),
+      change: `${activeClients} active`,
+      icon: Users,
+    },
+    {
+      label: "New Clients",
+      value: newClients.toString(),
+      change: "from database",
+      icon: CalendarDays,
+    },
+    {
+      label: "Revenue",
+      value: "$1,240",
+      change: "static for now",
+      icon: Wallet,
+    },
+  ];
+
+  const recentClients = clients.slice(0, 4);
+
   return (
     <section className="space-y-7">
       <div className="grid gap-7 xl:grid-cols-[1.5fr_0.9fr]">
@@ -69,9 +100,13 @@ export default function DashboardPage() {
             </div>
 
             <div className="hidden shrink-0 rounded-[28px] border border-white/10 bg-white/[0.06] p-5 xl:block">
-              <p className="text-sm text-white/40">Today’s focus</p>
-              <p className="mt-2 text-2xl font-black tracking-tight">8 bookings</p>
-              <p className="mt-1 text-sm text-[#D7FF5F]">3 already completed</p>
+              <p className="text-sm text-white/40">Client database</p>
+              <p className="mt-2 text-2xl font-black tracking-tight">
+                {totalClients} records
+              </p>
+              <p className="mt-1 text-sm text-[#D7FF5F]">
+                Live from Supabase
+              </p>
             </div>
           </div>
 
@@ -102,7 +137,7 @@ export default function DashboardPage() {
                 Smart Signal
               </p>
               <h2 className="mt-2 text-4xl font-black tracking-[-0.05em]">
-                Friday is your busiest day.
+                {activeClients} active clients.
               </h2>
             </div>
             <Sparkles className="h-7 w-7" />
@@ -111,7 +146,7 @@ export default function DashboardPage() {
           <div className="rounded-[28px] bg-black p-5 text-white">
             <p className="text-sm text-white/45">Suggested action</p>
             <p className="mt-2 text-xl font-bold">
-              Add 2 more available booking slots between 4 PM and 7 PM.
+              Follow up with returning clients and convert new clients into repeat bookings.
             </p>
           </div>
         </div>
@@ -211,7 +246,7 @@ export default function DashboardPage() {
               Client Pipeline
             </h3>
             <p className="mt-1 text-sm text-white/40">
-              Recent clients and booking activity.
+              Recent clients and booking activity from Supabase.
             </p>
           </div>
 
@@ -221,28 +256,26 @@ export default function DashboardPage() {
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          {[
-            ["AK", "Ali Khan", "Consultation", "Active"],
-            ["SA", "Sarah Ahmed", "Follow-up", "Returning"],
-            ["HM", "Hamza Malik", "Service Booking", "New"],
-            ["AN", "Ayesha Noor", "Premium Package", "Active"],
-          ].map(([initials, name, service, status]) => (
+          {recentClients.map((client) => (
             <div
-              key={name}
+              key={client.id}
               className="rounded-[28px] border border-white/10 bg-[#0B0B0B] p-5"
             >
               <div className="mb-6 flex items-center justify-between">
                 <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#D7FF5F] font-black text-black">
-                  {initials}
+                  {client.name
+                    .split(" ")
+                    .map((word) => word[0])
+                    .join("")}
                 </div>
 
                 <span className="rounded-full bg-white/10 px-3 py-1 text-xs text-white/50">
-                  {status}
+                  {client.status}
                 </span>
               </div>
 
-              <p className="text-lg font-bold">{name}</p>
-              <p className="mt-1 text-sm text-white/40">{service}</p>
+              <p className="text-lg font-bold">{client.name}</p>
+              <p className="mt-1 text-sm text-white/40">{client.service}</p>
             </div>
           ))}
         </div>
