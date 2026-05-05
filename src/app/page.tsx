@@ -1,3 +1,5 @@
+"use client";
+
 import {
   LayoutDashboard,
   Users,
@@ -6,6 +8,14 @@ import {
   BarChart3,
   Settings,
 } from "lucide-react";
+
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 
 const navItems = [
   { name: "Dashboard", icon: LayoutDashboard },
@@ -21,6 +31,16 @@ const stats = [
   { label: "Today's Appointments", value: "8", change: "3 completed" },
   { label: "Monthly Revenue", value: "$1,240", change: "+18% from last month" },
   { label: "Completed Bookings", value: "56", change: "92% completion rate" },
+];
+
+const chartData = [
+  { day: "M", value: 45 },
+  { day: "T", value: 70 },
+  { day: "W", value: 52 },
+  { day: "T", value: 88 },
+  { day: "F", value: 65 },
+  { day: "S", value: 95 },
+  { day: "S", value: 58 },
 ];
 
 export default function Home() {
@@ -164,27 +184,14 @@ export default function Home() {
                   </button>
                 </div>
 
-                <div className="flex h-64 items-end gap-6 relative">
-                  {/* subtle background grid */}
-                  <div className="absolute inset-0 flex flex-col justify-between opacity-10">
-                    {[...Array(5)].map((_, i) => (
-                      <div key={i} className="h-px bg-black"></div>
-                    ))}
-                  </div>
-
-                  {[45, 70, 52, 88, 65, 95, 58].map((height, index) => (
-                    <div key={index} className="flex flex-1 flex-col items-center gap-3 z-10">
-                      
-                      <div
-                        className="w-full rounded-xl bg-gradient-to-t from-emerald-700 to-emerald-400 shadow-md"
-                        style={{ height: `${height}%` }}
-                      ></div>
-
-                      <p className="text-xs text-gray-400">
-                        {["M", "T", "W", "T", "F", "S", "S"][index]}
-                      </p>
-                    </div>
-                  ))}
+                <div className="h-64">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={chartData}>
+                      <XAxis dataKey="day" stroke="#9CA3AF" />
+                      <Tooltip />
+                      <Bar dataKey="value" fill="#059669" radius={[8, 8, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
                 </div>
               </div>
 
