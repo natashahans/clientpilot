@@ -74,6 +74,9 @@ export default function DashboardLayout({
               </div>
 
               <div className="flex items-center gap-3">
+                <button className="rounded-full bg-[#D7FF5F] px-5 py-3 text-sm font-bold text-black transition hover:bg-[#c8f24f]">
+                New Booking
+                </button>
                 <button className="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/[0.06]">
                   <Bell className="h-4 w-4 text-white/70" />
                 </button>

@@ -51,44 +51,47 @@ export default function DashboardPage() {
   return (
     <section className="space-y-7">
       <div className="grid gap-7 xl:grid-cols-[1.5fr_0.9fr]">
-        <div className="relative overflow-hidden rounded-[36px] border border-white/10 bg-[#111111] p-8 shadow-2xl shadow-black/40">
-          <div className="absolute right-0 top-0 h-64 w-64 rounded-full bg-[#D7FF5F]/20 blur-[90px]" />
-          <div className="absolute bottom-0 left-20 h-56 w-56 rounded-full bg-[#9D7CFF]/20 blur-[90px]" />
+        <div className="relative">
+          <div className="mb-10 flex items-start justify-between gap-8">
+            <div>
+              <p className="mb-3 text-sm font-semibold uppercase tracking-[0.3em] text-[#D7FF5F]">
+                Business Overview
+              </p>
 
-          <div className="relative">
-            <div className="mb-10 flex items-center justify-between">
-              <div>
-                <p className="mb-3 text-sm font-semibold uppercase tracking-[0.3em] text-[#D7FF5F]">
-                  Command Center
-                </p>
-                <h1 className="max-w-3xl text-6xl font-black leading-[0.95] tracking-[-0.06em]">
-                  Manage your clients, bookings and growth in one place.
-                </h1>
-              </div>
+              <h1 className="max-w-2xl text-5xl font-black leading-[0.98] tracking-[-0.055em]">
+                Today’s client operations, bookings and growth signals.
+              </h1>
 
-              <button className="rounded-full bg-[#D7FF5F] px-6 py-3 text-sm font-bold text-black shadow-[0_0_40px_rgba(215,255,95,0.35)]">
-                New Booking
-              </button>
+              <p className="mt-5 max-w-xl text-base leading-7 text-white/45">
+                Monitor appointments, track client activity and spot the busiest parts
+                of your service business from one focused workspace.
+              </p>
             </div>
 
-            <div className="grid gap-4 md:grid-cols-3">
-              {stats.map(({ label, value, change, icon: Icon }) => (
-                <div
-                  key={label}
-                  className="rounded-[28px] border border-white/10 bg-white/[0.06] p-5 backdrop-blur-xl"
-                >
-                  <div className="mb-6 flex items-center justify-between">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10">
-                      <Icon className="h-5 w-5 text-[#D7FF5F]" />
-                    </div>
-                    <span className="text-xs text-white/40">{change}</span>
+            <div className="hidden shrink-0 rounded-[28px] border border-white/10 bg-white/[0.06] p-5 xl:block">
+              <p className="text-sm text-white/40">Today’s focus</p>
+              <p className="mt-2 text-2xl font-black tracking-tight">8 bookings</p>
+              <p className="mt-1 text-sm text-[#D7FF5F]">3 already completed</p>
+            </div>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-3">
+            {stats.map(({ label, value, change, icon: Icon }) => (
+              <div
+                key={label}
+                className="rounded-[28px] border border-white/10 bg-white/[0.06] p-5 backdrop-blur-xl transition hover:bg-white/[0.09]"
+              >
+                <div className="mb-6 flex items-center justify-between">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10">
+                    <Icon className="h-5 w-5 text-[#D7FF5F]" />
                   </div>
-
-                  <p className="text-sm text-white/40">{label}</p>
-                  <h2 className="mt-2 text-4xl font-black tracking-tight">{value}</h2>
+                  <span className="text-xs text-white/40">{change}</span>
                 </div>
-              ))}
-            </div>
+
+                <p className="text-sm text-white/40">{label}</p>
+                <h2 className="mt-2 text-4xl font-black tracking-tight">{value}</h2>
+              </div>
+            ))}
           </div>
         </div>
 
