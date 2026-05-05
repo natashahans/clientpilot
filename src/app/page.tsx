@@ -1,10 +1,19 @@
+import {
+  LayoutDashboard,
+  Users,
+  Calendar,
+  Briefcase,
+  BarChart3,
+  Settings,
+} from "lucide-react";
+
 const navItems = [
-  "Dashboard",
-  "Clients",
-  "Appointments",
-  "Services",
-  "Analytics",
-  "Settings",
+  { name: "Dashboard", icon: LayoutDashboard },
+  { name: "Clients", icon: Users },
+  { name: "Appointments", icon: Calendar },
+  { name: "Services", icon: Briefcase },
+  { name: "Analytics", icon: BarChart3 },
+  { name: "Settings", icon: Settings },
 ];
 
 const stats = [
@@ -29,25 +38,17 @@ export default function Home() {
           </div>
 
           <nav className="space-y-2">
-            {navItems.map((item) => (
+            {navItems.map(({ name, icon: Icon }) => (
               <button
-                key={item}
+                key={name}
                 className={`group flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-sm transition ${
-                  item === "Dashboard"
+                  name === "Dashboard"
                     ? "bg-white text-[#0B0F17] shadow-sm"
                     : "text-white/60 hover:bg-white/10 hover:text-white"
                 }`}
               >
-                {/* Fake icon */}
-                <span
-                  className={`h-2.5 w-2.5 rounded-full ${
-                    item === "Dashboard"
-                      ? "bg-[#0B0F17]"
-                      : "bg-white/40 group-hover:bg-white"
-                  }`}
-                ></span>
-
-                {item}
+                <Icon className="h-4 w-4" />
+                {name}
               </button>
             ))}
           </nav>
