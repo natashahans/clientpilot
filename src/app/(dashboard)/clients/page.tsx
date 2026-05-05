@@ -72,6 +72,20 @@ export default function ClientsPage() {
     fetchClients();
   }
 
+  async function deleteClient(id: number) {
+  const { error } = await supabase
+    .from("clients")
+    .delete()
+    .eq("id", id);
+
+  if (error) {
+    console.log("DELETE ERROR:", error);
+    return;
+  }
+
+  fetchClients();
+}
+
   useEffect(() => {
     fetchClients();
   }, []);
@@ -140,9 +154,16 @@ export default function ClientsPage() {
                   {client.status}
                 </span>
 
-                <p className="text-right text-sm text-white/40">
-                  {client.last_visit}
-                </p>
+                <div className="flex items-center justify-end gap-4">
+                  <p className="text-sm text-white/40">{client.last_visit}</p>
+
+                  <button
+                    onClick={() => deleteClient(client.id)}
+                    className="text-xs text-red-400 hover:text-red-300"
+                  >
+                    Delete
+                  </button>
+                </div>
               </div>
             ))}
           </div>
