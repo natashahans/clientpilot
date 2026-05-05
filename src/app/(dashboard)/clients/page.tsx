@@ -1,11 +1,39 @@
-const clients = [
-  ["AK", "Ali Khan", "ali.khan@email.com", "Haircut Consultation", "Active", "Today"],
-  ["SA", "Sarah Ahmed", "sarah@email.com", "Follow-up Session", "Returning", "Yesterday"],
-  ["HM", "Hamza Malik", "hamza@email.com", "Premium Service", "New", "2 days ago"],
-  ["AN", "Ayesha Noor", "ayesha@email.com", "Service Package", "Active", "3 days ago"],
-];
+"use client";
+
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase";
+
+type Client = {
+  id: number;
+  name: string;
+  email: string | null;
+  phone: string | null;
+  service: string | null;
+  status: string | null;
+  last_visit: string | null;
+};
 
 export default function ClientsPage() {
+  const [clients, setClients] = useState<Client[]>([]);
+
+  useEffect(() => {
+    async function fetchClients() {
+      const { data, error } = await supabase
+        .from("clients")
+        .select("*")
+        .order("id", { ascending: true });
+
+      if (error) {
+        console.log("CLIENTS ERROR:", error);
+        return;
+      }
+
+      setClients(data || []);
+    }
+
+    fetchClients();
+  }, []);
+
   return (
     <section className="space-y-7">
       <div className="flex items-end justify-between">
@@ -31,7 +59,7 @@ export default function ClientsPage() {
           <div>
             <h2 className="text-2xl font-black">Client Directory</h2>
             <p className="mt-1 text-sm text-white/40">
-              Latest client activity across your business.
+              Live client data fetched from Supabase.
             </p>
           </div>
 
@@ -41,28 +69,34 @@ export default function ClientsPage() {
         </div>
 
         <div className="space-y-3">
-          {clients.map(([initials, name, email, service, status, lastVisit]) => (
+          {clients.map((client) => (
             <div
-              key={email}
+              key={client.id}
               className="grid grid-cols-[1.5fr_1.5fr_1fr_0.8fr] items-center rounded-[26px] border border-white/10 bg-[#0B0B0B] p-5 transition hover:bg-white/[0.05]"
             >
               <div className="flex items-center gap-4">
                 <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#D7FF5F] font-black text-black">
-                  {initials}
+                  {client.name
+                    .split(" ")
+                    .map((word) => word[0])
+                    .join("")}
                 </div>
+
                 <div>
-                  <p className="font-bold">{name}</p>
-                  <p className="text-sm text-white/40">{email}</p>
+                  <p className="font-bold">{client.name}</p>
+                  <p className="text-sm text-white/40">{client.email}</p>
                 </div>
               </div>
 
-              <p className="text-white/70">{service}</p>
+              <p className="text-white/70">{client.service}</p>
 
               <span className="w-fit rounded-full bg-white/10 px-3 py-1 text-xs text-white/60">
-                {status}
+                {client.status}
               </span>
 
-              <p className="text-right text-sm text-white/40">{lastVisit}</p>
+              <p className="text-right text-sm text-white/40">
+                {client.last_visit}
+              </p>
             </div>
           ))}
         </div>

@@ -16,9 +16,6 @@ import {
   XAxis,
 } from "recharts";
 
-import { supabase } from "@/lib/supabase";
-import { useEffect } from "react";
-
 const revenueData = [
   { day: "Mon", value: 28 },
   { day: "Tue", value: 44 },
@@ -51,25 +48,6 @@ const stats = [
 ];
 
 export default function DashboardPage() {
-  useEffect(() => {
-
-  async function test() {
-
-    const { data, error } = await supabase
-
-      .from("test")
-
-      .select("*");
-
-    console.log("DATA:", data);
-
-    console.log("ERROR:", error);
-
-  }
-
-  test();
-
-}, []);
   return (
     <section className="space-y-7">
       <div className="grid gap-7 xl:grid-cols-[1.5fr_0.9fr]">
