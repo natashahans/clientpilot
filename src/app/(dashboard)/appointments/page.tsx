@@ -138,33 +138,28 @@ export default function AppointmentsPage() {
       <section className="space-y-7">
         <div className="flex items-end justify-between">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[#D7FF5F]">
-              Schedule
-            </p>
-            <h1 className="mt-2 text-5xl font-black tracking-[-0.055em]">
-              Appointments
-            </h1>
-            <p className="mt-3 text-white/45">
+            <p className="app-kicker">Schedule</p>
+            <h1 className="app-page-title mt-2">Appointments</h1>
+            <p className="app-muted mt-3">
               Track today’s bookings, session status and client schedule.
             </p>
           </div>
 
-          <button
-            onClick={openAdd}
-            className="rounded-full bg-[#D7FF5F] px-5 py-3 text-sm font-bold text-black"
-          >
+          <button onClick={openAdd} className="app-button-primary px-5 py-3">
             New Appointment
           </button>
         </div>
 
         <div className="grid gap-6 xl:grid-cols-[0.9fr_1.4fr]">
-          <div className="rounded-[36px] border border-white/10 bg-[#D7FF5F] p-7 text-black">
+          <div className="app-accent-card p-7">
             <p className="text-sm font-bold uppercase tracking-[0.25em] text-black/50">
               Today
             </p>
+
             <h2 className="mt-3 text-6xl font-black tracking-[-0.06em]">
               {appointments.length}
             </h2>
+
             <p className="mt-2 text-lg font-bold">appointments scheduled</p>
 
             <div className="mt-8 rounded-[28px] bg-black p-5 text-white">
@@ -173,10 +168,10 @@ export default function AppointmentsPage() {
             </div>
           </div>
 
-          <div className="rounded-[36px] border border-white/10 bg-white/[0.06] p-6 shadow-2xl shadow-black/30">
+          <div className="app-card p-6">
             <div className="mb-6">
-              <h2 className="text-2xl font-black">Today’s Timeline</h2>
-              <p className="mt-1 text-sm text-white/40">
+              <h2 className="app-section-title">Today’s Timeline</h2>
+              <p className="app-muted mt-1 text-sm">
                 Live overview of upcoming and active appointments.
               </p>
 
@@ -184,7 +179,7 @@ export default function AppointmentsPage() {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Search appointments..."
-                className="mt-4 w-full rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm text-white outline-none placeholder:text-white/40"
+                className="app-input mt-4 w-full rounded-full px-5 py-3 text-sm"
               />
             </div>
 
@@ -192,18 +187,18 @@ export default function AppointmentsPage() {
               {filteredAppointments.map((appointment) => (
                 <div
                   key={appointment.id}
-                  className="grid grid-cols-[0.5fr_1.1fr_1.1fr_0.8fr_0.7fr] items-center rounded-[26px] border border-white/10 bg-[#0B0B0B] p-5"
+                  className="app-card-dark grid grid-cols-[0.5fr_1.1fr_1.1fr_0.8fr_0.7fr] items-center px-5 py-4"
                 >
-                  <p className="font-black text-[#D7FF5F]">
+                  <p className="font-black text-[var(--app-accent)]">
                     {appointment.time}
                   </p>
 
                   <div>
                     <p className="font-bold">{appointment.client_name}</p>
-                    <p className="text-sm text-white/40">Client</p>
+                    <p className="app-muted text-sm">Client</p>
                   </div>
 
-                  <p className="text-white/70">{appointment.service}</p>
+                  <p className="app-muted">{appointment.service}</p>
 
                   <span className="w-fit rounded-full bg-white/10 px-3 py-1 text-xs text-white/60">
                     {appointment.status}
@@ -212,14 +207,14 @@ export default function AppointmentsPage() {
                   <div className="flex justify-end gap-3">
                     <button
                       onClick={() => openEdit(appointment)}
-                      className="text-xs text-blue-400 hover:text-blue-300"
+                      className="text-xs font-semibold text-blue-400 hover:text-blue-300"
                     >
                       Edit
                     </button>
 
                     <button
                       onClick={() => deleteAppointment(appointment.id)}
-                      className="text-xs text-red-400 hover:text-red-300"
+                      className="text-xs font-semibold text-red-400 hover:text-red-300"
                     >
                       Delete
                     </button>
@@ -233,15 +228,17 @@ export default function AppointmentsPage() {
 
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 backdrop-blur-sm">
-          <div className="w-full max-w-xl rounded-[36px] border border-white/10 bg-[#111111] p-7 shadow-2xl shadow-black/50">
+          <div className="app-card w-full max-w-xl p-7">
             <div className="mb-6">
-              <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[#D7FF5F]">
+              <p className="app-kicker">
                 {editingAppointment ? "Edit Booking" : "New Booking"}
               </p>
-              <h2 className="mt-2 text-3xl font-black tracking-[-0.04em]">
+
+              <h2 className="app-section-title mt-2">
                 {editingAppointment ? "Edit Appointment" : "Add Appointment"}
               </h2>
-              <p className="mt-2 text-sm text-white/40">
+
+              <p className="app-muted mt-2 text-sm">
                 {editingAppointment
                   ? "Update this appointment record in Supabase."
                   : "Create a new appointment in your Supabase database."}
@@ -255,33 +252,27 @@ export default function AppointmentsPage() {
                   setForm({ ...form, client_name: e.target.value })
                 }
                 placeholder="Client name"
-                className="rounded-2xl border border-white/10 bg-black px-4 py-3 text-white outline-none placeholder:text-white/30"
+                className="app-input px-4 py-3"
               />
 
               <input
                 value={form.service}
-                onChange={(e) =>
-                  setForm({ ...form, service: e.target.value })
-                }
+                onChange={(e) => setForm({ ...form, service: e.target.value })}
                 placeholder="Service"
-                className="rounded-2xl border border-white/10 bg-black px-4 py-3 text-white outline-none placeholder:text-white/30"
+                className="app-input px-4 py-3"
               />
 
               <input
                 value={form.time}
-                onChange={(e) =>
-                  setForm({ ...form, time: e.target.value })
-                }
+                onChange={(e) => setForm({ ...form, time: e.target.value })}
                 placeholder="Time e.g. 14:30"
-                className="rounded-2xl border border-white/10 bg-black px-4 py-3 text-white outline-none placeholder:text-white/30"
+                className="app-input px-4 py-3"
               />
 
               <select
                 value={form.status}
-                onChange={(e) =>
-                  setForm({ ...form, status: e.target.value })
-                }
-                className="rounded-2xl border border-white/10 bg-black px-4 py-3 text-white outline-none"
+                onChange={(e) => setForm({ ...form, status: e.target.value })}
+                className="app-input px-4 py-3"
               >
                 <option>Confirmed</option>
                 <option>In Progress</option>
@@ -296,14 +287,14 @@ export default function AppointmentsPage() {
                   setShowModal(false);
                   setEditingAppointment(null);
                 }}
-                className="rounded-full border border-white/10 px-5 py-3 text-sm font-bold text-white/60"
+                className="app-button-secondary px-5 py-3"
               >
                 Cancel
               </button>
 
               <button
                 onClick={addOrUpdateAppointment}
-                className="rounded-full bg-[#D7FF5F] px-5 py-3 text-sm font-bold text-black"
+                className="app-button-primary px-5 py-3"
               >
                 {editingAppointment ? "Update Appointment" : "Save Appointment"}
               </button>
