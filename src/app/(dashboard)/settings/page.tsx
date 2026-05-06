@@ -90,21 +90,17 @@ export default function SettingsPage() {
   return (
     <section className="space-y-7">
       <div>
-        <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[#D7FF5F]">
-          Workspace
-        </p>
+        <p className="app-kicker">Workspace</p>
 
-        <h1 className="mt-2 text-5xl font-black tracking-[-0.055em]">
-          Settings
-        </h1>
+        <h1 className="app-page-title mt-2">Settings</h1>
 
-        <p className="mt-3 text-white/45">
+        <p className="app-muted mt-3">
           Manage business details, workspace preferences and account configuration.
         </p>
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[0.9fr_1.4fr]">
-        <div className="rounded-[32px] border border-white/10 bg-[#D7FF5F] p-6 text-black">
+        <div className="app-accent-card p-6">
           <p className="text-xs font-black uppercase tracking-[0.3em] text-black/45">
             Workspace
           </p>
@@ -125,16 +121,16 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        <div className="rounded-[32px] border border-white/10 bg-white/[0.06] p-6 shadow-2xl shadow-black/30">
+        <div className="app-card p-6">
           <div className="mb-6 flex items-start justify-between gap-4">
             <div>
-              <h2 className="text-2xl font-black">Business Profile</h2>
-              <p className="mt-1 text-sm text-white/40">
+              <h2 className="app-section-title">Business Profile</h2>
+              <p className="app-muted mt-1 text-sm">
                 These details are stored live in Supabase.
               </p>
             </div>
 
-            <span className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold text-white/45">
+            <span className="app-button-secondary px-4 py-2">
               Live data
             </span>
           </div>
@@ -151,9 +147,9 @@ export default function SettingsPage() {
                 ].map(([label, value]) => (
                   <div
                     key={label}
-                    className="flex items-center justify-between rounded-[24px] border border-white/10 bg-[#0B0B0B] px-5 py-4"
+                    className="app-card-dark flex items-center justify-between px-5 py-4"
                   >
-                    <p className="text-sm text-white/40">{label}</p>
+                    <p className="app-muted text-sm">{label}</p>
                     <p className="text-right font-bold">{value || "Not set"}</p>
                   </div>
                 ))}
@@ -161,7 +157,7 @@ export default function SettingsPage() {
 
               <button
                 onClick={() => setIsEditing(true)}
-                className="mt-6 w-full rounded-full bg-[#D7FF5F] py-3 text-sm font-bold text-black transition hover:bg-[#c8f24f]"
+                className="app-button-primary mt-6 w-full py-3"
               >
                 Edit Workspace
               </button>
@@ -179,7 +175,7 @@ export default function SettingsPage() {
                       setForm({ ...form, business_name: e.target.value })
                     }
                     placeholder="Business name"
-                    className="w-full rounded-2xl border border-white/10 bg-black px-4 py-3 text-white outline-none transition placeholder:text-white/25 focus:border-[#D7FF5F]/60"
+                    className="app-input w-full px-4 py-3"
                   />
                 </label>
 
@@ -193,7 +189,7 @@ export default function SettingsPage() {
                       setForm({ ...form, business_type: e.target.value })
                     }
                     placeholder="Service Business"
-                    className="w-full rounded-2xl border border-white/10 bg-black px-4 py-3 text-white outline-none transition placeholder:text-white/25 focus:border-[#D7FF5F]/60"
+                    className="app-input w-full px-4 py-3"
                   />
                 </label>
 
@@ -207,7 +203,7 @@ export default function SettingsPage() {
                       setForm({ ...form, owner_name: e.target.value })
                     }
                     placeholder="Owner name"
-                    className="w-full rounded-2xl border border-white/10 bg-black px-4 py-3 text-white outline-none transition placeholder:text-white/25 focus:border-[#D7FF5F]/60"
+                    className="app-input w-full px-4 py-3"
                   />
                 </label>
 
@@ -221,7 +217,7 @@ export default function SettingsPage() {
                       setForm({ ...form, currency: e.target.value })
                     }
                     placeholder="USD"
-                    className="w-full rounded-2xl border border-white/10 bg-black px-4 py-3 text-white outline-none transition placeholder:text-white/25 focus:border-[#D7FF5F]/60"
+                    className="app-input w-full px-4 py-3"
                   />
                 </label>
 
@@ -235,7 +231,7 @@ export default function SettingsPage() {
                       setForm({ ...form, timezone: e.target.value })
                     }
                     placeholder="Asia/Karachi"
-                    className="w-full rounded-2xl border border-white/10 bg-black px-4 py-3 text-white outline-none transition placeholder:text-white/25 focus:border-[#D7FF5F]/60"
+                    className="app-input w-full px-4 py-3"
                   />
                 </label>
               </div>
@@ -243,14 +239,14 @@ export default function SettingsPage() {
               <div className="mt-6 flex gap-3">
                 <button
                   onClick={cancelEditing}
-                  className="flex-1 rounded-full border border-white/10 bg-white/5 py-3 text-sm font-bold text-white/60 transition hover:bg-white/10 hover:text-white"
+                  className="app-button-secondary flex-1 py-3"
                 >
                   Cancel
                 </button>
 
                 <button
                   onClick={updateSettings}
-                  className="flex-1 rounded-full bg-[#D7FF5F] py-3 text-sm font-bold text-black transition hover:bg-[#c8f24f]"
+                  className="app-button-primary flex-1 py-3"
                 >
                   Save Changes
                 </button>
