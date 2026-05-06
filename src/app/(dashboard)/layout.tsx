@@ -225,13 +225,20 @@ export default function DashboardLayout({
                   <Bell className="h-4 w-4 text-white/70" />
                 </button>
 
-                <div className="flex items-center gap-3 rounded-full border border-white/10 bg-white/[0.06] px-3 py-2">
+                <button
+                  onClick={async () => {
+                    await supabase.auth.signOut();
+                    window.location.href = "/login";
+                  }}
+                  className="flex items-center gap-3 rounded-full border border-white/10 bg-white/[0.06] px-3 py-2 transition hover:bg-white/10"
+                >
                   <div className="h-9 w-9 rounded-full bg-gradient-to-br from-[#D7FF5F] to-[#9D7CFF]" />
-                  <div>
+
+                  <div className="text-left">
                     <p className="text-sm font-semibold">Natasha</p>
-                    <p className="text-xs text-white/40">Owner</p>
+                    <p className="text-xs text-white/40">Logout</p>
                   </div>
-                </div>
+                </button>
               </div>
             </div>
           </div>
