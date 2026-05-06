@@ -1,11 +1,37 @@
-const appointments = [
-  ["10:00", "Ali Khan", "Haircut Consultation", "Confirmed"],
-  ["12:30", "Sarah Ahmed", "Follow-up Session", "In Progress"],
-  ["15:00", "Hamza Malik", "Premium Service", "Pending"],
-  ["17:30", "Ayesha Noor", "Service Package", "Confirmed"],
-];
+"use client";
+
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase";
+
+type Appointment = {
+  id: number;
+  client_name: string;
+  service: string;
+  time: string;
+  status: string | null;
+};
 
 export default function AppointmentsPage() {
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
+
+  async function fetchAppointments() {
+    const { data, error } = await supabase
+      .from("appointments")
+      .select("*")
+      .order("id", { ascending: true });
+
+    if (error) {
+      console.log("APPOINTMENTS ERROR:", error);
+      return;
+    }
+
+    setAppointments(data || []);
+  }
+
+  useEffect(() => {
+    fetchAppointments();
+  }, []);
+
   return (
     <section className="space-y-7">
       <div className="flex items-end justify-between">
@@ -31,12 +57,14 @@ export default function AppointmentsPage() {
           <p className="text-sm font-bold uppercase tracking-[0.25em] text-black/50">
             Today
           </p>
-          <h2 className="mt-3 text-6xl font-black tracking-[-0.06em]">8</h2>
+          <h2 className="mt-3 text-6xl font-black tracking-[-0.06em]">
+            {appointments.length}
+          </h2>
           <p className="mt-2 text-lg font-bold">appointments scheduled</p>
 
           <div className="mt-8 rounded-[28px] bg-black p-5 text-white">
-            <p className="text-sm text-white/45">Peak window</p>
-            <p className="mt-2 text-2xl font-black">4 PM — 7 PM</p>
+            <p className="text-sm text-white/45">Data source</p>
+            <p className="mt-2 text-2xl font-black">Live from Supabase</p>
           </div>
         </div>
 
@@ -49,22 +77,24 @@ export default function AppointmentsPage() {
           </div>
 
           <div className="space-y-4">
-            {appointments.map(([time, client, service, status]) => (
+            {appointments.map((appointment) => (
               <div
-                key={`${time}-${client}`}
+                key={appointment.id}
                 className="grid grid-cols-[0.5fr_1.2fr_1.2fr_0.8fr] items-center rounded-[26px] border border-white/10 bg-[#0B0B0B] p-5"
               >
-                <p className="font-black text-[#D7FF5F]">{time}</p>
+                <p className="font-black text-[#D7FF5F]">
+                  {appointment.time}
+                </p>
 
                 <div>
-                  <p className="font-bold">{client}</p>
+                  <p className="font-bold">{appointment.client_name}</p>
                   <p className="text-sm text-white/40">Client</p>
                 </div>
 
-                <p className="text-white/70">{service}</p>
+                <p className="text-white/70">{appointment.service}</p>
 
                 <span className="w-fit rounded-full bg-white/10 px-3 py-1 text-xs text-white/60">
-                  {status}
+                  {appointment.status}
                 </span>
               </div>
             ))}
