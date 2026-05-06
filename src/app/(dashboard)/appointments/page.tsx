@@ -14,6 +14,7 @@ type Appointment = {
 export default function AppointmentsPage() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [showModal, setShowModal] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
   const [editingAppointment, setEditingAppointment] =
     useState<Appointment | null>(null);
 
@@ -126,6 +127,12 @@ export default function AppointmentsPage() {
     fetchAppointments();
   }, []);
 
+  const filteredAppointments = appointments.filter((appointment) =>
+    `${appointment.client_name} ${appointment.service} ${appointment.time} ${appointment.status}`
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase())
+  );
+
   return (
     <>
       <section className="space-y-7">
@@ -172,10 +179,17 @@ export default function AppointmentsPage() {
               <p className="mt-1 text-sm text-white/40">
                 Live overview of upcoming and active appointments.
               </p>
+
+              <input
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search appointments..."
+                className="mt-4 w-full rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm text-white outline-none placeholder:text-white/40"
+              />
             </div>
 
             <div className="space-y-4">
-              {appointments.map((appointment) => (
+              {filteredAppointments.map((appointment) => (
                 <div
                   key={appointment.id}
                   className="grid grid-cols-[0.5fr_1.1fr_1.1fr_0.8fr_0.7fr] items-center rounded-[26px] border border-white/10 bg-[#0B0B0B] p-5"
