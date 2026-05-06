@@ -85,10 +85,7 @@ export default function ServicesPage() {
   }
 
   async function deleteService(id: number) {
-    const { error } = await supabase
-      .from("services")
-      .delete()
-      .eq("id", id);
+    const { error } = await supabase.from("services").delete().eq("id", id);
 
     if (error) {
       console.log("DELETE SERVICE ERROR:", error);
@@ -135,30 +132,23 @@ export default function ServicesPage() {
       <section className="space-y-7">
         <div className="flex items-end justify-between">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[#D7FF5F]">
-              Catalogue
-            </p>
-            <h1 className="mt-2 text-5xl font-black tracking-[-0.055em]">
-              Services
-            </h1>
-            <p className="mt-3 text-white/45">
+            <p className="app-kicker">Catalogue</p>
+            <h1 className="app-page-title mt-2">Services</h1>
+            <p className="app-muted mt-3">
               Manage service offers, pricing, duration and performance labels.
             </p>
           </div>
 
-          <button
-            onClick={openAdd}
-            className="rounded-full bg-[#D7FF5F] px-5 py-3 text-sm font-bold text-black"
-          >
+          <button onClick={openAdd} className="app-button-primary px-5 py-3">
             Add Service
           </button>
         </div>
 
-        <div className="rounded-[36px] border border-white/10 bg-white/[0.06] p-6 shadow-2xl shadow-black/30">
-          <div className="mb-6 flex items-center justify-between">
+        <div className="app-card p-6">
+          <div className="mb-6 flex items-center justify-between gap-4">
             <div>
-              <h2 className="text-2xl font-black">Service Catalogue</h2>
-              <p className="mt-1 text-sm text-white/40">
+              <h2 className="app-section-title">Service Catalogue</h2>
+              <p className="app-muted mt-1 text-sm">
                 Live services fetched from Supabase.
               </p>
             </div>
@@ -167,20 +157,18 @@ export default function ServicesPage() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search services..."
-              className="rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm text-white outline-none placeholder:text-white/40"
+              className="app-input rounded-full px-5 py-3 text-sm"
             />
           </div>
 
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
             {filteredServices.map((service) => (
-              <div
-                key={service.id}
-                className="rounded-[32px] border border-white/10 bg-[#0B0B0B] p-6 shadow-2xl shadow-black/30 transition hover:bg-white/[0.06]"
-              >
+              <div key={service.id} className="app-card-dark p-6 transition hover:bg-white/[0.06]">
                 <div className="mb-10 flex items-center justify-between">
-                  <span className="rounded-full bg-[#D7FF5F] px-3 py-1 text-xs font-bold text-black">
+                  <span className="rounded-full bg-[var(--app-accent)] px-3 py-1 text-xs font-bold text-[var(--app-accent-text)]">
                     {service.tag}
                   </span>
+
                   <span className="text-sm text-white/35">
                     {service.duration}
                   </span>
@@ -190,14 +178,14 @@ export default function ServicesPage() {
                   {service.name}
                 </h2>
 
-                <p className="mt-3 text-5xl font-black tracking-[-0.06em] text-[#D7FF5F]">
+                <p className="mt-3 text-5xl font-black tracking-[-0.06em] text-[var(--app-accent)]">
                   {service.price}
                 </p>
 
                 <div className="mt-8 flex gap-3">
                   <button
                     onClick={() => openEdit(service)}
-                    className="flex-1 rounded-full border border-white/10 bg-white/5 py-3 text-sm font-semibold text-white/70 transition hover:bg-white/10"
+                    className="app-button-secondary flex-1 py-3"
                   >
                     Edit
                   </button>
@@ -217,15 +205,17 @@ export default function ServicesPage() {
 
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 backdrop-blur-sm">
-          <div className="w-full max-w-xl rounded-[36px] border border-white/10 bg-[#111111] p-7 shadow-2xl shadow-black/50">
+          <div className="app-card w-full max-w-xl p-7">
             <div className="mb-6">
-              <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[#D7FF5F]">
+              <p className="app-kicker">
                 {editingService ? "Edit Offer" : "New Offer"}
               </p>
-              <h2 className="mt-2 text-3xl font-black tracking-[-0.04em]">
+
+              <h2 className="app-section-title mt-2">
                 {editingService ? "Edit Service" : "Add Service"}
               </h2>
-              <p className="mt-2 text-sm text-white/40">
+
+              <p className="app-muted mt-2 text-sm">
                 {editingService
                   ? "Update this service record in Supabase."
                   : "Create a new service offer in your Supabase database."}
@@ -237,14 +227,14 @@ export default function ServicesPage() {
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
                 placeholder="Service name"
-                className="rounded-2xl border border-white/10 bg-black px-4 py-3 text-white outline-none placeholder:text-white/30"
+                className="app-input px-4 py-3"
               />
 
               <input
                 value={form.price}
                 onChange={(e) => setForm({ ...form, price: e.target.value })}
                 placeholder="Price e.g. $40"
-                className="rounded-2xl border border-white/10 bg-black px-4 py-3 text-white outline-none placeholder:text-white/30"
+                className="app-input px-4 py-3"
               />
 
               <input
@@ -253,13 +243,13 @@ export default function ServicesPage() {
                   setForm({ ...form, duration: e.target.value })
                 }
                 placeholder="Duration e.g. 45 min"
-                className="rounded-2xl border border-white/10 bg-black px-4 py-3 text-white outline-none placeholder:text-white/30"
+                className="app-input px-4 py-3"
               />
 
               <select
                 value={form.tag}
                 onChange={(e) => setForm({ ...form, tag: e.target.value })}
-                className="rounded-2xl border border-white/10 bg-black px-4 py-3 text-white outline-none"
+                className="app-input px-4 py-3"
               >
                 <option>Active</option>
                 <option>Popular</option>
@@ -275,14 +265,14 @@ export default function ServicesPage() {
                   setShowModal(false);
                   setEditingService(null);
                 }}
-                className="rounded-full border border-white/10 px-5 py-3 text-sm font-bold text-white/60"
+                className="app-button-secondary px-5 py-3"
               >
                 Cancel
               </button>
 
               <button
                 onClick={addOrUpdateService}
-                className="rounded-full bg-[#D7FF5F] px-5 py-3 text-sm font-bold text-black"
+                className="app-button-primary px-5 py-3"
               >
                 {editingService ? "Update Service" : "Save Service"}
               </button>
