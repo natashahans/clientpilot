@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   AreaChart,
   Area,
@@ -26,20 +26,45 @@ type Service = {
   tag: string | null;
 };
 
-const chartData = [
-  { day: "Mon", value: 40 },
-  { day: "Tue", value: 55 },
-  { day: "Wed", value: 48 },
-  { day: "Thu", value: 70 },
-  { day: "Fri", value: 62 },
-  { day: "Sat", value: 85 },
-  { day: "Sun", value: 60 },
-];
+type ChartRange = "today" | "7days" | "30days";
+
+const chartDataByRange = {
+  today: [
+    { label: "9 AM", bookings: 1 },
+    { label: "11 AM", bookings: 2 },
+    { label: "1 PM", bookings: 1 },
+    { label: "3 PM", bookings: 3 },
+    { label: "5 PM", bookings: 2 },
+    { label: "7 PM", bookings: 1 },
+  ],
+  "7days": [
+    { label: "Mon", bookings: 40 },
+    { label: "Tue", bookings: 55 },
+    { label: "Wed", bookings: 48 },
+    { label: "Thu", bookings: 70 },
+    { label: "Fri", bookings: 62 },
+    { label: "Sat", bookings: 85 },
+    { label: "Sun", bookings: 60 },
+  ],
+  "30days": [
+    { label: "Week 1", bookings: 150 },
+    { label: "Week 2", bookings: 178 },
+    { label: "Week 3", bookings: 164 },
+    { label: "Week 4", bookings: 205 },
+  ],
+};
+
+const rangeLabels = {
+  today: "Today",
+  "7days": "Last 7 days",
+  "30days": "Last 30 days",
+};
 
 export default function AnalyticsPage() {
   const [clients, setClients] = useState<Client[]>([]);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [services, setServices] = useState<Service[]>([]);
+  const [chartRange, setChartRange] = useState<ChartRange>("7days");
 
   useEffect(() => {
     async function fetchAnalyticsData() {
@@ -73,6 +98,13 @@ export default function AnalyticsPage() {
     services.find((service) => service.tag === "High Value")?.name ||
     services[0]?.name ||
     "No service yet";
+
+  const chartData = chartDataByRange[chartRange];
+
+  const totalBookingsInChart = useMemo(
+    () => chartData.reduce((sum, item) => sum + item.bookings, 0),
+    [chartData]
+  );
 
   return (
     <section className="space-y-7">
@@ -118,24 +150,33 @@ export default function AnalyticsPage() {
 
       <div className="grid gap-6 xl:grid-cols-[1.5fr_1fr]">
         <div className="app-card p-6">
-          <div className="mb-6 flex items-center justify-between">
+          <div className="mb-6 flex items-center justify-between gap-4">
             <div>
               <h2 className="app-section-title">Booking Performance</h2>
               <p className="app-muted text-sm">
-                Visual trend placeholder for weekly appointment movement.
+                Estimated appointment demand for {rangeLabels[chartRange].toLowerCase()}.
+              </p>
+              <p className="mt-2 text-sm font-bold text-[var(--app-accent)]">
+                {totalBookingsInChart} total bookings shown
               </p>
             </div>
 
-            <span className="app-button-secondary px-4 py-2">
-              Last 7 days
-            </span>
+            <select
+              value={chartRange}
+              onChange={(e) => setChartRange(e.target.value as ChartRange)}
+              className="app-input rounded-full px-4 py-2 text-sm font-bold"
+            >
+              <option value="today">Today</option>
+              <option value="7days">Last 7 days</option>
+              <option value="30days">Last 30 days</option>
+            </select>
           </div>
 
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={chartData}>
                 <defs>
-                  <linearGradient id="color" x1="0" y1="0" x2="0" y2="1">
+                  <linearGradient id="analyticsGlow" x1="0" y1="0" x2="0" y2="1">
                     <stop
                       offset="0%"
                       stopColor="var(--app-accent)"
@@ -149,23 +190,27 @@ export default function AnalyticsPage() {
                   </linearGradient>
                 </defs>
 
-                <XAxis dataKey="day" stroke="rgba(255,255,255,0.35)" />
+                <XAxis dataKey="label" stroke="var(--app-muted)" />
 
                 <Tooltip
-                  cursor={{ stroke: "rgba(215,255,95,0.25)" }}
+                  cursor={{ stroke: "var(--app-accent)", strokeOpacity: 0.25 }}
+                  formatter={(value) => [`${value} bookings`, "Bookings"]}
+                  labelFormatter={(label) => `${rangeLabels[chartRange]} • ${label}`}
                   contentStyle={{
                     background: "var(--app-surface)",
                     border: "1px solid var(--app-border)",
                     borderRadius: "18px",
                     color: "var(--app-text)",
+                    boxShadow: "0 18px 40px rgba(49, 37, 25, 0.12)",
                   }}
                 />
 
                 <Area
                   type="monotone"
-                  dataKey="value"
+                  dataKey="bookings"
+                  name="Bookings"
                   stroke="var(--app-accent)"
-                  fill="url(#color)"
+                  fill="url(#analyticsGlow)"
                   strokeWidth={3}
                 />
               </AreaChart>

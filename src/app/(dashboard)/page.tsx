@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { CalendarDays, Clock, Sparkles, Users, Wallet } from "lucide-react";
 import {
   Area,
@@ -29,19 +29,44 @@ type Appointment = {
   status: string | null;
 };
 
-const revenueData = [
-  { day: "Mon", value: 28 },
-  { day: "Tue", value: 44 },
-  { day: "Wed", value: 38 },
-  { day: "Thu", value: 62 },
-  { day: "Fri", value: 55 },
-  { day: "Sat", value: 74 },
-  { day: "Sun", value: 49 },
-];
+type ChartRange = "today" | "7days" | "30days";
+
+const chartDataByRange = {
+  today: [
+    { label: "9 AM", bookings: 1 },
+    { label: "11 AM", bookings: 2 },
+    { label: "1 PM", bookings: 1 },
+    { label: "3 PM", bookings: 3 },
+    { label: "5 PM", bookings: 2 },
+    { label: "7 PM", bookings: 1 },
+  ],
+  "7days": [
+    { label: "Mon", bookings: 28 },
+    { label: "Tue", bookings: 44 },
+    { label: "Wed", bookings: 38 },
+    { label: "Thu", bookings: 62 },
+    { label: "Fri", bookings: 55 },
+    { label: "Sat", bookings: 74 },
+    { label: "Sun", bookings: 49 },
+  ],
+  "30days": [
+    { label: "Week 1", bookings: 120 },
+    { label: "Week 2", bookings: 148 },
+    { label: "Week 3", bookings: 132 },
+    { label: "Week 4", bookings: 176 },
+  ],
+};
+
+const rangeLabels = {
+  today: "Today",
+  "7days": "Last 7 days",
+  "30days": "Last 30 days",
+};
 
 export default function DashboardPage() {
   const [clients, setClients] = useState<Client[]>([]);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [chartRange, setChartRange] = useState<ChartRange>("7days");
 
   useEffect(() => {
     async function fetchClients() {
@@ -82,6 +107,13 @@ export default function DashboardPage() {
   ).length;
   const newClients = clients.filter((client) => client.status === "New").length;
   const recentClients = clients.slice(0, 4);
+
+  const chartData = chartDataByRange[chartRange];
+
+  const totalBookingsInChart = useMemo(
+    () => chartData.reduce((sum, item) => sum + item.bookings, 0),
+    [chartData]
+  );
 
   const stats = [
     {
@@ -182,22 +214,31 @@ export default function DashboardPage() {
 
       <div className="grid gap-7 xl:grid-cols-[1.25fr_0.75fr]">
         <div className="app-card p-7">
-          <div className="mb-6 flex items-center justify-between">
+          <div className="mb-6 flex items-center justify-between gap-4">
             <div>
               <h3 className="app-section-title">Booking Performance</h3>
               <p className="app-muted mt-1 text-sm">
-                Weekly client demand and appointment movement.
+                Estimated booking demand for {rangeLabels[chartRange].toLowerCase()}.
+              </p>
+              <p className="mt-2 text-sm font-bold text-[var(--app-accent)]">
+                {totalBookingsInChart} total bookings shown
               </p>
             </div>
 
-            <div className="app-button-secondary px-4 py-2">
-              Last 7 days
-            </div>
+            <select
+              value={chartRange}
+              onChange={(e) => setChartRange(e.target.value as ChartRange)}
+              className="app-input rounded-full px-4 py-2 text-sm font-bold"
+            >
+              <option value="today">Today</option>
+              <option value="7days">Last 7 days</option>
+              <option value="30days">Last 30 days</option>
+            </select>
           </div>
 
           <div className="h-[330px]">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={revenueData}>
+              <AreaChart data={chartData}>
                 <defs>
                   <linearGradient id="areaGlow" x1="0" y1="0" x2="0" y2="1">
                     <stop
@@ -214,25 +255,29 @@ export default function DashboardPage() {
                 </defs>
 
                 <XAxis
-                  dataKey="day"
+                  dataKey="label"
                   axisLine={false}
                   tickLine={false}
-                  stroke="rgba(255,255,255,0.35)"
+                  stroke="var(--app-muted)"
                 />
 
                 <Tooltip
-                  cursor={{ stroke: "rgba(215,255,95,0.25)" }}
+                  cursor={{ stroke: "var(--app-accent)", strokeOpacity: 0.25 }}
+                  formatter={(value) => [`${value} bookings`, "Bookings"]}
+                  labelFormatter={(label) => `${rangeLabels[chartRange]} • ${label}`}
                   contentStyle={{
                     background: "var(--app-surface)",
                     border: "1px solid var(--app-border)",
                     borderRadius: "18px",
                     color: "var(--app-text)",
+                    boxShadow: "0 18px 40px rgba(49, 37, 25, 0.12)",
                   }}
                 />
 
                 <Area
                   type="monotone"
-                  dataKey="value"
+                  dataKey="bookings"
+                  name="Bookings"
                   stroke="var(--app-accent)"
                   strokeWidth={4}
                   fill="url(#areaGlow)"
@@ -256,10 +301,7 @@ export default function DashboardPage() {
 
           <div className="space-y-4">
             {appointments.map((appointment) => (
-              <div
-                key={appointment.id}
-                className="app-card-dark relative p-5"
-              >
+              <div key={appointment.id} className="app-card-dark relative p-5">
                 <div className="absolute left-0 top-6 h-8 w-1 rounded-full bg-[var(--app-accent)]" />
 
                 <p className="text-sm font-bold text-[var(--app-accent)]">
