@@ -29,39 +29,14 @@ type Appointment = {
   service: string;
   time: string;
   status: string | null;
+  appointment_at: string | null;
 };
 
 type ChartRange = "24h" | "7days" | "30days" | "90days";
 
-const chartDataByRange = {
-  "24h": [
-    { label: "6 AM", bookings: 0 },
-    { label: "9 AM", bookings: 1 },
-    { label: "12 PM", bookings: 2 },
-    { label: "3 PM", bookings: 3 },
-    { label: "6 PM", bookings: 2 },
-    { label: "9 PM", bookings: 1 },
-  ],
-  "7days": [
-    { label: "Mon", bookings: 2 },
-    { label: "Tue", bookings: 4 },
-    { label: "Wed", bookings: 3 },
-    { label: "Thu", bookings: 6 },
-    { label: "Fri", bookings: 5 },
-    { label: "Sat", bookings: 7 },
-    { label: "Sun", bookings: 4 },
-  ],
-  "30days": [
-    { label: "Week 1", bookings: 12 },
-    { label: "Week 2", bookings: 15 },
-    { label: "Week 3", bookings: 10 },
-    { label: "Week 4", bookings: 18 },
-  ],
-  "90days": [
-    { label: "Month 1", bookings: 42 },
-    { label: "Month 2", bookings: 55 },
-    { label: "Month 3", bookings: 61 },
-  ],
+type ChartPoint = {
+  label: string;
+  bookings: number;
 };
 
 const rangeLabels = {
@@ -70,6 +45,106 @@ const rangeLabels = {
   "30days": "Last 30 days",
   "90days": "Last 90 days",
 };
+
+function startOfDay(date: Date) {
+  const newDate = new Date(date);
+  newDate.setHours(0, 0, 0, 0);
+  return newDate;
+}
+
+function getChartData(appointments: Appointment[], range: ChartRange) {
+  const validAppointments = appointments.filter(
+    (appointment) => appointment.appointment_at
+  );
+
+  const now = new Date();
+
+  if (range === "24h") {
+    const hours = [0, 4, 8, 12, 16, 20];
+
+    return hours.map((hour) => {
+      const start = new Date(now);
+      start.setHours(hour, 0, 0, 0);
+
+      const end = new Date(start);
+      end.setHours(hour + 4, 0, 0, 0);
+
+      const bookings = validAppointments.filter((appointment) => {
+        const appointmentDate = new Date(appointment.appointment_at as string);
+        return appointmentDate >= start && appointmentDate < end;
+      }).length;
+
+      return {
+        label: `${hour.toString().padStart(2, "0")}:00`,
+        bookings,
+      };
+    });
+  }
+
+  if (range === "7days") {
+    const today = startOfDay(now);
+
+    return Array.from({ length: 7 }).map((_, index) => {
+      const day = new Date(today);
+      day.setDate(today.getDate() - (6 - index));
+
+      const nextDay = new Date(day);
+      nextDay.setDate(day.getDate() + 1);
+
+      const bookings = validAppointments.filter((appointment) => {
+        const appointmentDate = new Date(appointment.appointment_at as string);
+        return appointmentDate >= day && appointmentDate < nextDay;
+      }).length;
+
+      return {
+        label: day.toLocaleDateString("en-US", { weekday: "short" }),
+        bookings,
+      };
+    });
+  }
+
+  if (range === "30days") {
+    const today = startOfDay(now);
+
+    return Array.from({ length: 4 }).map((_, index) => {
+      const start = new Date(today);
+      start.setDate(today.getDate() - (28 - index * 7));
+
+      const end = new Date(start);
+      end.setDate(start.getDate() + 7);
+
+      const bookings = validAppointments.filter((appointment) => {
+        const appointmentDate = new Date(appointment.appointment_at as string);
+        return appointmentDate >= start && appointmentDate < end;
+      }).length;
+
+      return {
+        label: `Week ${index + 1}`,
+        bookings,
+      };
+    });
+  }
+
+  const today = startOfDay(now);
+
+  return Array.from({ length: 3 }).map((_, index) => {
+    const start = new Date(today);
+    start.setDate(today.getDate() - (90 - index * 30));
+
+    const end = new Date(start);
+    end.setDate(start.getDate() + 30);
+
+    const bookings = validAppointments.filter((appointment) => {
+      const appointmentDate = new Date(appointment.appointment_at as string);
+      return appointmentDate >= start && appointmentDate < end;
+    }).length;
+
+    return {
+      label: `Month ${index + 1}`,
+      bookings,
+    };
+  });
+}
 
 export default function DashboardPage() {
   const [clients, setClients] = useState<Client[]>([]);
@@ -95,7 +170,7 @@ export default function DashboardPage() {
       const { data, error } = await supabase
         .from("appointments")
         .select("*")
-        .order("id", { ascending: true });
+        .order("appointment_at", { ascending: true, nullsFirst: false });
 
       if (error) {
         console.log("APPOINTMENTS ERROR:", error);
@@ -119,7 +194,10 @@ export default function DashboardPage() {
 
   const recentClients = clients.slice(0, 4);
 
-  const chartData = chartDataByRange[chartRange];
+  const chartData: ChartPoint[] = useMemo(
+    () => getChartData(appointments, chartRange),
+    [appointments, chartRange]
+  );
 
   const totalBookingsInChart = useMemo(
     () => chartData.reduce((sum, item) => sum + item.bookings, 0),
@@ -231,7 +309,8 @@ export default function DashboardPage() {
               <h3 className="app-section-title">Booking Performance</h3>
 
               <p className="app-muted mt-1 text-sm">
-                Estimated booking demand for {rangeLabels[chartRange].toLowerCase()}.
+                Real appointment demand from Supabase for{" "}
+                {rangeLabels[chartRange].toLowerCase()}.
               </p>
 
               <p className="mt-2 text-sm font-bold text-[var(--app-accent)]">
@@ -287,6 +366,7 @@ export default function DashboardPage() {
                   tickLine={false}
                   stroke="var(--app-muted)"
                   width={32}
+                  allowDecimals={false}
                 />
 
                 <Tooltip
