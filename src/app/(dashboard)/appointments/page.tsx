@@ -16,6 +16,9 @@ export default function AppointmentsPage() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
   const [editingAppointment, setEditingAppointment] =
     useState<Appointment | null>(null);
 
@@ -47,6 +50,8 @@ export default function AppointmentsPage() {
   }
 
   async function fetchAppointments() {
+    setLoading(true);
+
     const { data, error } = await supabase
       .from("appointments")
       .select("*")
@@ -54,10 +59,12 @@ export default function AppointmentsPage() {
 
     if (error) {
       console.log("APPOINTMENTS ERROR:", error);
+      setLoading(false);
       return;
     }
 
     setAppointments(data || []);
+    setLoading(false);
   }
 
   async function addOrUpdateAppointment() {
@@ -68,6 +75,8 @@ export default function AppointmentsPage() {
     ) {
       return;
     }
+
+    setSaving(true);
 
     const appointmentTime = formatTime(form.appointment_at);
 
@@ -85,6 +94,7 @@ export default function AppointmentsPage() {
 
       if (error) {
         console.log("UPDATE APPOINTMENT ERROR:", error);
+        setSaving(false);
         return;
       }
     } else {
@@ -100,6 +110,7 @@ export default function AppointmentsPage() {
 
       if (error) {
         console.log("INSERT APPOINTMENT ERROR:", error);
+        setSaving(false);
         return;
       }
     }
@@ -113,6 +124,7 @@ export default function AppointmentsPage() {
 
     setEditingAppointment(null);
     setShowModal(false);
+    setSaving(false);
     fetchAppointments();
   }
 
@@ -210,43 +222,61 @@ export default function AppointmentsPage() {
             </div>
 
             <div className="space-y-4">
-              {filteredAppointments.map((appointment) => (
-                <div
-                  key={appointment.id}
-                  className="app-card-dark grid grid-cols-[0.5fr_1.1fr_1.1fr_0.8fr_0.7fr] items-center px-5 py-4"
-                >
-                  <p className="font-black text-[var(--app-accent)]">
-                    {appointment.time}
+              {loading ? (
+                <>
+                  {[1, 2, 3].map((item) => (
+                    <div
+                      key={item}
+                      className="app-card-dark h-24 animate-pulse"
+                    />
+                  ))}
+                </>
+              ) : filteredAppointments.length === 0 ? (
+                <div className="app-card-dark p-6 text-center">
+                  <p className="font-bold">No appointments found</p>
+                  <p className="app-muted mt-1 text-sm">
+                    Create a new appointment or adjust your search.
                   </p>
-
-                  <div>
-                    <p className="font-bold">{appointment.client_name}</p>
-                    <p className="app-muted text-sm">Client</p>
-                  </div>
-
-                  <p className="app-muted">{appointment.service}</p>
-
-                  <span className="w-fit rounded-full bg-white/10 px-3 py-1 text-xs text-white/60">
-                    {appointment.status}
-                  </span>
-
-                  <div className="flex justify-end gap-3">
-                    <button
-                      onClick={() => openEdit(appointment)}
-                      className="text-xs font-semibold text-blue-400 hover:text-blue-300"
-                    >
-                      Edit
-                    </button>
-
-                    <button
-                      onClick={() => deleteAppointment(appointment.id)}
-                      className="text-xs font-semibold text-red-400 hover:text-red-300"
-                    >
-                      Delete
-                    </button>
-                  </div>
                 </div>
-              ))}
+              ) : (
+                filteredAppointments.map((appointment) => (
+                  <div
+                    key={appointment.id}
+                    className="app-card-dark grid grid-cols-[0.5fr_1.1fr_1.1fr_0.8fr_0.7fr] items-center px-5 py-4"
+                  >
+                    <p className="font-black text-[var(--app-accent)]">
+                      {appointment.time}
+                    </p>
+
+                    <div>
+                      <p className="font-bold">{appointment.client_name}</p>
+                      <p className="app-muted text-sm">Client</p>
+                    </div>
+
+                    <p className="app-muted">{appointment.service}</p>
+
+                    <span className="w-fit rounded-full bg-white/10 px-3 py-1 text-xs text-white/60">
+                      {appointment.status}
+                    </span>
+
+                    <div className="flex justify-end gap-3">
+                      <button
+                        onClick={() => openEdit(appointment)}
+                        className="text-xs font-semibold text-blue-400 hover:text-blue-300"
+                      >
+                        Edit
+                      </button>
+
+                      <button
+                        onClick={() => deleteAppointment(appointment.id)}
+                        className="text-xs font-semibold text-red-400 hover:text-red-300"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </div>
         </div>
@@ -315,6 +345,7 @@ export default function AppointmentsPage() {
                   setShowModal(false);
                   setEditingAppointment(null);
                 }}
+                disabled={saving}
                 className="app-button-secondary px-5 py-3"
               >
                 Cancel
@@ -322,9 +353,14 @@ export default function AppointmentsPage() {
 
               <button
                 onClick={addOrUpdateAppointment}
-                className="app-button-primary px-5 py-3"
+                disabled={saving}
+                className="app-button-primary px-5 py-3 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {editingAppointment ? "Update Appointment" : "Save Appointment"}
+                {saving
+                  ? "Saving..."
+                  : editingAppointment
+                  ? "Update Appointment"
+                  : "Save Appointment"}
               </button>
             </div>
           </div>
