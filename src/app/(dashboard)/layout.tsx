@@ -116,27 +116,23 @@ export default function DashboardLayout({
             path: "/services",
           })) || [];
 
-      setResults([
-        ...clientResults,
-        ...appointmentResults,
-        ...serviceResults,
-      ]);
+      setResults([...clientResults, ...appointmentResults, ...serviceResults]);
     }
 
     runSearch();
   }, [searchTerm]);
 
   return (
-    <div className="min-h-screen bg-[#050505] text-white">
+    <div className="app-bg min-h-screen">
       <div className="flex min-h-screen">
-        <aside className="w-[280px] border-r border-white/10 bg-[#070707] px-6 py-7">
+        <aside className="w-[280px] border-r app-border bg-[var(--app-card)] px-6 py-7">
           <div className="mb-12">
-            <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#D7FF5F] text-lg font-black text-black">
+            <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--app-accent)] text-lg font-black text-[var(--app-accent-text)]">
               CP
             </div>
 
             <h1 className="text-2xl font-black tracking-tight">ClientPilot</h1>
-            <p className="mt-1 text-sm text-white/40">
+            <p className="mt-1 text-sm app-muted">
               Service business command center
             </p>
           </div>
@@ -152,7 +148,7 @@ export default function DashboardLayout({
                   href={path}
                   className={`flex items-center gap-3 rounded-2xl px-4 py-3 text-sm transition ${
                     isActive
-                      ? "bg-[#D7FF5F] text-black"
+                      ? "bg-[var(--app-accent)] text-[var(--app-accent-text)]"
                       : "text-white/45 hover:bg-white/10 hover:text-white"
                   }`}
                 >
@@ -164,22 +160,22 @@ export default function DashboardLayout({
           </nav>
         </aside>
 
-        <main className="flex-1 overflow-hidden bg-[radial-gradient(circle_at_top_right,#2d1b69_0%,transparent_32%),radial-gradient(circle_at_top_left,#103d2d_0%,transparent_28%),#050505]">
-          <div className="border-b border-white/10 px-8 py-5">
+        <main className="app-shell-bg flex-1 overflow-hidden">
+          <div className="border-b app-border px-8 py-5">
             <div className="flex items-center justify-between">
               <div className="relative w-[420px]">
-                <div className="flex items-center gap-3 rounded-full border border-white/10 bg-white/[0.06] px-5 py-3 text-white/40">
+                <div className="flex items-center gap-3 rounded-full border app-border bg-white/[0.06] px-5 py-3 text-white/40">
                   <Search className="h-4 w-4" />
                   <input
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     placeholder="Search clients, bookings, services..."
-                    className="w-full bg-transparent text-sm text-white outline-none placeholder:text-white/40"
+                    className="w-full bg-transparent text-sm text-[var(--app-text)] outline-none placeholder:text-white/40"
                   />
                 </div>
 
                 {searchTerm && (
-                  <div className="absolute left-0 top-14 z-50 w-full rounded-[24px] border border-white/10 bg-[#101010] p-3 shadow-2xl shadow-black/50">
+                  <div className="absolute left-0 top-14 z-50 w-full rounded-[24px] border app-border bg-[var(--app-surface)] p-3 shadow-2xl shadow-black/50">
                     {results.length > 0 ? (
                       <div className="space-y-2">
                         {results.map((result) => (
@@ -192,12 +188,12 @@ export default function DashboardLayout({
                             <div className="flex items-center justify-between">
                               <div>
                                 <p className="font-bold">{result.title}</p>
-                                <p className="text-sm text-white/40">
+                                <p className="text-sm app-muted">
                                   {result.subtitle}
                                 </p>
                               </div>
 
-                              <span className="rounded-full bg-[#D7FF5F] px-3 py-1 text-xs font-bold text-black">
+                              <span className="rounded-full bg-[var(--app-accent)] px-3 py-1 text-xs font-bold text-[var(--app-accent-text)]">
                                 {result.type}
                               </span>
                             </div>
@@ -205,7 +201,7 @@ export default function DashboardLayout({
                         ))}
                       </div>
                     ) : (
-                      <p className="px-4 py-3 text-sm text-white/40">
+                      <p className="px-4 py-3 text-sm app-muted">
                         No results found.
                       </p>
                     )}
@@ -216,12 +212,12 @@ export default function DashboardLayout({
               <div className="flex items-center gap-3">
                 <Link
                   href="/appointments"
-                  className="rounded-full bg-[#D7FF5F] px-5 py-3 text-sm font-bold text-black transition hover:bg-[#c8f24f]"
+                  className="app-button-primary px-5 py-3"
                 >
                   New Booking
                 </Link>
 
-                <button className="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/[0.06]">
+                <button className="flex h-11 w-11 items-center justify-center rounded-full border app-border bg-white/[0.06]">
                   <Bell className="h-4 w-4 text-white/70" />
                 </button>
 
@@ -230,13 +226,13 @@ export default function DashboardLayout({
                     await supabase.auth.signOut();
                     window.location.href = "/login";
                   }}
-                  className="flex items-center gap-3 rounded-full border border-white/10 bg-white/[0.06] px-3 py-2 transition hover:bg-white/10"
+                  className="flex items-center gap-3 rounded-full border app-border bg-white/[0.06] px-3 py-2 transition hover:bg-white/10"
                 >
-                  <div className="h-9 w-9 rounded-full bg-gradient-to-br from-[#D7FF5F] to-[#9D7CFF]" />
+                  <div className="h-9 w-9 rounded-full bg-gradient-to-br from-[var(--app-accent)] to-[#9D7CFF]" />
 
                   <div className="text-left">
                     <p className="text-sm font-semibold">Natasha</p>
-                    <p className="text-xs text-white/40">Logout</p>
+                    <p className="text-xs app-muted">Logout</p>
                   </div>
                 </button>
               </div>
