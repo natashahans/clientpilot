@@ -1,32 +1,36 @@
 @import "tailwindcss";
 
 :root {
-  --app-bg: #050505;
-  --app-surface: #101010;
-  --app-surface-soft: rgba(255, 255, 255, 0.06);
-  --app-card: #0b0b0b;
-  --app-border: rgba(255, 255, 255, 0.1);
+  --app-bg: #f5f2ea;
+  --app-surface: #ffffff;
+  --app-surface-soft: rgba(255, 255, 255, 0.72);
+  --app-card: #ffffff;
+  --app-border: rgba(28, 24, 18, 0.1);
 
-  --app-text: #ffffff;
-  --app-muted: rgba(255, 255, 255, 0.45);
-  --app-muted-soft: rgba(255, 255, 255, 0.32);
+  --app-danger: #d96b5f;
+  --app-danger-soft: rgba(217, 107, 95, 0.12);
 
-  --app-accent: #d7ff5f;
-  --app-accent-hover: #c8f24f;
-  --app-accent-text: #000000;
+  --app-text: #17130f;
+  --app-muted: rgba(23, 19, 15, 0.55);
+  --app-muted-soft: rgba(23, 19, 15, 0.35);
 
-  --radius-card: 32px;
-  --radius-panel: 36px;
+  --app-accent: #ff7a3d;
+  --app-accent-hover: #f06425;
+  --app-accent-text: #ffffff;
+
+  --radius-card: 26px;
+  --radius-panel: 34px;
   --radius-pill: 999px;
 
-  --font-app: Arial, Helvetica, sans-serif;
+  --font-app: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
 
-  --text-page-title: 48px;
+  --text-page-title: 52px;
   --text-section-title: 28px;
   --text-body: 15px;
   --text-small: 13px;
 
-  --tracking-tight-app: -0.055em;
+  --tracking-tight-app: -0.06em;
 }
 
 * {
@@ -45,6 +49,7 @@ body {
 }
 
 /* App theme utility classes */
+
 .app-bg {
   background: var(--app-bg);
   color: var(--app-text);
@@ -52,29 +57,33 @@ body {
 
 .app-shell-bg {
   background:
-    radial-gradient(circle at top right, rgba(45, 27, 105, 0.28) 0%, transparent 34%),
-    radial-gradient(circle at top left, rgba(16, 61, 45, 0.22) 0%, transparent 30%),
-    var(--app-bg);
+    radial-gradient(circle at top left, rgba(255, 122, 61, 0.12) 0%, transparent 26%),
+    linear-gradient(135deg, #f7f3ea 0%, #fffdf8 48%, #f3efe7 100%);
 }
 
 .app-card {
   border: 1px solid var(--app-border);
   background: var(--app-surface-soft);
   border-radius: var(--radius-panel);
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 22px 50px rgba(49, 37, 25, 0.08);
+  backdrop-filter: blur(18px);
 }
 
 .app-card-dark {
   border: 1px solid var(--app-border);
   background: var(--app-card);
   border-radius: var(--radius-card);
+  box-shadow: 0 16px 34px rgba(49, 37, 25, 0.06);
 }
 
 .app-accent-card {
-  border: 1px solid var(--app-border);
-  background: var(--app-accent);
+  border: 1px solid rgba(255, 122, 61, 0.25);
+  background:
+    radial-gradient(circle at top right, rgba(255, 255, 255, 0.35), transparent 28%),
+    linear-gradient(135deg, #ff7a3d 0%, #ff9a5f 100%);
   color: var(--app-accent-text);
   border-radius: var(--radius-panel);
+  box-shadow: 0 24px 60px rgba(255, 122, 61, 0.24);
 }
 
 .app-button-primary {
@@ -82,50 +91,54 @@ body {
   background: var(--app-accent);
   color: var(--app-accent-text);
   font-size: var(--text-small);
-  font-weight: 800;
+  font-weight: 850;
   transition: 0.2s ease;
+  box-shadow: 0 12px 26px rgba(255, 122, 61, 0.22);
 }
 
 .app-button-primary:hover {
   background: var(--app-accent-hover);
+  transform: translateY(-1px);
 }
 
 .app-button-secondary {
   border: 1px solid var(--app-border);
   border-radius: var(--radius-pill);
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.72);
   color: var(--app-muted);
   font-size: var(--text-small);
-  font-weight: 700;
+  font-weight: 750;
   transition: 0.2s ease;
 }
 
 .app-button-secondary:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: #ffffff;
   color: var(--app-text);
 }
 
 .app-input {
   border: 1px solid var(--app-border);
   border-radius: 18px;
-  background: #000000;
+  background: rgba(255, 255, 255, 0.86);
   color: var(--app-text);
   outline: none;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
 }
 
 .app-input::placeholder {
-  color: rgba(255, 255, 255, 0.3);
+  color: rgba(23, 19, 15, 0.35);
 }
 
 .app-input:focus {
-  border-color: color-mix(in srgb, var(--app-accent) 60%, transparent);
+  border-color: color-mix(in srgb, var(--app-accent) 55%, transparent);
+  box-shadow: 0 0 0 4px rgba(255, 122, 61, 0.12);
 }
 
 .app-kicker {
   color: var(--app-accent);
   font-size: var(--text-small);
-  font-weight: 800;
-  letter-spacing: 0.3em;
+  font-weight: 850;
+  letter-spacing: 0.28em;
   text-transform: uppercase;
 }
 
@@ -133,13 +146,13 @@ body {
   font-size: var(--text-page-title);
   font-weight: 900;
   letter-spacing: var(--tracking-tight-app);
-  line-height: 0.98;
+  line-height: 0.95;
 }
 
 .app-section-title {
   font-size: var(--text-section-title);
   font-weight: 900;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.045em;
 }
 
 .app-muted {
@@ -148,4 +161,113 @@ body {
 
 .app-border {
   border-color: var(--app-border);
+}
+
+/* Light theme compatibility patch for old hardcoded dark classes */
+
+.app-bg .text-white,
+.app-shell-bg .text-white {
+  color: var(--app-text) !important;
+}
+
+.app-bg .text-white\/40,
+.app-shell-bg .text-white\/40,
+.app-bg .text-white\/45,
+.app-shell-bg .text-white\/45,
+.app-bg .text-white\/50,
+.app-shell-bg .text-white\/50,
+.app-bg .text-white\/60,
+.app-shell-bg .text-white\/60,
+.app-bg .text-white\/70,
+.app-shell-bg .text-white\/70 {
+  color: var(--app-muted) !important;
+}
+
+.app-bg .placeholder\:text-white\/40::placeholder,
+.app-shell-bg .placeholder\:text-white\/40::placeholder,
+.app-bg .placeholder\:text-white\/30::placeholder,
+.app-shell-bg .placeholder\:text-white\/30::placeholder,
+.app-bg .placeholder\:text-white\/25::placeholder,
+.app-shell-bg .placeholder\:text-white\/25::placeholder {
+  color: var(--app-muted-soft) !important;
+}
+
+.app-bg .border-white\/10,
+.app-shell-bg .border-white\/10 {
+  border-color: var(--app-border) !important;
+}
+
+.app-bg .bg-white\/\[0\.06\],
+.app-shell-bg .bg-white\/\[0\.06\],
+.app-bg .bg-white\/5,
+.app-shell-bg .bg-white\/5,
+.app-bg .bg-white\/10,
+.app-shell-bg .bg-white\/10 {
+  background: var(--app-surface-soft) !important;
+}
+
+.app-bg .bg-\[\#0B0B0B\],
+.app-shell-bg .bg-\[\#0B0B0B\],
+.app-bg .bg-\[\#101010\],
+.app-shell-bg .bg-\[\#101010\],
+.app-bg .bg-\[\#111111\],
+.app-shell-bg .bg-\[\#111111\] {
+  background: var(--app-card) !important;
+}
+
+.app-bg .bg-black,
+.app-shell-bg .bg-black {
+  background: var(--app-card) !important;
+}
+
+.app-bg .text-\[\#D7FF5F\],
+.app-shell-bg .text-\[\#D7FF5F\] {
+  color: var(--app-accent) !important;
+}
+
+.app-bg .bg-\[\#D7FF5F\],
+.app-shell-bg .bg-\[\#D7FF5F\] {
+  background: var(--app-accent) !important;
+  color: var(--app-accent-text) !important;
+}
+
+.app-bg .text-black,
+.app-shell-bg .text-black {
+  color: var(--app-accent-text);
+}
+
+/* Fix action links so blue/red do not look random */
+.app-bg .text-blue-400,
+.app-shell-bg .text-blue-400 {
+  color: var(--app-accent) !important;
+}
+
+.app-bg .text-red-400,
+.app-shell-bg .text-red-400 {
+  color: var(--app-danger) !important;
+}
+
+/* Nav inactive items */
+.app-bg nav a:not([class*="bg-"]),
+.app-shell-bg nav a:not([class*="bg-"]) {
+  color: var(--app-muted) !important;
+}
+
+.app-bg nav a:hover,
+.app-shell-bg nav a:hover {
+  color: var(--app-text) !important;
+  background: var(--app-surface-soft) !important;
+}
+
+/* Top search visibility */
+.app-bg input,
+.app-shell-bg input,
+.app-bg select,
+.app-shell-bg select {
+  color: var(--app-text);
+}
+
+.app-bg input::placeholder,
+.app-shell-bg input::placeholder {
+  color: var(--app-muted-soft);
 }
