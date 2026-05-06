@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import {
   AreaChart,
   Area,
@@ -7,8 +8,25 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import { supabase } from "@/lib/supabase";
 
-const data = [
+type Client = {
+  id: number;
+  status: string | null;
+};
+
+type Appointment = {
+  id: number;
+  status: string | null;
+};
+
+type Service = {
+  id: number;
+  name: string;
+  tag: string | null;
+};
+
+const chartData = [
   { day: "Mon", value: 40 },
   { day: "Tue", value: 55 },
   { day: "Wed", value: 48 },
@@ -19,6 +37,39 @@ const data = [
 ];
 
 export default function AnalyticsPage() {
+  const [clients, setClients] = useState<Client[]>([]);
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [services, setServices] = useState<Service[]>([]);
+
+  useEffect(() => {
+    async function fetchAnalyticsData() {
+      const { data: clientsData } = await supabase.from("clients").select("*");
+      const { data: appointmentsData } = await supabase
+        .from("appointments")
+        .select("*");
+      const { data: servicesData } = await supabase.from("services").select("*");
+
+      setClients(clientsData || []);
+      setAppointments(appointmentsData || []);
+      setServices(servicesData || []);
+    }
+
+    fetchAnalyticsData();
+  }, []);
+
+  const activeClients = clients.filter((client) => client.status === "Active").length;
+  const returningClients = clients.filter(
+    (client) => client.status === "Returning"
+  ).length;
+  const confirmedAppointments = appointments.filter(
+    (appointment) => appointment.status === "Confirmed"
+  ).length;
+
+  const topService =
+    services.find((service) => service.tag === "High Value")?.name ||
+    services[0]?.name ||
+    "No service yet";
+
   return (
     <section className="space-y-7">
       <div>
@@ -29,8 +80,38 @@ export default function AnalyticsPage() {
           Analytics
         </h1>
         <p className="mt-3 text-white/45">
-          Understand performance trends, booking demand and revenue growth.
+          Understand live client, service and appointment performance from your database.
         </p>
+      </div>
+
+      <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+        <div className="rounded-[30px] border border-white/10 bg-[#D7FF5F] p-6 text-black">
+          <p className="text-sm font-bold uppercase tracking-[0.25em] text-black/50">
+            Clients
+          </p>
+          <h2 className="mt-3 text-5xl font-black">{clients.length}</h2>
+          <p className="mt-2 text-sm font-semibold">{activeClients} active</p>
+        </div>
+
+        <div className="rounded-[30px] border border-white/10 bg-white/[0.06] p-6">
+          <p className="text-sm text-white/40">Appointments</p>
+          <h2 className="mt-3 text-5xl font-black">{appointments.length}</h2>
+          <p className="mt-2 text-sm text-white/40">
+            {confirmedAppointments} confirmed
+          </p>
+        </div>
+
+        <div className="rounded-[30px] border border-white/10 bg-white/[0.06] p-6">
+          <p className="text-sm text-white/40">Services</p>
+          <h2 className="mt-3 text-5xl font-black">{services.length}</h2>
+          <p className="mt-2 text-sm text-white/40">available offers</p>
+        </div>
+
+        <div className="rounded-[30px] border border-white/10 bg-white/[0.06] p-6">
+          <p className="text-sm text-white/40">Returning Clients</p>
+          <h2 className="mt-3 text-5xl font-black">{returningClients}</h2>
+          <p className="mt-2 text-sm text-white/40">relationship strength</p>
+        </div>
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[1.5fr_1fr]">
@@ -39,7 +120,7 @@ export default function AnalyticsPage() {
             <div>
               <h2 className="text-2xl font-black">Booking Performance</h2>
               <p className="text-sm text-white/40">
-                Weekly demand and appointment trends.
+                Visual trend placeholder for weekly appointment movement.
               </p>
             </div>
 
@@ -50,7 +131,7 @@ export default function AnalyticsPage() {
 
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={data}>
+              <AreaChart data={chartData}>
                 <defs>
                   <linearGradient id="color" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor="#D7FF5F" stopOpacity={0.6} />
@@ -76,25 +157,33 @@ export default function AnalyticsPage() {
         <div className="space-y-6">
           <div className="rounded-[32px] border border-white/10 bg-[#D7FF5F] p-6 text-black">
             <p className="text-sm font-bold uppercase tracking-[0.25em] text-black/50">
-              Revenue
+              Top Service
             </p>
-            <h2 className="mt-3 text-4xl font-black">$1,240</h2>
-            <p className="mt-2 text-sm font-semibold">+18% this month</p>
-          </div>
-
-          <div className="rounded-[32px] border border-white/10 bg-white/[0.06] p-6">
-            <p className="text-sm text-white/40">Top performing service</p>
-            <h2 className="mt-3 text-2xl font-black">Premium Service</h2>
-            <p className="mt-1 text-sm text-white/40">
-              Generates highest revenue this week
+            <h2 className="mt-3 text-4xl font-black tracking-[-0.04em]">
+              {topService}
+            </h2>
+            <p className="mt-2 text-sm font-semibold">
+              Based on service catalogue data
             </p>
           </div>
 
           <div className="rounded-[32px] border border-white/10 bg-white/[0.06] p-6">
-            <p className="text-sm text-white/40">Client retention</p>
-            <h2 className="mt-3 text-2xl font-black">92%</h2>
+            <p className="text-sm text-white/40">Client activity</p>
+            <h2 className="mt-3 text-2xl font-black">
+              {activeClients} active clients
+            </h2>
             <p className="mt-1 text-sm text-white/40">
-              Returning clients ratio
+              Pulled live from Supabase
+            </p>
+          </div>
+
+          <div className="rounded-[32px] border border-white/10 bg-white/[0.06] p-6">
+            <p className="text-sm text-white/40">Booking status</p>
+            <h2 className="mt-3 text-2xl font-black">
+              {confirmedAppointments} confirmed
+            </h2>
+            <p className="mt-1 text-sm text-white/40">
+              Active appointment pipeline
             </p>
           </div>
         </div>
