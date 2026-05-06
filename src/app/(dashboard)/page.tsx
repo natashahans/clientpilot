@@ -77,7 +77,9 @@ export default function DashboardPage() {
   }, []);
 
   const totalClients = clients.length;
-  const activeClients = clients.filter((client) => client.status === "Active").length;
+  const activeClients = clients.filter(
+    (client) => client.status === "Active"
+  ).length;
   const newClients = clients.filter((client) => client.status === "New").length;
   const recentClients = clients.slice(0, 4);
 
@@ -108,26 +110,26 @@ export default function DashboardPage() {
         <div className="relative">
           <div className="mb-10 flex items-start justify-between gap-8">
             <div>
-              <p className="mb-3 text-sm font-semibold uppercase tracking-[0.3em] text-[#D7FF5F]">
-                Business Overview
-              </p>
+              <p className="app-kicker mb-3">Business Overview</p>
 
-              <h1 className="max-w-2xl text-5xl font-black leading-[0.98] tracking-[-0.055em]">
+              <h1 className="app-page-title max-w-2xl">
                 Today’s client operations, bookings and growth signals.
               </h1>
 
-              <p className="mt-5 max-w-xl text-base leading-7 text-white/45">
+              <p className="app-muted mt-5 max-w-xl text-base leading-7">
                 Monitor appointments, track client activity and spot the busiest parts
                 of your service business from one focused workspace.
               </p>
             </div>
 
-            <div className="hidden shrink-0 rounded-[28px] border border-white/10 bg-white/[0.06] p-5 xl:block">
-              <p className="text-sm text-white/40">Client database</p>
+            <div className="app-card hidden shrink-0 rounded-[28px] p-5 xl:block">
+              <p className="app-muted text-sm">Client database</p>
               <p className="mt-2 text-2xl font-black tracking-tight">
                 {totalClients} records
               </p>
-              <p className="mt-1 text-sm text-[#D7FF5F]">Live from Supabase</p>
+              <p className="mt-1 text-sm text-[var(--app-accent)]">
+                Live from Supabase
+              </p>
             </div>
           </div>
 
@@ -135,16 +137,17 @@ export default function DashboardPage() {
             {stats.map(({ label, value, change, icon: Icon }) => (
               <div
                 key={label}
-                className="rounded-[28px] border border-white/10 bg-white/[0.06] p-5 backdrop-blur-xl transition hover:bg-white/[0.09]"
+                className="app-card rounded-[28px] p-5 transition hover:bg-white/[0.09]"
               >
                 <div className="mb-6 flex items-center justify-between">
                   <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10">
-                    <Icon className="h-5 w-5 text-[#D7FF5F]" />
+                    <Icon className="h-5 w-5 text-[var(--app-accent)]" />
                   </div>
-                  <span className="text-xs text-white/40">{change}</span>
+
+                  <span className="app-muted text-xs">{change}</span>
                 </div>
 
-                <p className="text-sm text-white/40">{label}</p>
+                <p className="app-muted text-sm">{label}</p>
                 <h2 className="mt-2 text-4xl font-black tracking-tight">
                   {value}
                 </h2>
@@ -153,16 +156,18 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div className="rounded-[36px] border border-white/10 bg-[#D7FF5F] p-7 text-black shadow-2xl shadow-black/30">
+        <div className="app-accent-card p-7 shadow-2xl shadow-black/30">
           <div className="mb-8 flex items-center justify-between">
             <div>
               <p className="text-sm font-bold uppercase tracking-[0.25em] text-black/50">
                 Smart Signal
               </p>
+
               <h2 className="mt-2 text-4xl font-black tracking-[-0.05em]">
                 {activeClients} active clients.
               </h2>
             </div>
+
             <Sparkles className="h-7 w-7" />
           </div>
 
@@ -176,18 +181,16 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid gap-7 xl:grid-cols-[1.25fr_0.75fr]">
-        <div className="rounded-[36px] border border-white/10 bg-white/[0.06] p-7 shadow-2xl shadow-black/30 backdrop-blur-xl">
+        <div className="app-card p-7">
           <div className="mb-6 flex items-center justify-between">
             <div>
-              <h3 className="text-3xl font-black tracking-[-0.04em]">
-                Booking Performance
-              </h3>
-              <p className="mt-1 text-sm text-white/40">
+              <h3 className="app-section-title">Booking Performance</h3>
+              <p className="app-muted mt-1 text-sm">
                 Weekly client demand and appointment movement.
               </p>
             </div>
 
-            <div className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/60">
+            <div className="app-button-secondary px-4 py-2">
               Last 7 days
             </div>
           </div>
@@ -197,8 +200,16 @@ export default function DashboardPage() {
               <AreaChart data={revenueData}>
                 <defs>
                   <linearGradient id="areaGlow" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#D7FF5F" stopOpacity={0.7} />
-                    <stop offset="100%" stopColor="#D7FF5F" stopOpacity={0} />
+                    <stop
+                      offset="0%"
+                      stopColor="var(--app-accent)"
+                      stopOpacity={0.7}
+                    />
+                    <stop
+                      offset="100%"
+                      stopColor="var(--app-accent)"
+                      stopOpacity={0}
+                    />
                   </linearGradient>
                 </defs>
 
@@ -212,17 +223,17 @@ export default function DashboardPage() {
                 <Tooltip
                   cursor={{ stroke: "rgba(215,255,95,0.25)" }}
                   contentStyle={{
-                    background: "#0A0A0A",
-                    border: "1px solid rgba(255,255,255,0.12)",
+                    background: "var(--app-surface)",
+                    border: "1px solid var(--app-border)",
                     borderRadius: "18px",
-                    color: "#fff",
+                    color: "var(--app-text)",
                   }}
                 />
 
                 <Area
                   type="monotone"
                   dataKey="value"
-                  stroke="#D7FF5F"
+                  stroke="var(--app-accent)"
                   strokeWidth={4}
                   fill="url(#areaGlow)"
                 />
@@ -231,38 +242,33 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div className="rounded-[36px] border border-white/10 bg-[#101010] p-7 shadow-2xl shadow-black/30">
+        <div className="app-card p-7">
           <div className="mb-6 flex items-center justify-between">
             <div>
-              <h3 className="text-3xl font-black tracking-[-0.04em]">
-                Today’s Timeline
-              </h3>
-              <p className="mt-1 text-sm text-white/40">
+              <h3 className="app-section-title">Today’s Timeline</h3>
+              <p className="app-muted mt-1 text-sm">
                 Live appointments from Supabase
               </p>
             </div>
-            <Clock className="h-5 w-5 text-[#D7FF5F]" />
+
+            <Clock className="h-5 w-5 text-[var(--app-accent)]" />
           </div>
 
           <div className="space-y-4">
             {appointments.map((appointment) => (
               <div
                 key={appointment.id}
-                className="relative rounded-[26px] border border-white/10 bg-white/[0.05] p-5"
+                className="app-card-dark relative p-5"
               >
-                <div className="absolute left-0 top-6 h-8 w-1 rounded-full bg-[#D7FF5F]" />
+                <div className="absolute left-0 top-6 h-8 w-1 rounded-full bg-[var(--app-accent)]" />
 
-                <p className="text-sm font-bold text-[#D7FF5F]">
+                <p className="text-sm font-bold text-[var(--app-accent)]">
                   {appointment.time}
                 </p>
 
-                <p className="mt-2 text-lg font-bold">
-                  {appointment.service}
-                </p>
+                <p className="mt-2 text-lg font-bold">{appointment.service}</p>
 
-                <p className="text-sm text-white/40">
-                  {appointment.client_name}
-                </p>
+                <p className="app-muted text-sm">{appointment.client_name}</p>
 
                 <p className="mt-2 text-xs text-white/50">
                   {appointment.status}
@@ -273,30 +279,25 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <div className="rounded-[36px] border border-white/10 bg-white/[0.06] p-7 shadow-2xl shadow-black/30 backdrop-blur-xl">
+      <div className="app-card p-7">
         <div className="mb-6 flex items-center justify-between">
           <div>
-            <h3 className="text-3xl font-black tracking-[-0.04em]">
-              Client Pipeline
-            </h3>
-            <p className="mt-1 text-sm text-white/40">
+            <h3 className="app-section-title">Client Pipeline</h3>
+            <p className="app-muted mt-1 text-sm">
               Recent clients and booking activity from Supabase.
             </p>
           </div>
 
-          <button className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/70">
+          <button className="app-button-secondary px-4 py-2">
             View all clients
           </button>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           {recentClients.map((client) => (
-            <div
-              key={client.id}
-              className="rounded-[28px] border border-white/10 bg-[#0B0B0B] p-5"
-            >
+            <div key={client.id} className="app-card-dark p-5">
               <div className="mb-6 flex items-center justify-between">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#D7FF5F] font-black text-black">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--app-accent)] font-black text-[var(--app-accent-text)]">
                   {client.name
                     .split(" ")
                     .map((word) => word[0])
@@ -309,7 +310,7 @@ export default function DashboardPage() {
               </div>
 
               <p className="text-lg font-bold">{client.name}</p>
-              <p className="mt-1 text-sm text-white/40">{client.service}</p>
+              <p className="app-muted mt-1 text-sm">{client.service}</p>
             </div>
           ))}
         </div>
