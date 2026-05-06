@@ -21,6 +21,14 @@ type Client = {
   last_visit: string | null;
 };
 
+type Appointment = {
+  id: number;
+  client_name: string;
+  service: string;
+  time: string;
+  status: string | null;
+};
+
 const revenueData = [
   { day: "Mon", value: 28 },
   { day: "Tue", value: 44 },
@@ -33,6 +41,7 @@ const revenueData = [
 
 export default function DashboardPage() {
   const [clients, setClients] = useState<Client[]>([]);
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
 
   useEffect(() => {
     async function fetchClients() {
@@ -49,12 +58,28 @@ export default function DashboardPage() {
       setClients(data || []);
     }
 
+    async function fetchAppointments() {
+      const { data, error } = await supabase
+        .from("appointments")
+        .select("*")
+        .order("id", { ascending: true });
+
+      if (error) {
+        console.log("APPOINTMENTS ERROR:", error);
+        return;
+      }
+
+      setAppointments(data || []);
+    }
+
     fetchClients();
+    fetchAppointments();
   }, []);
 
   const totalClients = clients.length;
   const activeClients = clients.filter((client) => client.status === "Active").length;
   const newClients = clients.filter((client) => client.status === "New").length;
+  const recentClients = clients.slice(0, 4);
 
   const stats = [
     {
@@ -64,20 +89,18 @@ export default function DashboardPage() {
       icon: Users,
     },
     {
-      label: "New Clients",
-      value: newClients.toString(),
-      change: "from database",
+      label: "Today’s Appointments",
+      value: appointments.length.toString(),
+      change: "live from database",
       icon: CalendarDays,
     },
     {
-      label: "Revenue",
-      value: "$1,240",
-      change: "static for now",
+      label: "New Clients",
+      value: newClients.toString(),
+      change: "from database",
       icon: Wallet,
     },
   ];
-
-  const recentClients = clients.slice(0, 4);
 
   return (
     <section className="space-y-7">
@@ -104,9 +127,7 @@ export default function DashboardPage() {
               <p className="mt-2 text-2xl font-black tracking-tight">
                 {totalClients} records
               </p>
-              <p className="mt-1 text-sm text-[#D7FF5F]">
-                Live from Supabase
-              </p>
+              <p className="mt-1 text-sm text-[#D7FF5F]">Live from Supabase</p>
             </div>
           </div>
 
@@ -124,7 +145,9 @@ export default function DashboardPage() {
                 </div>
 
                 <p className="text-sm text-white/40">{label}</p>
-                <h2 className="mt-2 text-4xl font-black tracking-tight">{value}</h2>
+                <h2 className="mt-2 text-4xl font-black tracking-tight">
+                  {value}
+                </h2>
               </div>
             ))}
           </div>
@@ -214,25 +237,36 @@ export default function DashboardPage() {
               <h3 className="text-3xl font-black tracking-[-0.04em]">
                 Today’s Timeline
               </h3>
-              <p className="mt-1 text-sm text-white/40">Upcoming appointments</p>
+              <p className="mt-1 text-sm text-white/40">
+                Live appointments from Supabase
+              </p>
             </div>
             <Clock className="h-5 w-5 text-[#D7FF5F]" />
           </div>
 
           <div className="space-y-4">
-            {[
-              ["10:00", "Haircut Consultation", "Ali Khan"],
-              ["12:30", "Follow-up Session", "Sarah Ahmed"],
-              ["15:00", "Premium Service", "Hamza Malik"],
-            ].map(([time, title, client]) => (
+            {appointments.map((appointment) => (
               <div
-                key={time}
+                key={appointment.id}
                 className="relative rounded-[26px] border border-white/10 bg-white/[0.05] p-5"
               >
                 <div className="absolute left-0 top-6 h-8 w-1 rounded-full bg-[#D7FF5F]" />
-                <p className="text-sm font-bold text-[#D7FF5F]">{time}</p>
-                <p className="mt-2 text-lg font-bold">{title}</p>
-                <p className="text-sm text-white/40">{client}</p>
+
+                <p className="text-sm font-bold text-[#D7FF5F]">
+                  {appointment.time}
+                </p>
+
+                <p className="mt-2 text-lg font-bold">
+                  {appointment.service}
+                </p>
+
+                <p className="text-sm text-white/40">
+                  {appointment.client_name}
+                </p>
+
+                <p className="mt-2 text-xs text-white/50">
+                  {appointment.status}
+                </p>
               </div>
             ))}
           </div>
