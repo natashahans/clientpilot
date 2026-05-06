@@ -4,7 +4,9 @@ import { useEffect, useMemo, useState } from "react";
 import {
   AreaChart,
   Area,
+  CartesianGrid,
   XAxis,
+  YAxis,
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
@@ -18,6 +20,7 @@ type Client = {
 type Appointment = {
   id: number;
   status: string | null;
+  appointment_at: string | null;
 };
 
 type Service = {
@@ -26,39 +29,119 @@ type Service = {
   tag: string | null;
 };
 
-type ChartRange = "today" | "7days" | "30days";
+type ChartRange = "24h" | "7days" | "30days" | "90days";
 
-const chartDataByRange = {
-  today: [
-    { label: "9 AM", bookings: 1 },
-    { label: "11 AM", bookings: 2 },
-    { label: "1 PM", bookings: 1 },
-    { label: "3 PM", bookings: 3 },
-    { label: "5 PM", bookings: 2 },
-    { label: "7 PM", bookings: 1 },
-  ],
-  "7days": [
-    { label: "Mon", bookings: 40 },
-    { label: "Tue", bookings: 55 },
-    { label: "Wed", bookings: 48 },
-    { label: "Thu", bookings: 70 },
-    { label: "Fri", bookings: 62 },
-    { label: "Sat", bookings: 85 },
-    { label: "Sun", bookings: 60 },
-  ],
-  "30days": [
-    { label: "Week 1", bookings: 150 },
-    { label: "Week 2", bookings: 178 },
-    { label: "Week 3", bookings: 164 },
-    { label: "Week 4", bookings: 205 },
-  ],
+type ChartPoint = {
+  label: string;
+  bookings: number;
 };
 
 const rangeLabels = {
-  today: "Today",
+  "24h": "Last 24 hours",
   "7days": "Last 7 days",
   "30days": "Last 30 days",
+  "90days": "Last 90 days",
 };
+
+function startOfDay(date: Date) {
+  const newDate = new Date(date);
+  newDate.setHours(0, 0, 0, 0);
+  return newDate;
+}
+
+function getChartData(appointments: Appointment[], range: ChartRange) {
+  const validAppointments = appointments.filter(
+    (appointment) => appointment.appointment_at
+  );
+
+  const now = new Date();
+
+  if (range === "24h") {
+    const hours = [0, 4, 8, 12, 16, 20];
+
+    return hours.map((hour) => {
+      const start = new Date(now);
+      start.setHours(hour, 0, 0, 0);
+
+      const end = new Date(start);
+      end.setHours(hour + 4, 0, 0, 0);
+
+      const bookings = validAppointments.filter((appointment) => {
+        const appointmentDate = new Date(appointment.appointment_at as string);
+        return appointmentDate >= start && appointmentDate < end;
+      }).length;
+
+      return {
+        label: `${hour.toString().padStart(2, "0")}:00`,
+        bookings,
+      };
+    });
+  }
+
+  if (range === "7days") {
+    const today = startOfDay(now);
+
+    return Array.from({ length: 7 }).map((_, index) => {
+      const day = new Date(today);
+      day.setDate(today.getDate() - (6 - index));
+
+      const nextDay = new Date(day);
+      nextDay.setDate(day.getDate() + 1);
+
+      const bookings = validAppointments.filter((appointment) => {
+        const appointmentDate = new Date(appointment.appointment_at as string);
+        return appointmentDate >= day && appointmentDate < nextDay;
+      }).length;
+
+      return {
+        label: day.toLocaleDateString("en-US", { weekday: "short" }),
+        bookings,
+      };
+    });
+  }
+
+  if (range === "30days") {
+    const today = startOfDay(now);
+
+    return Array.from({ length: 4 }).map((_, index) => {
+      const start = new Date(today);
+      start.setDate(today.getDate() - (28 - index * 7));
+
+      const end = new Date(start);
+      end.setDate(start.getDate() + 7);
+
+      const bookings = validAppointments.filter((appointment) => {
+        const appointmentDate = new Date(appointment.appointment_at as string);
+        return appointmentDate >= start && appointmentDate < end;
+      }).length;
+
+      return {
+        label: `Week ${index + 1}`,
+        bookings,
+      };
+    });
+  }
+
+  const today = startOfDay(now);
+
+  return Array.from({ length: 3 }).map((_, index) => {
+    const start = new Date(today);
+    start.setDate(today.getDate() - (90 - index * 30));
+
+    const end = new Date(start);
+    end.setDate(start.getDate() + 30);
+
+    const bookings = validAppointments.filter((appointment) => {
+      const appointmentDate = new Date(appointment.appointment_at as string);
+      return appointmentDate >= start && appointmentDate < end;
+    }).length;
+
+    return {
+      label: `Month ${index + 1}`,
+      bookings,
+    };
+  });
+}
 
 export default function AnalyticsPage() {
   const [clients, setClients] = useState<Client[]>([]);
@@ -69,9 +152,11 @@ export default function AnalyticsPage() {
   useEffect(() => {
     async function fetchAnalyticsData() {
       const { data: clientsData } = await supabase.from("clients").select("*");
+
       const { data: appointmentsData } = await supabase
         .from("appointments")
-        .select("*");
+        .select("id, status, appointment_at");
+
       const { data: servicesData } = await supabase.from("services").select("*");
 
       setClients(clientsData || []);
@@ -99,7 +184,10 @@ export default function AnalyticsPage() {
     services[0]?.name ||
     "No service yet";
 
-  const chartData = chartDataByRange[chartRange];
+  const chartData: ChartPoint[] = useMemo(
+    () => getChartData(appointments, chartRange),
+    [appointments, chartRange]
+  );
 
   const totalBookingsInChart = useMemo(
     () => chartData.reduce((sum, item) => sum + item.bookings, 0),
@@ -154,7 +242,8 @@ export default function AnalyticsPage() {
             <div>
               <h2 className="app-section-title">Booking Performance</h2>
               <p className="app-muted text-sm">
-                Estimated appointment demand for {rangeLabels[chartRange].toLowerCase()}.
+                Real appointment demand from Supabase for{" "}
+                {rangeLabels[chartRange].toLowerCase()}.
               </p>
               <p className="mt-2 text-sm font-bold text-[var(--app-accent)]">
                 {totalBookingsInChart} total bookings shown
@@ -166,13 +255,14 @@ export default function AnalyticsPage() {
               onChange={(e) => setChartRange(e.target.value as ChartRange)}
               className="app-input rounded-full px-4 py-2 text-sm font-bold"
             >
-              <option value="today">Today</option>
+              <option value="24h">Last 24 hours</option>
               <option value="7days">Last 7 days</option>
               <option value="30days">Last 30 days</option>
+              <option value="90days">Last 90 days</option>
             </select>
           </div>
 
-          <div className="h-72">
+          <div className="h-[260px]">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={chartData}>
                 <defs>
@@ -190,12 +280,34 @@ export default function AnalyticsPage() {
                   </linearGradient>
                 </defs>
 
-                <XAxis dataKey="label" stroke="var(--app-muted)" />
+                <CartesianGrid
+                  vertical={false}
+                  stroke="var(--app-border)"
+                  strokeDasharray="4 8"
+                />
+
+                <XAxis
+                  dataKey="label"
+                  axisLine={false}
+                  tickLine={false}
+                  stroke="var(--app-muted)"
+                />
+
+                <YAxis
+                  axisLine={false}
+                  tickLine={false}
+                  stroke="var(--app-muted)"
+                  width={32}
+                  allowDecimals={false}
+                />
 
                 <Tooltip
+                  animationDuration={200}
                   cursor={{ stroke: "var(--app-accent)", strokeOpacity: 0.25 }}
                   formatter={(value) => [`${value} bookings`, "Bookings"]}
-                  labelFormatter={(label) => `${rangeLabels[chartRange]} • ${label}`}
+                  labelFormatter={(label) =>
+                    `${rangeLabels[chartRange]} • ${label}`
+                  }
                   contentStyle={{
                     background: "var(--app-surface)",
                     border: "1px solid var(--app-border)",
@@ -212,6 +324,12 @@ export default function AnalyticsPage() {
                   stroke="var(--app-accent)"
                   fill="url(#analyticsGlow)"
                   strokeWidth={3}
+                  dot={false}
+                  activeDot={{
+                    r: 6,
+                    strokeWidth: 2,
+                    stroke: "white",
+                  }}
                 />
               </AreaChart>
             </ResponsiveContainer>

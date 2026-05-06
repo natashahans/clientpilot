@@ -9,6 +9,7 @@ type Appointment = {
   service: string;
   time: string;
   status: string | null;
+  appointment_at: string | null;
 };
 
 export default function AppointmentsPage() {
@@ -21,15 +22,35 @@ export default function AppointmentsPage() {
   const [form, setForm] = useState({
     client_name: "",
     service: "",
-    time: "",
+    appointment_at: "",
     status: "Confirmed",
   });
+
+  function formatTime(dateTime: string) {
+    if (!dateTime) return "";
+
+    return new Date(dateTime).toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    });
+  }
+
+  function formatDateTimeForInput(dateTime: string | null) {
+    if (!dateTime) return "";
+
+    const date = new Date(dateTime);
+    const offset = date.getTimezoneOffset();
+    const localDate = new Date(date.getTime() - offset * 60 * 1000);
+
+    return localDate.toISOString().slice(0, 16);
+  }
 
   async function fetchAppointments() {
     const { data, error } = await supabase
       .from("appointments")
       .select("*")
-      .order("id", { ascending: true });
+      .order("appointment_at", { ascending: true, nullsFirst: false });
 
     if (error) {
       console.log("APPOINTMENTS ERROR:", error);
@@ -40,9 +61,15 @@ export default function AppointmentsPage() {
   }
 
   async function addOrUpdateAppointment() {
-    if (!form.client_name.trim() || !form.service.trim() || !form.time.trim()) {
+    if (
+      !form.client_name.trim() ||
+      !form.service.trim() ||
+      !form.appointment_at.trim()
+    ) {
       return;
     }
+
+    const appointmentTime = formatTime(form.appointment_at);
 
     if (editingAppointment) {
       const { error } = await supabase
@@ -50,7 +77,8 @@ export default function AppointmentsPage() {
         .update({
           client_name: form.client_name,
           service: form.service,
-          time: form.time,
+          time: appointmentTime,
+          appointment_at: new Date(form.appointment_at).toISOString(),
           status: form.status,
         })
         .eq("id", editingAppointment.id);
@@ -64,7 +92,8 @@ export default function AppointmentsPage() {
         {
           client_name: form.client_name,
           service: form.service,
-          time: form.time,
+          time: appointmentTime,
+          appointment_at: new Date(form.appointment_at).toISOString(),
           status: form.status,
         },
       ]);
@@ -78,7 +107,7 @@ export default function AppointmentsPage() {
     setForm({
       client_name: "",
       service: "",
-      time: "",
+      appointment_at: "",
       status: "Confirmed",
     });
 
@@ -88,10 +117,7 @@ export default function AppointmentsPage() {
   }
 
   async function deleteAppointment(id: number) {
-    const { error } = await supabase
-      .from("appointments")
-      .delete()
-      .eq("id", id);
+    const { error } = await supabase.from("appointments").delete().eq("id", id);
 
     if (error) {
       console.log("DELETE APPOINTMENT ERROR:", error);
@@ -106,7 +132,7 @@ export default function AppointmentsPage() {
     setForm({
       client_name: appointment.client_name,
       service: appointment.service,
-      time: appointment.time,
+      appointment_at: formatDateTimeForInput(appointment.appointment_at),
       status: appointment.status || "Confirmed",
     });
     setShowModal(true);
@@ -117,7 +143,7 @@ export default function AppointmentsPage() {
     setForm({
       client_name: "",
       service: "",
-      time: "",
+      appointment_at: "",
       status: "Confirmed",
     });
     setShowModal(true);
@@ -263,9 +289,11 @@ export default function AppointmentsPage() {
               />
 
               <input
-                value={form.time}
-                onChange={(e) => setForm({ ...form, time: e.target.value })}
-                placeholder="Time e.g. 14:30"
+                type="datetime-local"
+                value={form.appointment_at}
+                onChange={(e) =>
+                  setForm({ ...form, appointment_at: e.target.value })
+                }
                 className="app-input px-4 py-3"
               />
 
