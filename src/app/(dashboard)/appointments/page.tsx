@@ -12,12 +12,18 @@ type Appointment = {
   appointment_at: string | null;
 };
 
+type Toast = {
+  message: string;
+  type: "success" | "error";
+};
+
 export default function AppointmentsPage() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [toast, setToast] = useState<Toast | null>(null);
 
   const [editingAppointment, setEditingAppointment] =
     useState<Appointment | null>(null);
@@ -28,6 +34,14 @@ export default function AppointmentsPage() {
     appointment_at: "",
     status: "Confirmed",
   });
+
+  function showToast(message: string, type: Toast["type"] = "success") {
+    setToast({ message, type });
+
+    setTimeout(() => {
+      setToast(null);
+    }, 2500);
+  }
 
   function formatTime(dateTime: string) {
     if (!dateTime) return "";
@@ -60,6 +74,7 @@ export default function AppointmentsPage() {
     if (error) {
       console.log("APPOINTMENTS ERROR:", error);
       setLoading(false);
+      showToast("Could not load appointments", "error");
       return;
     }
 
@@ -73,6 +88,7 @@ export default function AppointmentsPage() {
       !form.service.trim() ||
       !form.appointment_at.trim()
     ) {
+      showToast("Please fill all appointment fields", "error");
       return;
     }
 
@@ -95,8 +111,11 @@ export default function AppointmentsPage() {
       if (error) {
         console.log("UPDATE APPOINTMENT ERROR:", error);
         setSaving(false);
+        showToast("Could not update appointment", "error");
         return;
       }
+
+      showToast("Appointment updated");
     } else {
       const { error } = await supabase.from("appointments").insert([
         {
@@ -111,8 +130,11 @@ export default function AppointmentsPage() {
       if (error) {
         console.log("INSERT APPOINTMENT ERROR:", error);
         setSaving(false);
+        showToast("Could not save appointment", "error");
         return;
       }
+
+      showToast("Appointment saved");
     }
 
     setForm({
@@ -133,9 +155,11 @@ export default function AppointmentsPage() {
 
     if (error) {
       console.log("DELETE APPOINTMENT ERROR:", error);
+      showToast("Could not delete appointment", "error");
       return;
     }
 
+    showToast("Appointment deleted");
     fetchAppointments();
   }
 
@@ -173,6 +197,20 @@ export default function AppointmentsPage() {
 
   return (
     <>
+      {toast && (
+        <div className="fixed right-6 top-6 z-[80]">
+          <div
+            className={`rounded-full px-5 py-3 text-sm font-bold shadow-2xl ${
+              toast.type === "success"
+                ? "bg-[var(--app-accent)] text-[var(--app-accent-text)]"
+                : "bg-[var(--app-danger)] text-white"
+            }`}
+          >
+            {toast.message}
+          </div>
+        </div>
+      )}
+
       <section className="space-y-7">
         <div className="flex items-end justify-between">
           <div>
