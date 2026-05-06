@@ -14,6 +14,8 @@ type Appointment = {
 export default function AppointmentsPage() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [showModal, setShowModal] = useState(false);
+  const [editingAppointment, setEditingAppointment] =
+    useState<Appointment | null>(null);
 
   const [form, setForm] = useState({
     client_name: "",
@@ -36,23 +38,40 @@ export default function AppointmentsPage() {
     setAppointments(data || []);
   }
 
-  async function addAppointment() {
+  async function addOrUpdateAppointment() {
     if (!form.client_name.trim() || !form.service.trim() || !form.time.trim()) {
       return;
     }
 
-    const { error } = await supabase.from("appointments").insert([
-      {
-        client_name: form.client_name,
-        service: form.service,
-        time: form.time,
-        status: form.status,
-      },
-    ]);
+    if (editingAppointment) {
+      const { error } = await supabase
+        .from("appointments")
+        .update({
+          client_name: form.client_name,
+          service: form.service,
+          time: form.time,
+          status: form.status,
+        })
+        .eq("id", editingAppointment.id);
 
-    if (error) {
-      console.log("INSERT APPOINTMENT ERROR:", error);
-      return;
+      if (error) {
+        console.log("UPDATE APPOINTMENT ERROR:", error);
+        return;
+      }
+    } else {
+      const { error } = await supabase.from("appointments").insert([
+        {
+          client_name: form.client_name,
+          service: form.service,
+          time: form.time,
+          status: form.status,
+        },
+      ]);
+
+      if (error) {
+        console.log("INSERT APPOINTMENT ERROR:", error);
+        return;
+      }
     }
 
     setForm({
@@ -62,8 +81,45 @@ export default function AppointmentsPage() {
       status: "Confirmed",
     });
 
+    setEditingAppointment(null);
     setShowModal(false);
     fetchAppointments();
+  }
+
+  async function deleteAppointment(id: number) {
+    const { error } = await supabase
+      .from("appointments")
+      .delete()
+      .eq("id", id);
+
+    if (error) {
+      console.log("DELETE APPOINTMENT ERROR:", error);
+      return;
+    }
+
+    fetchAppointments();
+  }
+
+  function openEdit(appointment: Appointment) {
+    setEditingAppointment(appointment);
+    setForm({
+      client_name: appointment.client_name,
+      service: appointment.service,
+      time: appointment.time,
+      status: appointment.status || "Confirmed",
+    });
+    setShowModal(true);
+  }
+
+  function openAdd() {
+    setEditingAppointment(null);
+    setForm({
+      client_name: "",
+      service: "",
+      time: "",
+      status: "Confirmed",
+    });
+    setShowModal(true);
   }
 
   useEffect(() => {
@@ -87,7 +143,7 @@ export default function AppointmentsPage() {
           </div>
 
           <button
-            onClick={() => setShowModal(true)}
+            onClick={openAdd}
             className="rounded-full bg-[#D7FF5F] px-5 py-3 text-sm font-bold text-black"
           >
             New Appointment
@@ -122,7 +178,7 @@ export default function AppointmentsPage() {
               {appointments.map((appointment) => (
                 <div
                   key={appointment.id}
-                  className="grid grid-cols-[0.5fr_1.2fr_1.2fr_0.8fr] items-center rounded-[26px] border border-white/10 bg-[#0B0B0B] p-5"
+                  className="grid grid-cols-[0.5fr_1.1fr_1.1fr_0.8fr_0.7fr] items-center rounded-[26px] border border-white/10 bg-[#0B0B0B] p-5"
                 >
                   <p className="font-black text-[#D7FF5F]">
                     {appointment.time}
@@ -138,6 +194,22 @@ export default function AppointmentsPage() {
                   <span className="w-fit rounded-full bg-white/10 px-3 py-1 text-xs text-white/60">
                     {appointment.status}
                   </span>
+
+                  <div className="flex justify-end gap-3">
+                    <button
+                      onClick={() => openEdit(appointment)}
+                      className="text-xs text-blue-400 hover:text-blue-300"
+                    >
+                      Edit
+                    </button>
+
+                    <button
+                      onClick={() => deleteAppointment(appointment.id)}
+                      className="text-xs text-red-400 hover:text-red-300"
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -150,13 +222,15 @@ export default function AppointmentsPage() {
           <div className="w-full max-w-xl rounded-[36px] border border-white/10 bg-[#111111] p-7 shadow-2xl shadow-black/50">
             <div className="mb-6">
               <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[#D7FF5F]">
-                New Booking
+                {editingAppointment ? "Edit Booking" : "New Booking"}
               </p>
               <h2 className="mt-2 text-3xl font-black tracking-[-0.04em]">
-                Add Appointment
+                {editingAppointment ? "Edit Appointment" : "Add Appointment"}
               </h2>
               <p className="mt-2 text-sm text-white/40">
-                Create a new appointment in your Supabase database.
+                {editingAppointment
+                  ? "Update this appointment record in Supabase."
+                  : "Create a new appointment in your Supabase database."}
               </p>
             </div>
 
@@ -204,17 +278,20 @@ export default function AppointmentsPage() {
 
             <div className="mt-7 flex justify-end gap-3">
               <button
-                onClick={() => setShowModal(false)}
+                onClick={() => {
+                  setShowModal(false);
+                  setEditingAppointment(null);
+                }}
                 className="rounded-full border border-white/10 px-5 py-3 text-sm font-bold text-white/60"
               >
                 Cancel
               </button>
 
               <button
-                onClick={addAppointment}
+                onClick={addOrUpdateAppointment}
                 className="rounded-full bg-[#D7FF5F] px-5 py-3 text-sm font-bold text-black"
               >
-                Save Appointment
+                {editingAppointment ? "Update Appointment" : "Save Appointment"}
               </button>
             </div>
           </div>
