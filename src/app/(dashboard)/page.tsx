@@ -146,6 +146,16 @@ function getChartData(appointments: Appointment[], range: ChartRange) {
   });
 }
 
+function formatAppointmentTime(dateTime: string | null) {
+  if (!dateTime) return "No time";
+
+  return new Date(dateTime).toLocaleTimeString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+}
+
 export default function DashboardPage() {
   const [clients, setClients] = useState<Client[]>([]);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
@@ -423,7 +433,7 @@ export default function DashboardPage() {
                 <div className="absolute left-0 top-6 h-8 w-1 rounded-full bg-[var(--app-accent)]" />
 
                 <p className="text-sm font-bold text-[var(--app-accent)]">
-                  {appointment.time}
+                  {formatAppointmentTime(appointment.appointment_at)}
                 </p>
 
                 <p className="mt-2 text-lg font-bold">{appointment.service}</p>
