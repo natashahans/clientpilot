@@ -180,7 +180,7 @@ body {
 .app-shell-bg .text-white\/60,
 .app-bg .text-white\/70,
 .app-shell-bg .text-white\/70 {
-  color: var(--app-muted) !important;
+  color: rgba(23, 19, 15, 0.72) !important;
 }
 
 .app-bg .placeholder\:text-white\/40::placeholder,
@@ -250,7 +250,7 @@ body {
 /* Nav inactive items */
 .app-bg nav a:not([class*="bg-"]),
 .app-shell-bg nav a:not([class*="bg-"]) {
-  color: var(--app-muted) !important;
+  color: rgba(23, 19, 15, 0.72) !important;
 }
 
 .app-bg nav a:hover,

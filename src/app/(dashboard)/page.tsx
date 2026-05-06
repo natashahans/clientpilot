@@ -5,9 +5,11 @@ import { CalendarDays, Clock, Sparkles, Users, Wallet } from "lucide-react";
 import {
   Area,
   AreaChart,
+  CartesianGrid,
   ResponsiveContainer,
   Tooltip,
   XAxis,
+  YAxis,
 } from "recharts";
 import { supabase } from "@/lib/supabase";
 
@@ -29,38 +31,44 @@ type Appointment = {
   status: string | null;
 };
 
-type ChartRange = "today" | "7days" | "30days";
+type ChartRange = "24h" | "7days" | "30days" | "90days";
 
 const chartDataByRange = {
-  today: [
+  "24h": [
+    { label: "6 AM", bookings: 0 },
     { label: "9 AM", bookings: 1 },
-    { label: "11 AM", bookings: 2 },
-    { label: "1 PM", bookings: 1 },
+    { label: "12 PM", bookings: 2 },
     { label: "3 PM", bookings: 3 },
-    { label: "5 PM", bookings: 2 },
-    { label: "7 PM", bookings: 1 },
+    { label: "6 PM", bookings: 2 },
+    { label: "9 PM", bookings: 1 },
   ],
   "7days": [
-    { label: "Mon", bookings: 28 },
-    { label: "Tue", bookings: 44 },
-    { label: "Wed", bookings: 38 },
-    { label: "Thu", bookings: 62 },
-    { label: "Fri", bookings: 55 },
-    { label: "Sat", bookings: 74 },
-    { label: "Sun", bookings: 49 },
+    { label: "Mon", bookings: 2 },
+    { label: "Tue", bookings: 4 },
+    { label: "Wed", bookings: 3 },
+    { label: "Thu", bookings: 6 },
+    { label: "Fri", bookings: 5 },
+    { label: "Sat", bookings: 7 },
+    { label: "Sun", bookings: 4 },
   ],
   "30days": [
-    { label: "Week 1", bookings: 120 },
-    { label: "Week 2", bookings: 148 },
-    { label: "Week 3", bookings: 132 },
-    { label: "Week 4", bookings: 176 },
+    { label: "Week 1", bookings: 12 },
+    { label: "Week 2", bookings: 15 },
+    { label: "Week 3", bookings: 10 },
+    { label: "Week 4", bookings: 18 },
+  ],
+  "90days": [
+    { label: "Month 1", bookings: 42 },
+    { label: "Month 2", bookings: 55 },
+    { label: "Month 3", bookings: 61 },
   ],
 };
 
 const rangeLabels = {
-  today: "Today",
+  "24h": "Last 24 hours",
   "7days": "Last 7 days",
   "30days": "Last 30 days",
+  "90days": "Last 90 days",
 };
 
 export default function DashboardPage() {
@@ -102,10 +110,13 @@ export default function DashboardPage() {
   }, []);
 
   const totalClients = clients.length;
+
   const activeClients = clients.filter(
     (client) => client.status === "Active"
   ).length;
+
   const newClients = clients.filter((client) => client.status === "New").length;
+
   const recentClients = clients.slice(0, 4);
 
   const chartData = chartDataByRange[chartRange];
@@ -180,6 +191,7 @@ export default function DashboardPage() {
                 </div>
 
                 <p className="app-muted text-sm">{label}</p>
+
                 <h2 className="mt-2 text-4xl font-black tracking-tight">
                   {value}
                 </h2>
@@ -188,14 +200,14 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div className="app-accent-card p-7 shadow-2xl shadow-black/30">
+        <div className="app-accent-card p-6 shadow-2xl shadow-black/30">
           <div className="mb-8 flex items-center justify-between">
             <div>
               <p className="text-sm font-bold uppercase tracking-[0.25em] text-black/50">
                 Smart Signal
               </p>
 
-              <h2 className="mt-2 text-4xl font-black tracking-[-0.05em]">
+              <h2 className="mt-2 text-3xl font-black tracking-[-0.05em]">
                 {activeClients} active clients.
               </h2>
             </div>
@@ -217,9 +229,11 @@ export default function DashboardPage() {
           <div className="mb-6 flex items-center justify-between gap-4">
             <div>
               <h3 className="app-section-title">Booking Performance</h3>
+
               <p className="app-muted mt-1 text-sm">
                 Estimated booking demand for {rangeLabels[chartRange].toLowerCase()}.
               </p>
+
               <p className="mt-2 text-sm font-bold text-[var(--app-accent)]">
                 {totalBookingsInChart} total bookings shown
               </p>
@@ -230,13 +244,14 @@ export default function DashboardPage() {
               onChange={(e) => setChartRange(e.target.value as ChartRange)}
               className="app-input rounded-full px-4 py-2 text-sm font-bold"
             >
-              <option value="today">Today</option>
+              <option value="24h">Last 24 hours</option>
               <option value="7days">Last 7 days</option>
               <option value="30days">Last 30 days</option>
+              <option value="90days">Last 90 days</option>
             </select>
           </div>
 
-          <div className="h-[330px]">
+          <div className="h-[260px]">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={chartData}>
                 <defs>
@@ -254,6 +269,12 @@ export default function DashboardPage() {
                   </linearGradient>
                 </defs>
 
+                <CartesianGrid
+                  vertical={false}
+                  stroke="var(--app-border)"
+                  strokeDasharray="4 8"
+                />
+
                 <XAxis
                   dataKey="label"
                   axisLine={false}
@@ -261,10 +282,20 @@ export default function DashboardPage() {
                   stroke="var(--app-muted)"
                 />
 
+                <YAxis
+                  axisLine={false}
+                  tickLine={false}
+                  stroke="var(--app-muted)"
+                  width={32}
+                />
+
                 <Tooltip
+                  animationDuration={200}
                   cursor={{ stroke: "var(--app-accent)", strokeOpacity: 0.25 }}
                   formatter={(value) => [`${value} bookings`, "Bookings"]}
-                  labelFormatter={(label) => `${rangeLabels[chartRange]} • ${label}`}
+                  labelFormatter={(label) =>
+                    `${rangeLabels[chartRange]} • ${label}`
+                  }
                   contentStyle={{
                     background: "var(--app-surface)",
                     border: "1px solid var(--app-border)",
@@ -281,6 +312,12 @@ export default function DashboardPage() {
                   stroke="var(--app-accent)"
                   strokeWidth={4}
                   fill="url(#areaGlow)"
+                  dot={false}
+                  activeDot={{
+                    r: 6,
+                    strokeWidth: 2,
+                    stroke: "white",
+                  }}
                 />
               </AreaChart>
             </ResponsiveContainer>
@@ -291,6 +328,7 @@ export default function DashboardPage() {
           <div className="mb-6 flex items-center justify-between">
             <div>
               <h3 className="app-section-title">Today’s Timeline</h3>
+
               <p className="app-muted mt-1 text-sm">
                 Live appointments from Supabase
               </p>
@@ -325,6 +363,7 @@ export default function DashboardPage() {
         <div className="mb-6 flex items-center justify-between">
           <div>
             <h3 className="app-section-title">Client Pipeline</h3>
+
             <p className="app-muted mt-1 text-sm">
               Recent clients and booking activity from Supabase.
             </p>
