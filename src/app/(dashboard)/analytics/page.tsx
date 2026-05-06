@@ -57,10 +57,14 @@ export default function AnalyticsPage() {
     fetchAnalyticsData();
   }, []);
 
-  const activeClients = clients.filter((client) => client.status === "Active").length;
+  const activeClients = clients.filter(
+    (client) => client.status === "Active"
+  ).length;
+
   const returningClients = clients.filter(
     (client) => client.status === "Returning"
   ).length;
+
   const confirmedAppointments = appointments.filter(
     (appointment) => appointment.status === "Confirmed"
   ).length;
@@ -73,19 +77,17 @@ export default function AnalyticsPage() {
   return (
     <section className="space-y-7">
       <div>
-        <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[#D7FF5F]">
-          Insights
-        </p>
-        <h1 className="mt-2 text-5xl font-black tracking-[-0.055em]">
-          Analytics
-        </h1>
-        <p className="mt-3 text-white/45">
+        <p className="app-kicker">Insights</p>
+
+        <h1 className="app-page-title mt-2">Analytics</h1>
+
+        <p className="app-muted mt-3">
           Understand live client, service and appointment performance from your database.
         </p>
       </div>
 
       <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-        <div className="rounded-[30px] border border-white/10 bg-[#D7FF5F] p-6 text-black">
+        <div className="app-accent-card p-6">
           <p className="text-sm font-bold uppercase tracking-[0.25em] text-black/50">
             Clients
           </p>
@@ -93,38 +95,38 @@ export default function AnalyticsPage() {
           <p className="mt-2 text-sm font-semibold">{activeClients} active</p>
         </div>
 
-        <div className="rounded-[30px] border border-white/10 bg-white/[0.06] p-6">
-          <p className="text-sm text-white/40">Appointments</p>
+        <div className="app-card p-6">
+          <p className="app-muted text-sm">Appointments</p>
           <h2 className="mt-3 text-5xl font-black">{appointments.length}</h2>
-          <p className="mt-2 text-sm text-white/40">
+          <p className="app-muted mt-2 text-sm">
             {confirmedAppointments} confirmed
           </p>
         </div>
 
-        <div className="rounded-[30px] border border-white/10 bg-white/[0.06] p-6">
-          <p className="text-sm text-white/40">Services</p>
+        <div className="app-card p-6">
+          <p className="app-muted text-sm">Services</p>
           <h2 className="mt-3 text-5xl font-black">{services.length}</h2>
-          <p className="mt-2 text-sm text-white/40">available offers</p>
+          <p className="app-muted mt-2 text-sm">available offers</p>
         </div>
 
-        <div className="rounded-[30px] border border-white/10 bg-white/[0.06] p-6">
-          <p className="text-sm text-white/40">Returning Clients</p>
+        <div className="app-card p-6">
+          <p className="app-muted text-sm">Returning Clients</p>
           <h2 className="mt-3 text-5xl font-black">{returningClients}</h2>
-          <p className="mt-2 text-sm text-white/40">relationship strength</p>
+          <p className="app-muted mt-2 text-sm">relationship strength</p>
         </div>
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[1.5fr_1fr]">
-        <div className="rounded-[36px] border border-white/10 bg-white/[0.06] p-6 shadow-2xl shadow-black/30">
+        <div className="app-card p-6">
           <div className="mb-6 flex items-center justify-between">
             <div>
-              <h2 className="text-2xl font-black">Booking Performance</h2>
-              <p className="text-sm text-white/40">
+              <h2 className="app-section-title">Booking Performance</h2>
+              <p className="app-muted text-sm">
                 Visual trend placeholder for weekly appointment movement.
               </p>
             </div>
 
-            <span className="rounded-full border border-white/10 px-4 py-2 text-xs text-white/40">
+            <span className="app-button-secondary px-4 py-2">
               Last 7 days
             </span>
           </div>
@@ -134,18 +136,35 @@ export default function AnalyticsPage() {
               <AreaChart data={chartData}>
                 <defs>
                   <linearGradient id="color" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#D7FF5F" stopOpacity={0.6} />
-                    <stop offset="100%" stopColor="#D7FF5F" stopOpacity={0} />
+                    <stop
+                      offset="0%"
+                      stopColor="var(--app-accent)"
+                      stopOpacity={0.6}
+                    />
+                    <stop
+                      offset="100%"
+                      stopColor="var(--app-accent)"
+                      stopOpacity={0}
+                    />
                   </linearGradient>
                 </defs>
 
-                <XAxis dataKey="day" stroke="#9CA3AF" />
-                <Tooltip />
+                <XAxis dataKey="day" stroke="rgba(255,255,255,0.35)" />
+
+                <Tooltip
+                  cursor={{ stroke: "rgba(215,255,95,0.25)" }}
+                  contentStyle={{
+                    background: "var(--app-surface)",
+                    border: "1px solid var(--app-border)",
+                    borderRadius: "18px",
+                    color: "var(--app-text)",
+                  }}
+                />
 
                 <Area
                   type="monotone"
                   dataKey="value"
-                  stroke="#D7FF5F"
+                  stroke="var(--app-accent)"
                   fill="url(#color)"
                   strokeWidth={3}
                 />
@@ -155,7 +174,7 @@ export default function AnalyticsPage() {
         </div>
 
         <div className="space-y-6">
-          <div className="rounded-[32px] border border-white/10 bg-[#D7FF5F] p-6 text-black">
+          <div className="app-accent-card p-6">
             <p className="text-sm font-bold uppercase tracking-[0.25em] text-black/50">
               Top Service
             </p>
@@ -167,22 +186,20 @@ export default function AnalyticsPage() {
             </p>
           </div>
 
-          <div className="rounded-[32px] border border-white/10 bg-white/[0.06] p-6">
-            <p className="text-sm text-white/40">Client activity</p>
+          <div className="app-card p-6">
+            <p className="app-muted text-sm">Client activity</p>
             <h2 className="mt-3 text-2xl font-black">
               {activeClients} active clients
             </h2>
-            <p className="mt-1 text-sm text-white/40">
-              Pulled live from Supabase
-            </p>
+            <p className="app-muted mt-1 text-sm">Pulled live from Supabase</p>
           </div>
 
-          <div className="rounded-[32px] border border-white/10 bg-white/[0.06] p-6">
-            <p className="text-sm text-white/40">Booking status</p>
+          <div className="app-card p-6">
+            <p className="app-muted text-sm">Booking status</p>
             <h2 className="mt-3 text-2xl font-black">
               {confirmedAppointments} confirmed
             </h2>
-            <p className="mt-1 text-sm text-white/40">
+            <p className="app-muted mt-1 text-sm">
               Active appointment pipeline
             </p>
           </div>
