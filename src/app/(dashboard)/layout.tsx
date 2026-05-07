@@ -248,8 +248,32 @@ export default function DashboardLayout({
             </div>
           </div>
 
-          <div className="p-4 lg:p-8">{children}</div>
+          <div className="p-4 pb-24 lg:p-8">{children}</div>
         </main>
+
+        <nav className="fixed bottom-0 left-0 right-0 z-50 border-t app-border bg-[var(--app-card)] px-3 py-2 lg:hidden">
+          <div className="grid grid-cols-6 gap-1">
+            {navItems.map(({ name, icon: Icon, path }) => {
+              const isActive =
+                path === "/" ? pathname === "/" : pathname.startsWith(path);
+
+              return (
+                <Link
+                  key={name}
+                  href={path}
+                  className={`flex flex-col items-center justify-center rounded-2xl px-2 py-2 text-[10px] font-bold transition ${
+                    isActive
+                      ? "bg-[var(--app-accent)] text-[var(--app-accent-text)]"
+                      : "app-muted"
+                  }`}
+                >
+                  <Icon className="mb-1 h-4 w-4" />
+                  {name}
+                </Link>
+              );
+            })}
+          </div>
+        </nav>
       </div>
     </div>
   );
