@@ -50,9 +50,19 @@ export default function ClientsPage() {
   async function fetchClients() {
     setLoading(true);
 
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      setLoading(false);
+      return;
+    }
+
     const { data, error } = await supabase
       .from("clients")
       .select("*")
+      .eq("user_id", user.id)
       .order("id", { ascending: false });
 
     if (error) {
@@ -96,6 +106,16 @@ export default function ClientsPage() {
 
       showToast("Client updated");
     } else {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        setSaving(false);
+        showToast("You must be logged in to save clients", "error");
+        return;
+      }
+
       const { error } = await supabase.from("clients").insert([
         {
           name: form.name,
@@ -104,6 +124,7 @@ export default function ClientsPage() {
           service: form.service,
           status: form.status,
           last_visit: form.last_visit,
+          user_id: user.id,
         },
       ]);
 

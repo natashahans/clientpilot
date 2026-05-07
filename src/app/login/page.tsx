@@ -39,6 +39,19 @@ export default function LoginPage() {
     redirectLoggedInUser();
   }, [router]);
 
+  async function handleGoogleLogin() {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: "http://localhost:3000",
+      },
+    });
+
+    if (error) {
+      alert(error.message);
+    }
+  }
+
   async function handleAuth() {
     if (!form.email || !form.password) return;
 
@@ -108,16 +121,34 @@ export default function LoginPage() {
               </p>
             </div>
 
-            <div className="mt-10 space-y-5">
+            <button
+              onClick={handleGoogleLogin}
+              className="app-card mt-10 flex h-14 w-full items-center justify-center gap-3 border app-border text-sm font-bold transition hover:border-[var(--app-accent)] hover:bg-white/[0.06]"
+            >
+              <span className="text-lg font-black">G</span>
+              Continue with Google
+            </button>
+
+            <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t app-border" />
+              </div>
+
+              <div className="relative flex justify-center">
+                <span className="app-bg px-4 text-xs font-bold uppercase tracking-[0.2em] app-muted">
+                  Or continue with email
+                </span>
+              </div>
+            </div>
+
+            <div className="space-y-5">
               <label className="block space-y-2">
                 <span className="text-sm font-bold app-muted">Email</span>
                 <input
                   type="email"
                   placeholder="you@email.com"
                   value={form.email}
-                  onChange={(e) =>
-                    setForm({ ...form, email: e.target.value })
-                  }
+                  onChange={(e) => setForm({ ...form, email: e.target.value })}
                   className="app-input h-14 w-full px-4"
                 />
               </label>

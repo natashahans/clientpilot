@@ -79,9 +79,19 @@ export default function AppointmentsPage() {
   async function fetchAppointments() {
     setLoading(true);
 
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      setLoading(false);
+      return;
+    }
+
     const { data, error } = await supabase
       .from("appointments")
       .select("*")
+      .eq("user_id", user.id)
       .order("appointment_at", { ascending: true, nullsFirst: false });
 
     if (error) {
@@ -130,6 +140,16 @@ export default function AppointmentsPage() {
 
       showToast("Appointment updated");
     } else {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        setSaving(false);
+        showToast("You must be logged in", "error");
+        return;
+      }
+
       const { error } = await supabase.from("appointments").insert([
         {
           client_name: form.client_name,
@@ -137,6 +157,7 @@ export default function AppointmentsPage() {
           time: appointmentTime,
           appointment_at: new Date(form.appointment_at).toISOString(),
           status: form.status,
+          user_id: user.id,
         },
       ]);
 
