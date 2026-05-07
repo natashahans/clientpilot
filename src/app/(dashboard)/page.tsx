@@ -225,6 +225,8 @@ export default function DashboardPage() {
     [chartData]
   );
 
+  const hasChartData = chartData.some((item) => item.bookings > 0);
+
   const todaysAppointments = appointments.filter((appointment) => {
     if (!appointment.appointment_at) return false;
 
@@ -376,6 +378,7 @@ export default function DashboardPage() {
             {loading ? (
               <div className="app-card-dark h-full animate-pulse" />
             ) : (
+            hasChartData ? (
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={chartData}>
                   <defs>
@@ -449,6 +452,16 @@ export default function DashboardPage() {
                   />
                 </AreaChart>
               </ResponsiveContainer>
+              ) : (
+                <div className="app-card-dark flex h-full items-center justify-center rounded-[28px]">
+                  <div className="text-center">
+                    <p className="font-bold">No booking analytics yet</p>
+                    <p className="app-muted mt-1 text-sm">
+                      Appointment trends will appear once bookings are added.
+                    </p>
+                  </div>
+                </div>
+              )
             )}
           </div>
         </div>
