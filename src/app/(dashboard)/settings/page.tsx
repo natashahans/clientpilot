@@ -10,6 +10,7 @@ type WorkspaceSettings = {
   owner_name: string | null;
   currency: string | null;
   timezone: string | null;
+  user_id: string;
 };
 
 type Toast = {
@@ -40,15 +41,60 @@ export default function SettingsPage() {
   }
 
   async function fetchSettings() {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) return;
+
     const { data, error } = await supabase
       .from("workspace_settings")
       .select("*")
+      .eq("user_id", user.id)
       .limit(1)
-      .single();
+      .maybeSingle();
 
     if (error) {
       console.log("SETTINGS ERROR:", error);
       showToast("Could not load settings", "error");
+      return;
+    }
+
+    if (!data) {
+      const { data: newSettings, error: insertError } = await supabase
+        .from("workspace_settings")
+        .insert([
+          {
+            business_name: "My Workspace",
+            business_type: "Service Business",
+            owner_name:
+              user.user_metadata?.full_name ||
+              user.user_metadata?.name ||
+              user.email?.split("@")[0] ||
+              "Owner",
+            currency: "USD",
+            timezone: "Asia/Karachi",
+            user_id: user.id,
+          },
+        ])
+        .select()
+        .single();
+
+      if (insertError) {
+        console.log("CREATE SETTINGS ERROR:", insertError);
+        showToast("Could not create workspace settings", "error");
+        return;
+      }
+
+      setSettings(newSettings);
+      setForm({
+        business_name: newSettings.business_name || "",
+        business_type: newSettings.business_type || "",
+        owner_name: newSettings.owner_name || "",
+        currency: newSettings.currency || "",
+        timezone: newSettings.timezone || "",
+      });
+
       return;
     }
 
@@ -81,7 +127,8 @@ export default function SettingsPage() {
         currency: form.currency,
         timezone: form.timezone,
       })
-      .eq("id", settings.id);
+      .eq("id", settings.id)
+      .eq("user_id", settings.user_id);
 
     if (error) {
       console.log("UPDATE SETTINGS ERROR:", error);
