@@ -214,12 +214,8 @@ export default function DashboardLayout({
                   href="/appointments"
                   className="app-button-primary px-5 py-3"
                 >
-                  New Booking
+                  Manage Bookings
                 </Link>
-
-                <button className="flex h-11 w-11 items-center justify-center rounded-full border app-border bg-white/[0.06]">
-                  <Bell className="h-4 w-4 text-white/70" />
-                </button>
 
                 <button
                   onClick={async () => {
