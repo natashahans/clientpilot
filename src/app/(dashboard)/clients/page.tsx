@@ -13,11 +13,18 @@ type Client = {
   last_visit: string | null;
 };
 
+type Toast = {
+  message: string;
+  type: "success" | "error";
+};
+
 export default function ClientsPage() {
   const [clients, setClients] = useState<Client[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [editingClient, setEditingClient] = useState<Client | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [toast, setToast] = useState<Toast | null>(null);
 
   const [form, setForm] = useState({
     name: "",
@@ -28,6 +35,14 @@ export default function ClientsPage() {
     last_visit: "Today",
   });
 
+  function showToast(message: string, type: Toast["type"] = "success") {
+    setToast({ message, type });
+
+    setTimeout(() => {
+      setToast(null);
+    }, 2500);
+  }
+
   async function fetchClients() {
     const { data, error } = await supabase
       .from("clients")
@@ -36,6 +51,7 @@ export default function ClientsPage() {
 
     if (error) {
       console.log("CLIENTS ERROR:", error);
+      showToast("Could not load clients", "error");
       return;
     }
 
@@ -43,7 +59,12 @@ export default function ClientsPage() {
   }
 
   async function addOrUpdateClient() {
-    if (!form.name.trim()) return;
+    if (!form.name.trim()) {
+      showToast("Client name is required", "error");
+      return;
+    }
+
+    setSaving(true);
 
     if (editingClient) {
       const { error } = await supabase
@@ -60,8 +81,12 @@ export default function ClientsPage() {
 
       if (error) {
         console.log("UPDATE ERROR:", error);
+        setSaving(false);
+        showToast("Could not update client", "error");
         return;
       }
+
+      showToast("Client updated");
     } else {
       const { error } = await supabase.from("clients").insert([
         {
@@ -76,8 +101,12 @@ export default function ClientsPage() {
 
       if (error) {
         console.log("INSERT ERROR:", error);
+        setSaving(false);
+        showToast("Could not save client", "error");
         return;
       }
+
+      showToast("Client saved");
     }
 
     setForm({
@@ -91,6 +120,7 @@ export default function ClientsPage() {
 
     setEditingClient(null);
     setShowModal(false);
+    setSaving(false);
     fetchClients();
   }
 
@@ -99,9 +129,11 @@ export default function ClientsPage() {
 
     if (error) {
       console.log("DELETE ERROR:", error);
+      showToast("Could not delete client", "error");
       return;
     }
 
+    showToast("Client deleted");
     fetchClients();
   }
 
@@ -143,6 +175,20 @@ export default function ClientsPage() {
 
   return (
     <>
+      {toast && (
+        <div className="fixed right-6 top-6 z-[80]">
+          <div
+            className={`rounded-full px-5 py-3 text-sm font-bold shadow-2xl ${
+              toast.type === "success"
+                ? "bg-[var(--app-accent)] text-[var(--app-accent-text)]"
+                : "bg-[var(--app-danger)] text-white"
+            }`}
+          >
+            {toast.message}
+          </div>
+        </div>
+      )}
+
       <section className="space-y-7">
         <div className="flex items-end justify-between">
           <div>
@@ -176,46 +222,57 @@ export default function ClientsPage() {
           </div>
 
           <div className="space-y-3">
-            {filteredClients.map((client) => (
-              <div
-                key={client.id}
-                className="app-card-dark grid grid-cols-[1.5fr_1.5fr_1fr_1fr] items-center px-5 py-4"
-              >
-                <div className="flex items-center gap-4">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--app-accent)] font-black text-[var(--app-accent-text)]">
-                    {client.name
-                      .split(" ")
-                      .map((word) => word[0])
-                      .join("")}
-                  </div>
-
-                  <div>
-                    <p className="font-bold">{client.name}</p>
-                    <p className="app-muted text-sm">{client.email}</p>
-                  </div>
-                </div>
-
-                <p className="app-muted">{client.service}</p>
-
-                <span className="text-sm text-white/60">{client.status}</span>
-
-                <div className="flex justify-end gap-3">
-                  <button
-                    onClick={() => openEdit(client)}
-                    className="text-xs font-semibold text-blue-400 hover:text-blue-300"
-                  >
-                    Edit
-                  </button>
-
-                  <button
-                    onClick={() => deleteClient(client.id)}
-                    className="text-xs font-semibold text-red-400 hover:text-red-300"
-                  >
-                    Delete
-                  </button>
-                </div>
+            {filteredClients.length === 0 ? (
+              <div className="app-card-dark p-6 text-center">
+                <p className="font-bold">No clients found</p>
+                <p className="app-muted mt-1 text-sm">
+                  Create a new client or adjust your search.
+                </p>
               </div>
-            ))}
+            ) : (
+              filteredClients.map((client) => (
+                <div
+                  key={client.id}
+                  className="app-card-dark grid grid-cols-[1.5fr_1.5fr_1fr_1fr] items-center px-5 py-4"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--app-accent)] font-black text-[var(--app-accent-text)]">
+                      {client.name
+                        .split(" ")
+                        .map((word) => word[0])
+                        .join("")}
+                    </div>
+
+                    <div>
+                      <p className="font-bold">{client.name}</p>
+                      <p className="app-muted text-sm">{client.email}</p>
+                    </div>
+                  </div>
+
+                  <p className="app-muted">{client.service}</p>
+
+                  <span className="text-sm text-white/60">
+                    {client.status}
+                  </span>
+
+                  <div className="flex justify-end gap-3">
+                    <button
+                      onClick={() => openEdit(client)}
+                      className="text-xs font-semibold text-blue-400 hover:text-blue-300"
+                    >
+                      Edit
+                    </button>
+
+                    <button
+                      onClick={() => deleteClient(client.id)}
+                      className="text-xs font-semibold text-red-400 hover:text-red-300"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </section>
@@ -286,6 +343,7 @@ export default function ClientsPage() {
                   setShowModal(false);
                   setEditingClient(null);
                 }}
+                disabled={saving}
                 className="app-button-secondary px-5 py-3"
               >
                 Cancel
@@ -293,9 +351,14 @@ export default function ClientsPage() {
 
               <button
                 onClick={addOrUpdateClient}
-                className="app-button-primary px-5 py-3"
+                disabled={saving}
+                className="app-button-primary px-5 py-3 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {editingClient ? "Update Client" : "Save Client"}
+                {saving
+                  ? "Saving..."
+                  : editingClient
+                  ? "Update Client"
+                  : "Save Client"}
               </button>
             </div>
           </div>
