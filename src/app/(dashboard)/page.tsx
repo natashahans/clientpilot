@@ -444,7 +444,7 @@ export default function DashboardPage() {
             <Clock className="h-5 w-5 text-[var(--app-accent)]" />
           </div>
 
-          <div className="space-y-4">
+          <div className="max-h-[540px] space-y-4 overflow-y-auto pr-2">
             {loading ? (
               [1, 2, 3].map((item) => (
                 <div
@@ -460,7 +460,7 @@ export default function DashboardPage() {
                 </p>
               </div>
             ) : (
-              appointments.map((appointment) => (
+              appointments.slice(0, 8).map((appointment) => (
                 <div
                   key={appointment.id}
                   className="app-card-dark relative p-5"
@@ -484,6 +484,12 @@ export default function DashboardPage() {
                   </p>
                 </div>
               ))
+            )}
+
+            {appointments.length > 8 && (
+              <p className="pt-2 text-center text-xs text-white/40">
+                Showing first 8 appointments
+              </p>
             )}
           </div>
         </div>
