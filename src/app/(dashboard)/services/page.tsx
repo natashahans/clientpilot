@@ -46,9 +46,19 @@ export default function ServicesPage() {
   async function fetchServices() {
     setLoading(true);
 
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      setLoading(false);
+      return;
+    }
+
     const { data, error } = await supabase
       .from("services")
       .select("*")
+      .eq("user_id", user.id)
       .order("id", { ascending: false });
 
     if (error) {
@@ -90,12 +100,23 @@ export default function ServicesPage() {
 
       showToast("Service updated");
     } else {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        setSaving(false);
+        showToast("You must be logged in", "error");
+        return;
+      }
+
       const { error } = await supabase.from("services").insert([
         {
           name: form.name,
           price: form.price,
           duration: form.duration,
           tag: form.tag,
+          user_id: user.id,
         },
       ]);
 
