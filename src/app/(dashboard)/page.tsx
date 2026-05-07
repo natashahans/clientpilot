@@ -377,8 +377,7 @@ export default function DashboardPage() {
           <div className="h-[260px]">
             {loading ? (
               <div className="app-card-dark h-full animate-pulse" />
-            ) : (
-            hasChartData ? (
+            ) : hasChartData ? (
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={chartData}>
                   <defs>
@@ -452,7 +451,7 @@ export default function DashboardPage() {
                   />
                 </AreaChart>
               </ResponsiveContainer>
-              ) : (
+            ) : (
                 <div className="app-card-dark flex h-full items-center justify-center rounded-[28px]">
                   <div className="text-center">
                     <p className="font-bold">No booking analytics yet</p>
@@ -461,8 +460,7 @@ export default function DashboardPage() {
                     </p>
                   </div>
                 </div>
-              )
-            )}
+              )}
           </div>
         </div>
 

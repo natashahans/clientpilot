@@ -56,6 +56,16 @@ export default function AppointmentsPage() {
     });
   }
 
+  function formatDate(dateTime: string | null) {
+    if (!dateTime) return "No date";
+
+    return new Date(dateTime).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+  }
+
   function formatDateTimeForInput(dateTime: string | null) {
     if (!dateTime) return "";
 
@@ -226,7 +236,7 @@ export default function AppointmentsPage() {
       )}
 
       <section className="space-y-7">
-        <div className="flex items-end justify-between">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="app-kicker">Schedule</p>
             <h1 className="app-page-title mt-2">Appointments</h1>
@@ -243,14 +253,14 @@ export default function AppointmentsPage() {
         <div className="grid gap-6 xl:grid-cols-[0.9fr_1.4fr]">
           <div className="app-accent-card p-7">
             <p className="text-sm font-bold uppercase tracking-[0.25em] text-black/50">
-              Today
+              Total
             </p>
 
             <h2 className="mt-3 text-6xl font-black tracking-[-0.06em]">
               {appointments.length}
             </h2>
 
-            <p className="mt-2 text-lg font-bold">appointments scheduled</p>
+            <p className="mt-2 text-lg font-bold">appointments in database</p>
 
             <div className="mt-8 rounded-[28px] bg-black p-5 text-white">
               <p className="text-sm text-white/45">Data source</p>
@@ -294,24 +304,31 @@ export default function AppointmentsPage() {
                 paginatedAppointments.map((appointment) => (
                   <div
                     key={appointment.id}
-                    className="app-card-dark grid grid-cols-[0.5fr_1.1fr_1.1fr_0.8fr_0.7fr] items-center px-5 py-4"
+                    className="app-card-dark grid gap-4 px-5 py-4 lg:grid-cols-[0.8fr_1.1fr_1.1fr_0.8fr_0.7fr] lg:items-center"
                   >
-                    <p className="font-black text-[var(--app-accent)]">
-                      {appointment.time}
-                    </p>
+                    <div>
+                      <p className="font-black text-[var(--app-accent)]">
+                        {appointment.time}
+                      </p>
+                      <p className="app-muted mt-1 text-xs">
+                        {formatDate(appointment.appointment_at)}
+                      </p>
+                    </div>
 
                     <div>
                       <p className="font-bold">{appointment.client_name}</p>
                       <p className="app-muted text-sm">Client</p>
                     </div>
 
-                    <p className="app-muted">{appointment.service}</p>
+                    <p className="app-muted text-sm lg:text-base">
+                      {appointment.service}
+                    </p>
 
                     <span className="w-fit rounded-full bg-white/10 px-3 py-1 text-xs text-white/60">
                       {appointment.status}
                     </span>
 
-                    <div className="flex justify-end gap-3">
+                    <div className="flex justify-start gap-3 lg:justify-end">
                       <button
                         onClick={() => openEdit(appointment)}
                         className="text-xs font-semibold text-blue-400 hover:text-blue-300"
@@ -340,7 +357,7 @@ export default function AppointmentsPage() {
             </div>
 
             {!loading && filteredAppointments.length > appointmentsPerPage && (
-              <div className="mt-6 flex items-center justify-between">
+              <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <button
                   onClick={() => setCurrentPage((page) => Math.max(page - 1, 1))}
                   disabled={currentPage === 1}
