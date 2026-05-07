@@ -346,7 +346,7 @@ export default function ClientsPage() {
 
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 backdrop-blur-sm">
-          <div className="app-card w-full max-w-xl p-7">
+          <div className="app-card max-h-[90vh] w-full max-w-xl overflow-y-auto p-5 sm:p-7">
             <div className="mb-6">
               <p className="app-kicker">
                 {editingClient ? "Edit Record" : "New Record"}
@@ -404,14 +404,14 @@ export default function ClientsPage() {
               </select>
             </div>
 
-            <div className="mt-7 flex justify-end gap-3">
+            <div className="mt-7 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
               <button
                 onClick={() => {
                   setShowModal(false);
                   setEditingClient(null);
                 }}
                 disabled={saving}
-                className="app-button-secondary px-5 py-3"
+                className="app-button-secondary w-full px-5 py-3 sm:w-auto"
               >
                 Cancel
               </button>
@@ -419,7 +419,7 @@ export default function ClientsPage() {
               <button
                 onClick={addOrUpdateClient}
                 disabled={saving}
-                className="app-button-primary px-5 py-3 disabled:cursor-not-allowed disabled:opacity-60"
+                className="app-button-primary w-full px-5 py-3 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
               >
                 {saving
                   ? "Saving..."
