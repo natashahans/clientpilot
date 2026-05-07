@@ -195,7 +195,7 @@ export default function ClientsPage() {
   return (
     <>
       {toast && (
-        <div className="fixed right-6 top-6 z-[80]">
+        <div className="fixed left-4 right-4 top-6 z-[80] flex justify-center sm:left-auto sm:right-6 sm:justify-end">
           <div
             className={`rounded-full px-5 py-3 text-sm font-bold shadow-2xl ${
               toast.type === "success"
