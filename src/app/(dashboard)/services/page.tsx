@@ -11,11 +11,18 @@ type Service = {
   tag: string | null;
 };
 
+type Toast = {
+  message: string;
+  type: "success" | "error";
+};
+
 export default function ServicesPage() {
   const [services, setServices] = useState<Service[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [editingService, setEditingService] = useState<Service | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [toast, setToast] = useState<Toast | null>(null);
 
   const [form, setForm] = useState({
     name: "",
@@ -23,6 +30,14 @@ export default function ServicesPage() {
     duration: "",
     tag: "Active",
   });
+
+  function showToast(message: string, type: Toast["type"] = "success") {
+    setToast({ message, type });
+
+    setTimeout(() => {
+      setToast(null);
+    }, 2500);
+  }
 
   async function fetchServices() {
     const { data, error } = await supabase
@@ -32,6 +47,7 @@ export default function ServicesPage() {
 
     if (error) {
       console.log("SERVICES ERROR:", error);
+      showToast("Could not load services", "error");
       return;
     }
 
@@ -39,7 +55,12 @@ export default function ServicesPage() {
   }
 
   async function addOrUpdateService() {
-    if (!form.name.trim() || !form.price.trim()) return;
+    if (!form.name.trim() || !form.price.trim()) {
+      showToast("Service name and price are required", "error");
+      return;
+    }
+
+    setSaving(true);
 
     if (editingService) {
       const { error } = await supabase
@@ -54,8 +75,12 @@ export default function ServicesPage() {
 
       if (error) {
         console.log("UPDATE SERVICE ERROR:", error);
+        setSaving(false);
+        showToast("Could not update service", "error");
         return;
       }
+
+      showToast("Service updated");
     } else {
       const { error } = await supabase.from("services").insert([
         {
@@ -68,8 +93,12 @@ export default function ServicesPage() {
 
       if (error) {
         console.log("INSERT SERVICE ERROR:", error);
+        setSaving(false);
+        showToast("Could not save service", "error");
         return;
       }
+
+      showToast("Service saved");
     }
 
     setForm({
@@ -81,6 +110,7 @@ export default function ServicesPage() {
 
     setEditingService(null);
     setShowModal(false);
+    setSaving(false);
     fetchServices();
   }
 
@@ -89,9 +119,11 @@ export default function ServicesPage() {
 
     if (error) {
       console.log("DELETE SERVICE ERROR:", error);
+      showToast("Could not delete service", "error");
       return;
     }
 
+    showToast("Service deleted");
     fetchServices();
   }
 
@@ -129,6 +161,20 @@ export default function ServicesPage() {
 
   return (
     <>
+      {toast && (
+        <div className="fixed right-6 top-6 z-[80]">
+          <div
+            className={`rounded-full px-5 py-3 text-sm font-bold shadow-2xl ${
+              toast.type === "success"
+                ? "bg-[var(--app-accent)] text-[var(--app-accent-text)]"
+                : "bg-[var(--app-danger)] text-white"
+            }`}
+          >
+            {toast.message}
+          </div>
+        </div>
+      )}
+
       <section className="space-y-7">
         <div className="flex items-end justify-between">
           <div>
@@ -161,45 +207,57 @@ export default function ServicesPage() {
             />
           </div>
 
-          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-            {filteredServices.map((service) => (
-              <div key={service.id} className="app-card-dark p-6 transition hover:bg-white/[0.06]">
-                <div className="mb-10 flex items-center justify-between">
-                  <span className="rounded-full bg-[var(--app-accent)] px-3 py-1 text-xs font-bold text-[var(--app-accent-text)]">
-                    {service.tag}
-                  </span>
+          {filteredServices.length === 0 ? (
+            <div className="app-card-dark p-6 text-center">
+              <p className="font-bold">No services found</p>
+              <p className="app-muted mt-1 text-sm">
+                Create a new service or adjust your search.
+              </p>
+            </div>
+          ) : (
+            <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+              {filteredServices.map((service) => (
+                <div
+                  key={service.id}
+                  className="app-card-dark p-6 transition hover:bg-white/[0.06]"
+                >
+                  <div className="mb-10 flex items-center justify-between">
+                    <span className="rounded-full bg-[var(--app-accent)] px-3 py-1 text-xs font-bold text-[var(--app-accent-text)]">
+                      {service.tag}
+                    </span>
 
-                  <span className="text-sm text-white/35">
-                    {service.duration}
-                  </span>
+                    <span className="text-sm text-white/35">
+                      {service.duration}
+                    </span>
+                  </div>
+
+                  <h2 className="text-2xl font-black tracking-[-0.04em]">
+                    {service.name}
+                  </h2>
+
+                  <p className="mt-3 text-5xl font-black tracking-[-0.06em] text-[var(--app-accent)]">
+                    {service.price}
+                  </p>
+
+                  <div className="mt-8 flex gap-3">
+                    <button
+                      onClick={() => openEdit(service)}
+                      className="app-button-secondary flex-1 py-3"
+                    >
+                      Edit
+                    </button>
+
+                    <button
+                      onClick={() => deleteService(service.id)}
+                      className="flex-1 rounded-full border border-red-400/20 bg-red-500/10 py-3 text-sm font-semibold text-red-300 transition hover:bg-red-500/20"
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </div>
-
-                <h2 className="text-2xl font-black tracking-[-0.04em]">
-                  {service.name}
-                </h2>
-
-                <p className="mt-3 text-5xl font-black tracking-[-0.06em] text-[var(--app-accent)]">
-                  {service.price}
-                </p>
-
-                <div className="mt-8 flex gap-3">
-                  <button
-                    onClick={() => openEdit(service)}
-                    className="app-button-secondary flex-1 py-3"
-                  >
-                    Edit
-                  </button>
-
-                  <button
-                    onClick={() => deleteService(service.id)}
-                    className="flex-1 rounded-full border border-red-400/20 bg-red-500/10 py-3 text-sm font-semibold text-red-300 transition hover:bg-red-500/20"
-                  >
-                    Delete
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
@@ -265,6 +323,7 @@ export default function ServicesPage() {
                   setShowModal(false);
                   setEditingService(null);
                 }}
+                disabled={saving}
                 className="app-button-secondary px-5 py-3"
               >
                 Cancel
@@ -272,9 +331,14 @@ export default function ServicesPage() {
 
               <button
                 onClick={addOrUpdateService}
-                className="app-button-primary px-5 py-3"
+                disabled={saving}
+                className="app-button-primary px-5 py-3 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {editingService ? "Update Service" : "Save Service"}
+                {saving
+                  ? "Saving..."
+                  : editingService
+                  ? "Update Service"
+                  : "Save Service"}
               </button>
             </div>
           </div>
