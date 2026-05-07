@@ -25,6 +25,9 @@ export default function ServicesPage() {
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState<Toast | null>(null);
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const servicesPerPage = 8;
+
   const [form, setForm] = useState({
     name: "",
     price: "",
@@ -163,7 +166,16 @@ export default function ServicesPage() {
       .toLowerCase()
       .includes(searchTerm.toLowerCase())
   );
+  const totalPages = Math.ceil(filteredServices.length / servicesPerPage);
 
+  const paginatedServices = filteredServices.slice(
+    (currentPage - 1) * servicesPerPage,
+    currentPage * servicesPerPage
+  );
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
   return (
     <>
       {toast && (
@@ -229,56 +241,88 @@ export default function ServicesPage() {
               </p>
             </div>
           ) : (
-            <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-              {filteredServices.map((service) => (
-                <div
-                  key={service.id}
-                  className="app-card-dark p-6 transition hover:bg-white/[0.06]"
-                >
-                  <div className="mb-10 flex items-center justify-between">
-                    <span className="rounded-full bg-[var(--app-accent)] px-3 py-1 text-xs font-bold text-[var(--app-accent-text)]">
-                      {service.tag}
-                    </span>
+            <>
+              <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+                {paginatedServices.map((service) => (
+                  <div
+                    key={service.id}
+                    className="app-card-dark p-6 transition hover:bg-white/[0.06]"
+                  >
+                    <div className="mb-10 flex items-center justify-between">
+                      <span className="rounded-full bg-[var(--app-accent)] px-3 py-1 text-xs font-bold text-[var(--app-accent-text)]">
+                        {service.tag}
+                      </span>
 
-                    <span className="text-sm text-white/35">
-                      {service.duration}
-                    </span>
+                      <span className="text-sm text-white/35">
+                        {service.duration}
+                      </span>
+                    </div>
+
+                    <h2 className="text-2xl font-black tracking-[-0.04em]">
+                      {service.name}
+                    </h2>
+
+                    <p className="mt-3 text-5xl font-black tracking-[-0.06em] text-[var(--app-accent)]">
+                      {service.price}
+                    </p>
+
+                    <div className="mt-8 flex gap-3">
+                      <button
+                        onClick={() => openEdit(service)}
+                        className="app-button-secondary flex-1 py-3"
+                      >
+                        Edit
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          const confirmed = window.confirm(
+                            "Delete this service permanently?"
+                          );
+
+                          if (confirmed) {
+                            deleteService(service.id);
+                          }
+                        }}
+                        className="flex-1 rounded-full border border-red-400/20 bg-red-500/10 py-3 text-sm font-semibold text-red-300 transition hover:bg-red-500/20"
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </div>
+                ))}
+              </div>
 
-                  <h2 className="text-2xl font-black tracking-[-0.04em]">
-                    {service.name}
-                  </h2>
+              {!loading && filteredServices.length > servicesPerPage && (
+                <div className="mt-6 flex items-center justify-between">
+                  <button
+                    onClick={() =>
+                      setCurrentPage((page) => Math.max(page - 1, 1))
+                    }
+                    disabled={currentPage === 1}
+                    className="app-button-secondary px-5 py-3 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    Previous
+                  </button>
 
-                  <p className="mt-3 text-5xl font-black tracking-[-0.06em] text-[var(--app-accent)]">
-                    {service.price}
+                  <p className="app-muted text-sm">
+                    Page {currentPage} of {totalPages}
                   </p>
 
-                  <div className="mt-8 flex gap-3">
-                    <button
-                      onClick={() => openEdit(service)}
-                      className="app-button-secondary flex-1 py-3"
-                    >
-                      Edit
-                    </button>
-
-                    <button
-                      onClick={() => {
-                        const confirmed = window.confirm(
-                          "Delete this service permanently?"
-                        );
-
-                        if (confirmed) {
-                          deleteService(service.id);
-                        }
-                      }}
-                      className="flex-1 rounded-full border border-red-400/20 bg-red-500/10 py-3 text-sm font-semibold text-red-300 transition hover:bg-red-500/20"
-                    >
-                      Delete
-                    </button>
-                  </div>
+                  <button
+                    onClick={() =>
+                      setCurrentPage((page) =>
+                        Math.min(page + 1, totalPages)
+                      )
+                    }
+                    disabled={currentPage === totalPages}
+                    className="app-button-secondary px-5 py-3 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    Next
+                  </button>
                 </div>
-              ))}
-            </div>
+              )}
+            </>
           )}
         </div>
       </section>
