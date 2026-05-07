@@ -24,6 +24,7 @@ export default function ClientsPage() {
   const [showModal, setShowModal] = useState(false);
   const [editingClient, setEditingClient] = useState<Client | null>(null);
   const [saving, setSaving] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState<Toast | null>(null);
 
   const [form, setForm] = useState({
@@ -44,6 +45,8 @@ export default function ClientsPage() {
   }
 
   async function fetchClients() {
+    setLoading(true);
+
     const { data, error } = await supabase
       .from("clients")
       .select("*")
@@ -52,10 +55,12 @@ export default function ClientsPage() {
     if (error) {
       console.log("CLIENTS ERROR:", error);
       showToast("Could not load clients", "error");
+      setLoading(false);
       return;
     }
 
     setClients(data || []);
+    setLoading(false);
   }
 
   async function addOrUpdateClient() {
@@ -222,7 +227,14 @@ export default function ClientsPage() {
           </div>
 
           <div className="space-y-3">
-            {filteredClients.length === 0 ? (
+            {loading ? (
+              [1, 2, 3, 4].map((item) => (
+                <div
+                  key={item}
+                  className="app-card-dark h-[84px] animate-pulse"
+                />
+              ))
+            ) : filteredClients.length === 0 ? (
               <div className="app-card-dark p-6 text-center">
                 <p className="font-bold">No clients found</p>
                 <p className="app-muted mt-1 text-sm">
@@ -265,7 +277,9 @@ export default function ClientsPage() {
 
                     <button
                       onClick={() => {
-                        const confirmed = window.confirm("Delete this client permanently?");
+                        const confirmed = window.confirm(
+                          "Delete this client permanently?"
+                        );
 
                         if (confirmed) {
                           deleteClient(client.id);

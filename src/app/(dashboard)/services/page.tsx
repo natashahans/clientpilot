@@ -22,6 +22,7 @@ export default function ServicesPage() {
   const [editingService, setEditingService] = useState<Service | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [saving, setSaving] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState<Toast | null>(null);
 
   const [form, setForm] = useState({
@@ -40,6 +41,8 @@ export default function ServicesPage() {
   }
 
   async function fetchServices() {
+    setLoading(true);
+
     const { data, error } = await supabase
       .from("services")
       .select("*")
@@ -48,10 +51,12 @@ export default function ServicesPage() {
     if (error) {
       console.log("SERVICES ERROR:", error);
       showToast("Could not load services", "error");
+      setLoading(false);
       return;
     }
 
     setServices(data || []);
+    setLoading(false);
   }
 
   async function addOrUpdateService() {
@@ -207,7 +212,16 @@ export default function ServicesPage() {
             />
           </div>
 
-          {filteredServices.length === 0 ? (
+          {loading ? (
+            <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+              {[1, 2, 3, 4].map((item) => (
+                <div
+                  key={item}
+                  className="app-card-dark h-[220px] animate-pulse"
+                />
+              ))}
+            </div>
+          ) : filteredServices.length === 0 ? (
             <div className="app-card-dark p-6 text-center">
               <p className="font-bold">No services found</p>
               <p className="app-muted mt-1 text-sm">
