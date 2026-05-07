@@ -147,7 +147,7 @@ export default function SettingsPage() {
               Workspace
             </p>
 
-            <h2 className="mt-4 text-4xl font-black leading-tight tracking-[-0.055em]">
+            <h2 className="mt-4 text-3xl font-black leading-tight tracking-[-0.055em] sm:text-4xl">
               {settings?.business_name || "Workspace"}
             </h2>
 
@@ -164,7 +164,7 @@ export default function SettingsPage() {
           </div>
 
           <div className="app-card p-6">
-            <div className="mb-6 flex items-start justify-between gap-4">
+            <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <div>
                 <h2 className="app-section-title">Business Profile</h2>
                 <p className="app-muted mt-1 text-sm">
@@ -189,10 +189,10 @@ export default function SettingsPage() {
                   ].map(([label, value]) => (
                     <div
                       key={label}
-                      className="app-card-dark flex items-center justify-between px-5 py-4"
+                      className="app-card-dark flex flex-col gap-1 px-5 py-4 sm:flex-row sm:items-center sm:justify-between"
                     >
                       <p className="app-muted text-sm">{label}</p>
-                      <p className="text-right font-bold">
+                      <p className="break-words font-bold sm:text-right">
                         {value || "Not set"}
                       </p>
                     </div>
@@ -280,7 +280,7 @@ export default function SettingsPage() {
                   </label>
                 </div>
 
-                <div className="mt-6 flex gap-3">
+                <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
                   <button
                     onClick={cancelEditing}
                     disabled={saving}
