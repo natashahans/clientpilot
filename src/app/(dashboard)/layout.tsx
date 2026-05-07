@@ -48,6 +48,7 @@ export default function DashboardLayout({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [userEmail, setUserEmail] = useState("");
+  const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
     async function checkUser() {
@@ -61,6 +62,7 @@ export default function DashboardLayout({
       }
 
       setUserEmail(user.email || "");
+      setUser(user);
 
       setCheckingAuth(false);
     }
@@ -75,10 +77,19 @@ export default function DashboardLayout({
         return;
       }
 
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        setResults([]);
+        return;
+      }
+
       const [clientsRes, appointmentsRes, servicesRes] = await Promise.all([
-        supabase.from("clients").select("*"),
-        supabase.from("appointments").select("*"),
-        supabase.from("services").select("*"),
+        supabase.from("clients").select("*").eq("user_id", user.id),
+        supabase.from("appointments").select("*").eq("user_id", user.id),
+        supabase.from("services").select("*").eq("user_id", user.id),
       ]);
 
       const term = searchTerm.toLowerCase();
@@ -295,12 +306,23 @@ export default function DashboardLayout({
                     className="flex cursor-pointer items-center gap-3 rounded-full border app-border bg-white/[0.04] px-3 py-2 transition-all duration-200 hover:bg-white/[0.08] focus:outline-none focus:ring-2 focus:ring-[var(--app-accent)]/25"
                   >
                     <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-[var(--app-accent)] to-[#9D7CFF] text-sm font-black text-white">
-                      N
+                      {(user?.user_metadata?.full_name ||
+                        user?.user_metadata?.name ||
+                        user?.email ||
+                        "U")[0].toUpperCase()}
                     </div>
 
-                    <div className="hidden text-left sm:block">
-                      <p className="text-sm font-bold leading-none">Natasha</p>
-                      <p className="mt-1 text-xs app-muted">Workspace owner</p>
+                    <div className="hidden min-w-0 text-left sm:block">
+                      <p className="truncate text-sm font-semibold">
+                        {user?.user_metadata?.full_name ||
+                          user?.user_metadata?.name ||
+                          user?.email?.split("@")[0] ||
+                          "User"}
+                      </p>
+
+                      <p className="mt-1 truncate text-xs app-muted">
+                        {user?.email}
+                      </p>
                     </div>
 
                     <ChevronDown
@@ -318,7 +340,12 @@ export default function DashboardLayout({
                         </div>
 
                         <div className="min-w-0 flex-1">
-                          <p className="text-base font-black leading-tight">Natasha</p>
+                          <p className="text-base font-black leading-tight">
+                            {user?.user_metadata?.full_name ||
+                              user?.user_metadata?.name ||
+                              user?.email?.split("@")[0] ||
+                              "User"}
+                          </p>
 
                           <p className="mt-1 break-all text-sm app-muted">
                             {userEmail || "No email found"}
