@@ -304,7 +304,7 @@ export default function DashboardPage() {
                     className="app-card rounded-[28px] p-5 transition hover:bg-white/[0.09]"
                   >
                     <div className="mb-6 flex items-center justify-between">
-                      <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--app-accent)]/15 ring-1 ring-[var(--app-accent)]/20">
                         <Icon className="h-5 w-5 text-[var(--app-accent)]" />
                       </div>
 
@@ -569,7 +569,7 @@ export default function DashboardPage() {
                         .join("")}
                     </div>
 
-                    <span className="rounded-full bg-white/10 px-3 py-1 text-xs text-white/50">
+                    <span className="rounded-full bg-[var(--app-accent)]/12 px-3 py-1 text-xs font-bold text-[var(--app-accent)] ring-1 ring-[var(--app-accent)]/20">
                       {client.status}
                     </span>
                   </div>
