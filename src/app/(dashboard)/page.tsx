@@ -12,6 +12,7 @@ import {
   YAxis,
 } from "recharts";
 import { supabase } from "@/lib/supabase";
+import Link from "next/link";
 
 type Client = {
   id: number;
@@ -526,9 +527,9 @@ export default function DashboardPage() {
             </p>
           </div>
 
-          <button className="app-button-secondary px-4 py-2">
+          <Link href="/clients" className="app-button-secondary px-4 py-2">
             View all clients
-          </button>
+          </Link>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
