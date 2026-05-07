@@ -25,6 +25,9 @@ export default function AppointmentsPage() {
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState<Toast | null>(null);
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const appointmentsPerPage = 10;
+
   const [editingAppointment, setEditingAppointment] =
     useState<Appointment | null>(null);
 
@@ -195,6 +198,17 @@ export default function AppointmentsPage() {
       .includes(searchTerm.toLowerCase())
   );
 
+  const totalPages = Math.ceil(filteredAppointments.length / appointmentsPerPage);
+
+  const paginatedAppointments = filteredAppointments.slice(
+    (currentPage - 1) * appointmentsPerPage,
+    currentPage * appointmentsPerPage
+  );
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
+
   return (
     <>
       {toast && (
@@ -277,7 +291,7 @@ export default function AppointmentsPage() {
                   </p>
                 </div>
               ) : (
-                filteredAppointments.map((appointment) => (
+                paginatedAppointments.map((appointment) => (
                   <div
                     key={appointment.id}
                     className="app-card-dark grid grid-cols-[0.5fr_1.1fr_1.1fr_0.8fr_0.7fr] items-center px-5 py-4"
@@ -324,6 +338,32 @@ export default function AppointmentsPage() {
                 ))
               )}
             </div>
+
+            {!loading && filteredAppointments.length > appointmentsPerPage && (
+              <div className="mt-6 flex items-center justify-between">
+                <button
+                  onClick={() => setCurrentPage((page) => Math.max(page - 1, 1))}
+                  disabled={currentPage === 1}
+                  className="app-button-secondary px-5 py-3 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  Previous
+                </button>
+
+                <p className="app-muted text-sm">
+                  Page {currentPage} of {totalPages}
+                </p>
+
+                <button
+                  onClick={() =>
+                    setCurrentPage((page) => Math.min(page + 1, totalPages))
+                  }
+                  disabled={currentPage === totalPages}
+                  className="app-button-secondary px-5 py-3 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  Next
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </section>
