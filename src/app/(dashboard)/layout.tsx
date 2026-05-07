@@ -12,6 +12,8 @@ import {
   BarChart3,
   Settings,
   Search,
+  Menu,
+  X,
 } from "lucide-react";
 
 const navItems = [
@@ -41,6 +43,7 @@ export default function DashboardLayout({
   const [searchTerm, setSearchTerm] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [checkingAuth, setCheckingAuth] = useState(true);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     async function checkUser() {
@@ -134,46 +137,93 @@ export default function DashboardLayout({
       </div>
     );
   }
+
+  const SidebarContent = (
+    <>
+      <div className="mb-12">
+        <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--app-accent)] text-lg font-black text-[var(--app-accent-text)]">
+          CP
+        </div>
+
+        <h1 className="text-2xl font-black tracking-tight">ClientPilot</h1>
+        <p className="mt-1 text-sm app-muted">
+          Service business command center
+        </p>
+      </div>
+
+      <nav className="space-y-2">
+        {navItems.map(({ name, icon: Icon, path }) => {
+          const isActive =
+            path === "/" ? pathname === "/" : pathname.startsWith(path);
+
+          return (
+            <Link
+              key={name}
+              href={path}
+              onClick={() => setMobileMenuOpen(false)}
+              className={`flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold transition ${
+                isActive
+                  ? "bg-[var(--app-accent)] text-[var(--app-accent-text)] hover:bg-[var(--app-accent)] hover:text-[var(--app-accent-text)]"
+                  : "text-white/45 hover:bg-white/10 hover:text-white"
+              }`}
+            >
+              <Icon className="h-4 w-4" />
+              {name}
+            </Link>
+          );
+        })}
+      </nav>
+    </>
+  );
   
   return (
     <div className="app-bg min-h-screen">
       <div className="flex min-h-screen">
-        <aside className="hidden w-[280px] shrink-0 border-r app-border bg-[var(--app-card)] px-6 py-7 lg:block">
-          <div className="mb-12">
-            <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--app-accent)] text-lg font-black text-[var(--app-accent-text)]">
-              CP
-            </div>
+        {mobileMenuOpen && (
+          <div
+            onClick={() => setMobileMenuOpen(false)}
+            className="fixed inset-0 z-40 bg-black/70 backdrop-blur-sm lg:hidden"
+          />
+        )}
 
-            <h1 className="text-2xl font-black tracking-tight">ClientPilot</h1>
-            <p className="mt-1 text-sm app-muted">
-              Service business command center
-            </p>
+        <aside
+          className={`fixed left-0 top-0 z-50 h-full w-[280px] border-r app-border bg-[var(--app-card)] px-6 py-7 transition-transform duration-300 lg:hidden ${
+            mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
+        >
+          <div className="mb-8 flex items-center justify-between">
+            <p className="text-lg font-black">ClientPilot</p>
+
+            <button
+              onClick={() => setMobileMenuOpen(false)}
+              className="flex h-10 w-10 items-center justify-center rounded-2xl border app-border bg-white/[0.06]"
+            >
+              <X className="h-4 w-4" />
+            </button>
           </div>
 
-          <nav className="space-y-2">
-            {navItems.map(({ name, icon: Icon, path }) => {
-              const isActive =
-                path === "/" ? pathname === "/" : pathname.startsWith(path);
+          {SidebarContent}
+        </aside>
 
-              return (
-                <Link
-                  key={name}
-                  href={path}
-                  className={`flex items-center gap-3 rounded-2xl px-4 py-3 text-sm transition ${
-                    isActive
-                      ? "bg-[var(--app-accent)] text-[var(--app-accent-text)]"
-                      : "text-white/45 hover:bg-white/10 hover:text-white"
-                  }`}
-                >
-                  <Icon className="h-4 w-4" />
-                  {name}
-                </Link>
-              );
-            })}
-          </nav>
+        <aside className="hidden w-[280px] shrink-0 border-r app-border bg-[var(--app-card)] px-6 py-7 lg:block">
+          {SidebarContent}
         </aside>
 
         <main className="app-shell-bg min-w-0 flex-1 overflow-hidden">
+          <div className="flex items-center justify-between border-b app-border px-4 py-4 lg:hidden">
+            <div>
+              <p className="text-lg font-black">ClientPilot</p>
+              <p className="text-xs app-muted">Workspace dashboard</p>
+            </div>
+
+            <button
+              onClick={() => setMobileMenuOpen(true)}
+              className="flex items-center gap-2 rounded-2xl border app-border bg-white/[0.06] px-4 py-2 text-sm font-bold"
+            >
+              <Menu className="h-4 w-4" />
+              Menu
+            </button>
+          </div>
           <div className="border-b app-border px-4 py-5 lg:px-8">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
               <div className="relative w-full lg:w-[420px]">
@@ -195,7 +245,10 @@ export default function DashboardLayout({
                           <Link
                             key={`${result.type}-${result.id}`}
                             href={result.path}
-                            onClick={() => setSearchTerm("")}
+                            onClick={() => {
+                              setSearchTerm("");
+                              setMobileMenuOpen(false);
+                            }}
                             className="block rounded-2xl px-4 py-3 transition hover:bg-white/10"
                           >
                             <div className="flex items-center justify-between">
@@ -248,32 +301,8 @@ export default function DashboardLayout({
             </div>
           </div>
 
-          <div className="p-4 pb-24 lg:p-8">{children}</div>
+          <div className="p-4 lg:p-8">{children}</div>
         </main>
-
-        <nav className="fixed bottom-0 left-0 right-0 z-50 border-t app-border bg-[var(--app-card)] px-3 py-2 lg:hidden">
-          <div className="grid grid-cols-6 gap-1">
-            {navItems.map(({ name, icon: Icon, path }) => {
-              const isActive =
-                path === "/" ? pathname === "/" : pathname.startsWith(path);
-
-              return (
-                <Link
-                  key={name}
-                  href={path}
-                  className={`flex flex-col items-center justify-center rounded-2xl px-2 py-2 text-[10px] font-bold transition ${
-                    isActive
-                      ? "bg-[var(--app-accent)] text-[var(--app-accent-text)]"
-                      : "app-muted"
-                  }`}
-                >
-                  <Icon className="mb-1 h-4 w-4" />
-                  {name}
-                </Link>
-              );
-            })}
-          </div>
-        </nav>
       </div>
     </div>
   );
