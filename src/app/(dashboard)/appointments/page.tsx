@@ -306,7 +306,15 @@ export default function AppointmentsPage() {
                       </button>
 
                       <button
-                        onClick={() => deleteAppointment(appointment.id)}
+                        onClick={() => {
+                          const confirmed = window.confirm(
+                            "Delete this appointment permanently?"
+                          );
+
+                          if (confirmed) {
+                            deleteAppointment(appointment.id);
+                          }
+                        }}
                         className="text-xs font-semibold text-red-400 hover:text-red-300"
                       >
                         Delete

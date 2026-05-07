@@ -248,7 +248,13 @@ export default function ServicesPage() {
                     </button>
 
                     <button
-                      onClick={() => deleteService(service.id)}
+                      onClick={() => {
+                        const confirmed = window.confirm("Delete this service permanently?");
+
+                        if (confirmed) {
+                          deleteService(service.id);
+                        }
+                      }}
                       className="flex-1 rounded-full border border-red-400/20 bg-red-500/10 py-3 text-sm font-semibold text-red-300 transition hover:bg-red-500/20"
                     >
                       Delete

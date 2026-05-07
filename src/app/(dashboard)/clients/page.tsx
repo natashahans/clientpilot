@@ -264,7 +264,13 @@ export default function ClientsPage() {
                     </button>
 
                     <button
-                      onClick={() => deleteClient(client.id)}
+                      onClick={() => {
+                        const confirmed = window.confirm("Delete this client permanently?");
+
+                        if (confirmed) {
+                          deleteClient(client.id);
+                        }
+                      }}
                       className="text-xs font-semibold text-red-400 hover:text-red-300"
                     >
                       Delete
