@@ -166,6 +166,7 @@ export default function ServicesPage() {
       .toLowerCase()
       .includes(searchTerm.toLowerCase())
   );
+  
   const totalPages = Math.ceil(filteredServices.length / servicesPerPage);
 
   const paginatedServices = filteredServices.slice(
@@ -193,7 +194,7 @@ export default function ServicesPage() {
       )}
 
       <section className="space-y-7">
-        <div className="flex items-end justify-between">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="app-kicker">Catalogue</p>
             <h1 className="app-page-title mt-2">Services</h1>
@@ -208,7 +209,7 @@ export default function ServicesPage() {
         </div>
 
         <div className="app-card p-6">
-          <div className="mb-6 flex items-center justify-between gap-4">
+          <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div>
               <h2 className="app-section-title">Service Catalogue</h2>
               <p className="app-muted mt-1 text-sm">
@@ -220,7 +221,7 @@ export default function ServicesPage() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search services..."
-              className="app-input rounded-full px-5 py-3 text-sm"
+              className="app-input w-full rounded-full px-5 py-3 text-sm lg:w-auto"
             />
           </div>
 
@@ -294,7 +295,7 @@ export default function ServicesPage() {
               </div>
 
               {!loading && filteredServices.length > servicesPerPage && (
-                <div className="mt-6 flex items-center justify-between">
+                <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <button
                     onClick={() =>
                       setCurrentPage((page) => Math.max(page - 1, 1))
@@ -385,14 +386,14 @@ export default function ServicesPage() {
               </select>
             </div>
 
-            <div className="mt-7 flex justify-end gap-3">
+            <div className="mt-7 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
               <button
                 onClick={() => {
                   setShowModal(false);
                   setEditingService(null);
                 }}
                 disabled={saving}
-                className="app-button-secondary px-5 py-3"
+                className="app-button-secondary w-full px-5 py-3 sm:w-auto"
               >
                 Cancel
               </button>
@@ -400,7 +401,7 @@ export default function ServicesPage() {
               <button
                 onClick={addOrUpdateService}
                 disabled={saving}
-                className="app-button-primary px-5 py-3 disabled:cursor-not-allowed disabled:opacity-60"
+                className="app-button-primary w-full px-5 py-3 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
               >
                 {saving
                   ? "Saving..."
