@@ -138,7 +138,7 @@ export default function DashboardLayout({
   return (
     <div className="app-bg min-h-screen">
       <div className="flex min-h-screen">
-        <aside className="w-[280px] border-r app-border bg-[var(--app-card)] px-6 py-7">
+        <aside className="hidden w-[280px] shrink-0 border-r app-border bg-[var(--app-card)] px-6 py-7 lg:block">
           <div className="mb-12">
             <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--app-accent)] text-lg font-black text-[var(--app-accent-text)]">
               CP
@@ -173,10 +173,10 @@ export default function DashboardLayout({
           </nav>
         </aside>
 
-        <main className="app-shell-bg flex-1 overflow-hidden">
-          <div className="border-b app-border px-8 py-5">
-            <div className="flex items-center justify-between">
-              <div className="relative w-[420px]">
+        <main className="app-shell-bg min-w-0 flex-1 overflow-hidden">
+          <div className="border-b app-border px-4 py-5 lg:px-8">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+              <div className="relative w-full lg:w-[420px]">
                 <div className="flex items-center gap-3 rounded-full border app-border bg-white/[0.06] px-5 py-3 text-white/40">
                   <Search className="h-4 w-4" />
                   <input
@@ -222,7 +222,7 @@ export default function DashboardLayout({
                 )}
               </div>
 
-              <div className="flex items-center gap-3">
+              <div className="flex w-full items-center justify-between gap-3 lg:w-auto lg:justify-start">
                 <Link
                   href="/appointments"
                   className="app-button-primary px-5 py-3"
@@ -248,7 +248,7 @@ export default function DashboardLayout({
             </div>
           </div>
 
-          <div className="p-8">{children}</div>
+          <div className="p-4 lg:p-8">{children}</div>
         </main>
       </div>
     </div>
