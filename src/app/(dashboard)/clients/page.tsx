@@ -27,6 +27,9 @@ export default function ClientsPage() {
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState<Toast | null>(null);
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const clientsPerPage = 10;
+
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -178,6 +181,17 @@ export default function ClientsPage() {
       .includes(searchTerm.toLowerCase())
   );
 
+  const totalPages = Math.ceil(filteredClients.length / clientsPerPage);
+
+  const paginatedClients = filteredClients.slice(
+    (currentPage - 1) * clientsPerPage,
+    currentPage * clientsPerPage
+  );
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
+
   return (
     <>
       {toast && (
@@ -242,7 +256,7 @@ export default function ClientsPage() {
                 </p>
               </div>
             ) : (
-              filteredClients.map((client) => (
+              paginatedClients.map((client) => (
                 <div
                   key={client.id}
                   className="app-card-dark grid grid-cols-[1.5fr_1.5fr_1fr_1fr] items-center px-5 py-4"
@@ -294,6 +308,32 @@ export default function ClientsPage() {
               ))
             )}
           </div>
+
+          {!loading && filteredClients.length > clientsPerPage && (
+            <div className="mt-6 flex items-center justify-between">
+              <button
+                onClick={() => setCurrentPage((page) => Math.max(page - 1, 1))}
+                disabled={currentPage === 1}
+                className="app-button-secondary px-5 py-3 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Previous
+              </button>
+
+              <p className="app-muted text-sm">
+                Page {currentPage} of {totalPages}
+              </p>
+
+              <button
+                onClick={() =>
+                  setCurrentPage((page) => Math.min(page + 1, totalPages))
+                }
+                disabled={currentPage === totalPages}
+                className="app-button-secondary px-5 py-3 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Next
+              </button>
+            </div>
+          )}
         </div>
       </section>
 
