@@ -161,9 +161,9 @@ export default function DashboardLayout({
               key={name}
               href={path}
               onClick={() => setMobileMenuOpen(false)}
-              className={`flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold transition ${
+              className={`flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold transition-colors duration-200 ${
                 isActive
-                  ? "bg-[var(--app-accent)] text-[var(--app-accent-text)] hover:bg-[var(--app-accent)] hover:text-[var(--app-accent-text)]"
+                  ? "!bg-[var(--app-accent)] !text-[var(--app-accent-text)] hover:!bg-[var(--app-accent)] hover:!text-[var(--app-accent-text)] focus:!bg-[var(--app-accent)] focus:!text-[var(--app-accent-text)]"
                   : "text-white/45 hover:bg-white/10 hover:text-white"
               }`}
             >
