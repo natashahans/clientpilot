@@ -249,7 +249,9 @@ export default function ServicesPage() {
 
                     <button
                       onClick={() => {
-                        const confirmed = window.confirm("Delete this service permanently?");
+                        const confirmed = window.confirm(
+                          "Delete this service permanently?"
+                        );
 
                         if (confirmed) {
                           deleteService(service.id);
