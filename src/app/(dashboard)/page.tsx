@@ -265,7 +265,7 @@ export default function DashboardPage() {
     <section className="space-y-7">
       <div className="grid gap-7 xl:grid-cols-[1.5fr_0.9fr]">
         <div className="relative">
-          <div className="mb-10 flex items-start justify-between gap-8">
+          <div className="mb-10 flex flex-col gap-6 xl:flex-row xl:items-start xl:justify-between">
             <div>
               <p className="app-kicker mb-3">Business Overview</p>
 
@@ -346,8 +346,8 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid gap-7 xl:grid-cols-[1.25fr_0.75fr]">
-        <div className="app-card p-7">
-          <div className="mb-6 flex items-center justify-between gap-4">
+        <div className="app-card p-5 sm:p-7">
+          <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h3 className="app-section-title">Booking Performance</h3>
 
@@ -364,7 +364,7 @@ export default function DashboardPage() {
             <select
               value={chartRange}
               onChange={(e) => setChartRange(e.target.value as ChartRange)}
-              className="app-input rounded-full px-4 py-2 text-sm font-bold"
+              className="app-input w-full rounded-full px-4 py-2 text-sm font-bold sm:w-auto"
               disabled={loading}
             >
               <option value="24h">Last 24 hours</option>
@@ -452,19 +452,19 @@ export default function DashboardPage() {
                 </AreaChart>
               </ResponsiveContainer>
             ) : (
-                <div className="app-card-dark flex h-full items-center justify-center rounded-[28px]">
-                  <div className="text-center">
-                    <p className="font-bold">No booking analytics yet</p>
-                    <p className="app-muted mt-1 text-sm">
-                      Appointment trends will appear once bookings are added.
-                    </p>
-                  </div>
+              <div className="app-card-dark flex h-full items-center justify-center rounded-[28px]">
+                <div className="text-center">
+                  <p className="font-bold">No booking analytics yet</p>
+                  <p className="app-muted mt-1 text-sm">
+                    Appointment trends will appear once bookings are added.
+                  </p>
                 </div>
+              </div>
               )}
           </div>
         </div>
 
-        <div className="app-card p-7">
+        <div className="app-card p-5 sm:p-7">
           <div className="mb-6 flex items-center justify-between">
             <div>
               <h3 className="app-section-title">Today’s Timeline</h3>
@@ -529,8 +529,8 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <div className="app-card p-7">
-        <div className="mb-6 flex items-center justify-between">
+      <div className="app-card p-5 sm:p-7">
+        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h3 className="app-section-title">Client Pipeline</h3>
 
@@ -539,7 +539,10 @@ export default function DashboardPage() {
             </p>
           </div>
 
-          <Link href="/clients" className="app-button-secondary px-4 py-2">
+          <Link 
+            href="/clients"
+            className="app-button-secondary w-full px-4 py-2 text-center sm:w-auto"
+          >
             View all clients
           </Link>
         </div>
