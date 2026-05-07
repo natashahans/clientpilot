@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { CalendarDays, Clock, Sparkles, Users, Wallet } from "lucide-react";
+import { CalendarDays, Clock, Sparkles, Users, UserPlus } from "lucide-react";
 import {
   Area,
   AreaChart,
@@ -206,6 +206,14 @@ export default function DashboardPage() {
 
   const recentClients = clients.slice(0, 4);
 
+  const upcomingAppointments = [...appointments]
+    .sort(
+      (a, b) =>
+        new Date(a.appointment_at || "").getTime() -
+        new Date(b.appointment_at || "").getTime()
+    )
+    .slice(0, 8);
+
   const chartData: ChartPoint[] = useMemo(
     () => getChartData(appointments, chartRange),
     [appointments, chartRange]
@@ -216,6 +224,19 @@ export default function DashboardPage() {
     [chartData]
   );
 
+  const todaysAppointments = appointments.filter((appointment) => {
+    if (!appointment.appointment_at) return false;
+
+    const today = new Date();
+    const appointmentDate = new Date(appointment.appointment_at);
+
+    return (
+      appointmentDate.getDate() === today.getDate() &&
+      appointmentDate.getMonth() === today.getMonth() &&
+      appointmentDate.getFullYear() === today.getFullYear()
+    );
+  }).length;
+
   const stats = [
     {
       label: "Total Clients",
@@ -225,7 +246,7 @@ export default function DashboardPage() {
     },
     {
       label: "Today’s Appointments",
-      value: appointments.length.toString(),
+      value: todaysAppointments.toString(),
       change: "live from database",
       icon: CalendarDays,
     },
@@ -233,7 +254,7 @@ export default function DashboardPage() {
       label: "New Clients",
       value: newClients.toString(),
       change: "from database",
-      icon: Wallet,
+      icon: UserPlus,
     },
   ];
 
@@ -460,7 +481,7 @@ export default function DashboardPage() {
                 </p>
               </div>
             ) : (
-              appointments.slice(0, 8).map((appointment) => (
+              upcomingAppointments.map((appointment) => (
                 <div
                   key={appointment.id}
                   className="app-card-dark relative p-5"
