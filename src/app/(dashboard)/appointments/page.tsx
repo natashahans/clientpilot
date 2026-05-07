@@ -444,14 +444,14 @@ export default function AppointmentsPage() {
               </select>
             </div>
 
-            <div className="mt-7 flex justify-end gap-3">
+            <div className="mt-7 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
               <button
                 onClick={() => {
                   setShowModal(false);
                   setEditingAppointment(null);
                 }}
                 disabled={saving}
-                className="app-button-secondary px-5 py-3"
+                className="app-button-secondary w-full px-5 py-3 sm:w-auto"
               >
                 Cancel
               </button>
@@ -459,7 +459,7 @@ export default function AppointmentsPage() {
               <button
                 onClick={addOrUpdateAppointment}
                 disabled={saving}
-                className="app-button-primary px-5 py-3 disabled:cursor-not-allowed disabled:opacity-60"
+                className="app-button-primary w-full px-5 py-3 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
               >
                 {saving
                   ? "Saving..."
