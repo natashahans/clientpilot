@@ -374,7 +374,7 @@ export default function DashboardPage() {
             </select>
           </div>
 
-          <div className="h-[260px]">
+          <div className="h-[260px] min-w-0">
             {loading ? (
               <div className="app-card-dark h-full animate-pulse" />
             ) : hasChartData ? (

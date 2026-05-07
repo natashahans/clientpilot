@@ -262,7 +262,7 @@ export default function AnalyticsPage() {
             </select>
           </div>
 
-          <div className="h-[260px]">
+          <div className="h-[260px] min-w-0">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={chartData}>
                 <defs>
