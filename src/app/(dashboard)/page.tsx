@@ -165,18 +165,31 @@ export default function DashboardPage() {
 
   useEffect(() => {
     async function fetchDashboardData() {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        setLoading(false);
+        return;
+      }
       setLoading(true);
 
       const [clientsRes, appointmentsRes] = await Promise.all([
         supabase
           .from("clients")
           .select("*")
+          .eq("user_id", user.id)
           .order("id", { ascending: false }),
 
         supabase
           .from("appointments")
           .select("*")
-          .order("appointment_at", { ascending: true, nullsFirst: false }),
+          .eq("user_id", user.id)
+          .order("appointment_at", {
+            ascending: true,
+            nullsFirst: false,
+          }),
       ]);
 
       if (clientsRes.error) {
