@@ -12,7 +12,6 @@ import {
   BarChart3,
   Settings,
   Search,
-  Bell,
 } from "lucide-react";
 
 const navItems = [
@@ -41,6 +40,7 @@ export default function DashboardLayout({
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
+  const [checkingAuth, setCheckingAuth] = useState(true);
 
   useEffect(() => {
     async function checkUser() {
@@ -49,8 +49,11 @@ export default function DashboardLayout({
       } = await supabase.auth.getUser();
 
       if (!user) {
-        router.push("/login");
+        router.replace("/login");
+        return;
       }
+
+      setCheckingAuth(false);
     }
 
     checkUser();
@@ -122,6 +125,16 @@ export default function DashboardLayout({
     runSearch();
   }, [searchTerm]);
 
+  if (checkingAuth) {
+    return (
+      <div className="app-bg flex min-h-screen items-center justify-center">
+        <div className="app-card px-6 py-4 text-sm font-bold">
+          Loading workspace...
+        </div>
+      </div>
+    );
+  }
+  
   return (
     <div className="app-bg min-h-screen">
       <div className="flex min-h-screen">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import {
@@ -15,11 +15,29 @@ import {
 export default function LoginPage() {
   const router = useRouter();
   const [isLogin, setIsLogin] = useState(true);
+  const [checkingAuth, setCheckingAuth] = useState(true);
 
   const [form, setForm] = useState({
     email: "",
     password: "",
   });
+
+  useEffect(() => {
+    async function redirectLoggedInUser() {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (user) {
+        router.replace("/");
+        return;
+      }
+
+      setCheckingAuth(false);
+    }
+
+    redirectLoggedInUser();
+  }, [router]);
 
   async function handleAuth() {
     if (!form.email || !form.password) return;
@@ -35,7 +53,7 @@ export default function LoginPage() {
         return;
       }
 
-      router.push("/");
+      router.replace("/");
     } else {
       const { error } = await supabase.auth.signUp({
         email: form.email,
@@ -50,6 +68,16 @@ export default function LoginPage() {
       alert("Account created. You can now login.");
       setIsLogin(true);
     }
+  }
+
+  if (checkingAuth) {
+    return (
+      <div className="app-bg flex min-h-screen items-center justify-center">
+        <div className="app-card px-6 py-4 text-sm font-bold">
+          Checking session...
+        </div>
+      </div>
+    );
   }
 
   return (
