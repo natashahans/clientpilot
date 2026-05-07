@@ -331,7 +331,7 @@ export default function ServicesPage() {
 
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 backdrop-blur-sm">
-          <div className="app-card w-full max-w-xl p-7">
+          <div className="app-card max-h-[90vh] w-full max-w-xl overflow-y-auto p-5 sm:p-7">
             <div className="mb-6">
               <p className="app-kicker">
                 {editingService ? "Edit Offer" : "New Offer"}
