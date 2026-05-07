@@ -350,7 +350,9 @@ export default function AppointmentsPage() {
                 </button>
 
                 <p className="app-muted text-sm">
-                  Page {currentPage} of {totalPages}
+                  Showing {(currentPage - 1) * appointmentsPerPage + 1}-
+                  {Math.min(currentPage * appointmentsPerPage, filteredAppointments.length)} of{" "}
+                  {filteredAppointments.length} appointments
                 </p>
 
                 <button

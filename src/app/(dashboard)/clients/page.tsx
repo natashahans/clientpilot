@@ -320,7 +320,9 @@ export default function ClientsPage() {
               </button>
 
               <p className="app-muted text-sm">
-                Page {currentPage} of {totalPages}
+                Showing {(currentPage - 1) * clientsPerPage + 1}-
+                {Math.min(currentPage * clientsPerPage, filteredClients.length)} of{" "}
+                {filteredClients.length} clients
               </p>
 
               <button

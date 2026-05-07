@@ -306,7 +306,9 @@ export default function ServicesPage() {
                   </button>
 
                   <p className="app-muted text-sm">
-                    Page {currentPage} of {totalPages}
+                    Showing {(currentPage - 1) * servicesPerPage + 1}-
+                    {Math.min(currentPage * servicesPerPage, filteredServices.length)} of{" "}
+                    {filteredServices.length} services
                   </p>
 
                   <button
