@@ -483,9 +483,10 @@ export default function DashboardPage() {
               </div>
             ) : (
               upcomingAppointments.map((appointment) => (
-                <div
+                <Link
                   key={appointment.id}
-                  className="app-card-dark relative p-5"
+                  href="/appointments"
+                  className="app-card-dark relative block p-5 transition hover:bg-white/[0.06]"
                 >
                   <div className="absolute left-0 top-6 h-8 w-1 rounded-full bg-[var(--app-accent)]" />
 
@@ -504,7 +505,7 @@ export default function DashboardPage() {
                   <p className="mt-2 text-xs text-white/50">
                     {appointment.status}
                   </p>
-                </div>
+                </Link>
               ))
             )}
 
