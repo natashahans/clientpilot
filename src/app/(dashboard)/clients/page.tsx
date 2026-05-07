@@ -209,7 +209,7 @@ export default function ClientsPage() {
       )}
 
       <section className="space-y-7">
-        <div className="flex items-end justify-between">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="app-kicker">CRM</p>
             <h1 className="app-page-title mt-2">Clients</h1>
@@ -224,7 +224,7 @@ export default function ClientsPage() {
         </div>
 
         <div className="app-card p-6">
-          <div className="mb-6 flex items-center justify-between gap-4">
+          <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div>
               <h2 className="app-section-title">Client Directory</h2>
               <p className="app-muted mt-1 text-sm">
@@ -236,7 +236,7 @@ export default function ClientsPage() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search clients..."
-              className="app-input rounded-full px-5 py-3 text-sm"
+              className="app-input w-full rounded-full px-5 py-3 text-sm lg:w-auto"
             />
           </div>
 
@@ -259,29 +259,34 @@ export default function ClientsPage() {
               paginatedClients.map((client) => (
                 <div
                   key={client.id}
-                  className="app-card-dark grid grid-cols-[1.5fr_1.5fr_1fr_1fr] items-center px-5 py-4"
+                  className="app-card-dark grid gap-4 px-5 py-4 lg:grid-cols-[1.5fr_1.5fr_1fr_1fr] lg:items-center"
                 >
                   <div className="flex items-center gap-4">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--app-accent)] font-black text-[var(--app-accent-text)]">
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[var(--app-accent)] font-black text-[var(--app-accent-text)]">
                       {client.name
                         .split(" ")
                         .map((word) => word[0])
-                        .join("")}
+                        .join("")
+                        .slice(0, 2)}
                     </div>
 
-                    <div>
-                      <p className="font-bold">{client.name}</p>
-                      <p className="app-muted text-sm">{client.email}</p>
+                    <div className="min-w-0">
+                      <p className="truncate font-bold">{client.name}</p>
+                      <p className="app-muted truncate text-sm">
+                        {client.email || "No email"}
+                      </p>
                     </div>
                   </div>
 
-                  <p className="app-muted">{client.service}</p>
+                  <p className="app-muted text-sm lg:text-base">
+                    {client.service || "No service"}
+                  </p>
 
-                  <span className="text-sm text-white/60">
+                  <span className="w-fit rounded-full bg-white/10 px-3 py-1 text-xs text-white/60">
                     {client.status}
                   </span>
 
-                  <div className="flex justify-end gap-3">
+                  <div className="flex justify-start gap-3 lg:justify-end">
                     <button
                       onClick={() => openEdit(client)}
                       className="text-xs font-semibold text-blue-400 hover:text-blue-300"
@@ -310,7 +315,7 @@ export default function ClientsPage() {
           </div>
 
           {!loading && filteredClients.length > clientsPerPage && (
-            <div className="mt-6 flex items-center justify-between">
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <button
                 onClick={() => setCurrentPage((page) => Math.max(page - 1, 1))}
                 disabled={currentPage === 1}
