@@ -542,7 +542,11 @@ export default function DashboardPage() {
                 />
               ))
             : recentClients.map((client) => (
-                <div key={client.id} className="app-card-dark p-5">
+                <Link
+                  key={client.id}
+                  href="/clients"
+                  className="app-card-dark block p-5 transition hover:bg-white/[0.06]"
+                >
                   <div className="mb-6 flex items-center justify-between">
                     <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--app-accent)] font-black text-[var(--app-accent-text)]">
                       {client.name
@@ -558,7 +562,7 @@ export default function DashboardPage() {
 
                   <p className="text-lg font-bold">{client.name}</p>
                   <p className="app-muted mt-1 text-sm">{client.service}</p>
-                </div>
+                </Link>
               ))}
         </div>
       </div>
