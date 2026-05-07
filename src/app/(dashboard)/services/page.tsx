@@ -49,7 +49,7 @@ export default function ServicesPage() {
     const { data, error } = await supabase
       .from("services")
       .select("*")
-      .order("id", { ascending: true });
+      .order("id", { ascending: false });
 
     if (error) {
       console.log("SERVICES ERROR:", error);

@@ -53,7 +53,7 @@ export default function ClientsPage() {
     const { data, error } = await supabase
       .from("clients")
       .select("*")
-      .order("id", { ascending: true });
+      .order("id", { ascending: false });
 
     if (error) {
       console.log("CLIENTS ERROR:", error);
