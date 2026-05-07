@@ -247,7 +247,7 @@ export default function ServicesPage() {
                 {paginatedServices.map((service) => (
                   <div
                     key={service.id}
-                    className="app-card-dark p-6 transition hover:bg-white/[0.06]"
+                    className="app-card-dark p-8 transition-all duration-200 hover:-translate-y-1 hover:bg-white/[0.06] hover:shadow-xl hover:shadow-black/5"
                   >
                     <div className="mb-10 flex items-center justify-between">
                       <span className="rounded-full bg-[var(--app-accent)] px-3 py-1 text-xs font-bold text-[var(--app-accent-text)]">

@@ -14,6 +14,8 @@ import {
   Search,
   Menu,
   X,
+  ChevronDown,
+  LogOut,
 } from "lucide-react";
 
 const navItems = [
@@ -44,6 +46,8 @@ export default function DashboardLayout({
   const [results, setResults] = useState<SearchResult[]>([]);
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [userEmail, setUserEmail] = useState("");
 
   useEffect(() => {
     async function checkUser() {
@@ -55,6 +59,8 @@ export default function DashboardLayout({
         router.replace("/login");
         return;
       }
+
+      setUserEmail(user.email || "");
 
       setCheckingAuth(false);
     }
@@ -167,7 +173,7 @@ export default function DashboardLayout({
                   : "text-white/45 hover:bg-white/10 hover:text-white"
               }`}
             >
-              <Icon className="h-4 w-4" />
+              <Icon className="h-[18px] w-[18px]" strokeWidth={2.3} />
               {name}
             </Link>
           );
@@ -227,7 +233,7 @@ export default function DashboardLayout({
           <div className="border-b app-border px-4 py-5 lg:px-8">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
               <div className="relative w-full lg:w-[420px]">
-                <div className="flex items-center gap-3 rounded-full border app-border bg-white/[0.06] px-5 py-3 text-white/40">
+                <div className="flex items-center gap-3 rounded-full border app-border bg-white/[0.06] px-5 py-3 text-white/40 transition-all duration-200 focus-within:border-[var(--app-accent)]/40 focus-within:shadow-lg focus-within:shadow-[var(--app-accent)]/10">
                   <Search className="h-4 w-4" />
                   <input
                     value={searchTerm}
@@ -283,20 +289,58 @@ export default function DashboardLayout({
                   Manage Bookings
                 </Link>
 
-                <button
-                  onClick={async () => {
-                    await supabase.auth.signOut();
-                    window.location.href = "/login";
-                  }}
-                  className="flex items-center gap-3 rounded-full border app-border bg-white/[0.06] px-3 py-2 transition hover:bg-white/10"
-                >
-                  <div className="h-9 w-9 rounded-full bg-gradient-to-br from-[var(--app-accent)] to-[#9D7CFF]" />
+                <div className="relative">
+                  <button
+                    onClick={() => setProfileOpen(!profileOpen)}
+                    className="flex cursor-pointer items-center gap-3 rounded-full border app-border bg-white/[0.04] px-3 py-2 transition-all duration-200 hover:bg-white/[0.08] focus:outline-none focus:ring-2 focus:ring-[var(--app-accent)]/25"
+                  >
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-[var(--app-accent)] to-[#9D7CFF] text-sm font-black text-white">
+                      N
+                    </div>
 
-                  <div className="text-left">
-                    <p className="text-sm font-semibold">Natasha</p>
-                    <p className="text-xs app-muted">Logout</p>
-                  </div>
-                </button>
+                    <div className="hidden text-left sm:block">
+                      <p className="text-sm font-bold leading-none">Natasha</p>
+                      <p className="mt-1 text-xs app-muted">Workspace owner</p>
+                    </div>
+
+                    <ChevronDown
+                      className={`h-4 w-4 text-white/45 transition-transform ${
+                        profileOpen ? "rotate-180" : ""
+                      }`}
+                    />
+                  </button>
+
+                  {profileOpen && (
+                    <div className="absolute right-0 top-14 z-50 w-[320px] rounded-[28px] border app-border bg-[var(--app-surface)] p-3 shadow-2xl shadow-black/20">
+                      <div className="flex items-start gap-4 rounded-[22px] px-4 py-4">
+                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[var(--app-accent)] to-[#9D7CFF] text-base font-black text-white">
+                          {userEmail.charAt(0).toUpperCase() || "N"}
+                        </div>
+
+                        <div className="min-w-0 flex-1">
+                          <p className="text-base font-black leading-tight">Natasha</p>
+
+                          <p className="mt-1 break-all text-sm app-muted">
+                            {userEmail || "No email found"}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="my-1 h-px bg-white/10" />
+
+                      <button
+                        onClick={async () => {
+                          await supabase.auth.signOut();
+                          window.location.href = "/login";
+                        }}
+                        className="flex w-full cursor-pointer items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-bold text-red-500 transition hover:bg-red-500/10"
+                      >
+                        <LogOut className="h-4 w-4" />
+                        Logout
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
