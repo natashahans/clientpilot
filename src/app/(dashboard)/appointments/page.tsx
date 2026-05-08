@@ -5,6 +5,7 @@ import { supabase } from "@/lib/supabase";
 import { useWorkspace } from "@/context/workspace-context";
 import {
   formatDateWithTimezone,
+  formatPrice,
   formatTimeWithTimezone,
 } from "@/lib/formatters";
 
@@ -15,6 +16,7 @@ type Appointment = {
   time: string;
   status: string | null;
   appointment_at: string | null;
+  service_price: number | null;
 };
 
 type Toast = {
@@ -40,6 +42,7 @@ export default function AppointmentsPage() {
   const [form, setForm] = useState({
     client_name: "",
     service: "",
+    service_price: "",
     appointment_at: "",
     status: "Confirmed",
   });
@@ -114,6 +117,7 @@ export default function AppointmentsPage() {
         .update({
           client_name: form.client_name,
           service: form.service,
+          service_price: form.service_price ? parseFloat(form.service_price) : null,
           time: appointmentTime,
           appointment_at: new Date(form.appointment_at).toISOString(),
           status: form.status,
@@ -143,6 +147,7 @@ export default function AppointmentsPage() {
         {
           client_name: form.client_name,
           service: form.service,
+          service_price: form.service_price ? parseFloat(form.service_price) : null,
           time: appointmentTime,
           appointment_at: new Date(form.appointment_at).toISOString(),
           status: form.status,
@@ -163,6 +168,7 @@ export default function AppointmentsPage() {
     setForm({
       client_name: "",
       service: "",
+      service_price: "",
       appointment_at: "",
       status: "Confirmed",
     });
@@ -191,6 +197,7 @@ export default function AppointmentsPage() {
     setForm({
       client_name: appointment.client_name,
       service: appointment.service,
+      service_price: appointment.service_price?.toString() || "",
       appointment_at: formatDateTimeForInput(appointment.appointment_at),
       status: appointment.status || "Confirmed",
     });
@@ -202,6 +209,7 @@ export default function AppointmentsPage() {
     setForm({
       client_name: "",
       service: "",
+      service_price: "",
       appointment_at: "",
       status: "Confirmed",
     });
@@ -213,7 +221,7 @@ export default function AppointmentsPage() {
   }, []);
 
   const filteredAppointments = appointments.filter((appointment) =>
-    `${appointment.client_name} ${appointment.service} ${appointment.time} ${appointment.status}`
+    `${appointment.client_name} ${appointment.service} ${appointment.service_price} ${appointment.time} ${appointment.status}`
       .toLowerCase()
       .includes(searchTerm.toLowerCase())
   );
@@ -336,10 +344,20 @@ export default function AppointmentsPage() {
                       <p className="font-bold">{appointment.client_name}</p>
                       <p className="app-muted text-sm">Client</p>
                     </div>
+                    <div>
+                      <p className="app-muted text-sm lg:text-base">
+                        {appointment.service}
+                      </p>
 
-                    <p className="app-muted text-sm lg:text-base">
-                      {appointment.service}
-                    </p>
+                      <p className="mt-1 text-xs font-bold text-[var(--app-accent)]">
+                        {appointment.service_price
+                          ? formatPrice(
+                              appointment.service_price.toString(),
+                              workspaceSettings?.currency
+                            )
+                          : "No price"}
+                      </p>
+                    </div>
 
                     <span className="w-fit rounded-full bg-white/10 px-3 py-1 text-xs text-white/60">
                       {appointment.status}
@@ -437,6 +455,17 @@ export default function AppointmentsPage() {
                 value={form.service}
                 onChange={(e) => setForm({ ...form, service: e.target.value })}
                 placeholder="Service"
+                className="app-input px-4 py-3"
+              />
+
+              <input
+                type="number"
+                min="0"
+                value={form.service_price}
+                onChange={(e) =>
+                  setForm({ ...form, service_price: e.target.value })
+                }
+                placeholder="Service price e.g. 200"
                 className="app-input px-4 py-3"
               />
 
