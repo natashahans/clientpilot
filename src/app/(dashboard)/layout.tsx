@@ -17,6 +17,7 @@ import {
   ChevronDown,
   LogOut,
 } from "lucide-react";
+import { WorkspaceProvider } from "@/context/workspace-context";
 
 const navItems = [
   { name: "Dashboard", icon: LayoutDashboard, path: "/" },
@@ -194,7 +195,8 @@ export default function DashboardLayout({
   );
   
   return (
-    <div className="app-bg min-h-screen">
+    <WorkspaceProvider>
+      <div className="app-bg min-h-screen">
       <div className="flex min-h-screen">
         {mobileMenuOpen && (
           <div
@@ -376,5 +378,6 @@ export default function DashboardLayout({
         </main>
       </div>
     </div>
-  );
+  </WorkspaceProvider>
+);
 }
