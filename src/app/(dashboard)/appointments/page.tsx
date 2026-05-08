@@ -3,6 +3,10 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useWorkspace } from "@/context/workspace-context";
+import {
+  formatDateWithTimezone,
+  formatTimeWithTimezone,
+} from "@/lib/formatters";
 
 type Appointment = {
   id: number;
@@ -46,28 +50,6 @@ export default function AppointmentsPage() {
     setTimeout(() => {
       setToast(null);
     }, 2500);
-  }
-
-  function formatTime(dateTime: string | null) {
-    if (!dateTime) return "";
-
-    return new Date(dateTime).toLocaleTimeString("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false,
-      timeZone: workspaceSettings?.timezone || "Asia/Karachi",
-    });
-  }
-
-  function formatDate(dateTime: string | null) {
-    if (!dateTime) return "No date";
-
-    return new Date(dateTime).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-      timeZone: workspaceSettings?.timezone || "Asia/Karachi",
-    });
   }
 
   function formatDateTimeForInput(dateTime: string | null) {
@@ -121,7 +103,10 @@ export default function AppointmentsPage() {
 
     setSaving(true);
 
-    const appointmentTime = formatTime(form.appointment_at);
+    const appointmentTime = formatTimeWithTimezone(
+      new Date(form.appointment_at).toISOString(),
+      workspaceSettings?.timezone
+    );
 
     if (editingAppointment) {
       const { error } = await supabase
@@ -333,10 +318,17 @@ export default function AppointmentsPage() {
                   >
                     <div>
                       <p className="font-black text-[var(--app-accent)]">
-                        {formatTime(appointment.appointment_at)}
+                        {formatTimeWithTimezone(
+                          appointment.appointment_at,
+                          workspaceSettings?.timezone
+                        )}
                       </p>
+
                       <p className="app-muted mt-1 text-xs">
-                        {formatDate(appointment.appointment_at)}
+                        {formatDateWithTimezone(
+                          appointment.appointment_at,
+                          workspaceSettings?.timezone
+                        )}
                       </p>
                     </div>
 

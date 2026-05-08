@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useWorkspace } from "@/context/workspace-context";
+import { formatPrice } from "@/lib/formatters";
 
 type Service = {
   id: number;
@@ -16,23 +17,6 @@ type Toast = {
   message: string;
   type: "success" | "error";
 };
-
-const currencySymbols: Record<string, string> = {
-  USD: "$",
-  PKR: "Rs",
-  EUR: "€",
-  GBP: "£",
-  CAD: "$",
-  AUD: "$",
-  AED: "د.إ",
-};
-
-function formatPrice(price: string, currency: string | null | undefined) {
-  const activeCurrency = currency || "USD";
-  const symbol = currencySymbols[activeCurrency] || activeCurrency;
-
-  return `${symbol} ${price}`;
-}
 
 export default function ServicesPage() {
   const [services, setServices] = useState<Service[]>([]);
