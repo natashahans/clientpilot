@@ -48,6 +48,7 @@ export default function AppointmentsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState<Toast | null>(null);
+  const [clientSearch, setClientSearch] = useState("");
   const { workspaceSettings } = useWorkspace();
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -258,6 +259,8 @@ export default function AppointmentsPage() {
       appointment_at: formatDateTimeForInput(appointment.appointment_at),
       status: appointment.status || "Confirmed",
     });
+
+    setClientSearch(appointment.client_name);
     setShowModal(true);
   }
 
@@ -272,6 +275,8 @@ export default function AppointmentsPage() {
       appointment_at: "",
       status: "Confirmed",
     });
+
+    setClientSearch("");
     setShowModal(true);
   }
 
@@ -291,6 +296,14 @@ export default function AppointmentsPage() {
     (currentPage - 1) * appointmentsPerPage,
     currentPage * appointmentsPerPage
   );
+
+  const filteredClients = clients
+    .filter((client) =>
+      `${client.name} ${client.email || ""}`
+        .toLowerCase()
+        .includes(clientSearch.toLowerCase())
+    )
+    .slice(0, 6);
 
   useEffect(() => {
     setCurrentPage(1);
@@ -501,31 +514,54 @@ export default function AppointmentsPage() {
             </div>
 
             <div className="grid gap-4">
-              <select
-                value={form.client_id}
-                onChange={(e) => {
-                  const selectedClient = clients.find(
-                    (client) => client.id === Number(e.target.value)
-                  );
+              <div className="relative">
+                <input
+                  value={clientSearch}
+                  onChange={(e) => {
+                    setClientSearch(e.target.value);
 
-                  setForm({
-                    ...form,
-                    client_id: e.target.value,
-                    client_name: selectedClient?.name || "",
-                  });
-                }}
-                className="app-input px-4 py-3"
-              >
-                <option value="">
-                  {clients.length === 0 ? "No clients available" : "Select client"}
-                </option>
+                    setForm({
+                      ...form,
+                      client_id: "",
+                      client_name: "",
+                    });
+                  }}
+                  placeholder={
+                    clients.length === 0 ? "No clients available" : "Search client..."
+                  }
+                  className="app-input w-full px-4 py-3"
+                />
 
-                {clients.map((client) => (
-                  <option key={client.id} value={client.id}>
-                    {client.name}
-                  </option>
-                ))}
-              </select>
+                {clientSearch && !form.client_id && filteredClients.length > 0 && (
+                  <div className="absolute left-0 right-0 top-14 z-50 rounded-[22px] border app-border bg-[var(--app-surface)] p-2 shadow-2xl shadow-black/30">
+                    {filteredClients.map((client) => (
+                      <button
+                        key={client.id}
+                        type="button"
+                        onClick={() => {
+                          setForm({
+                            ...form,
+                            client_id: client.id.toString(),
+                            client_name: client.name,
+                          });
+
+                          setClientSearch(client.name);
+                        }}
+                        className="block w-full rounded-2xl px-4 py-3 text-left transition hover:bg-white/10"
+                      >
+                        <p className="font-bold">{client.name}</p>
+                        <p className="app-muted text-sm">{client.email || "No email"}</p>
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {clientSearch && !form.client_id && filteredClients.length === 0 && (
+                  <p className="app-muted mt-2 text-sm">
+                    No matching client found. Add this client from the Clients page first.
+                  </p>
+                )}
+              </div>
 
               <select
                 value={form.service_id}
