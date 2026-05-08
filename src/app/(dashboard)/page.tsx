@@ -12,7 +12,7 @@ import {
   YAxis,
 } from "recharts";
 import { supabase } from "@/lib/supabase";
-import { formatTimeWithTimezone } from "@/lib/formatters";
+import { formatPrice, formatTimeWithTimezone } from "@/lib/formatters";
 import { useWorkspace } from "@/context/workspace-context";
 import Link from "next/link";
 
@@ -33,6 +33,7 @@ type Appointment = {
   time: string;
   status: string | null;
   appointment_at: string | null;
+  service_price: number | null;
 };
 
 type ChartRange = "24h" | "7days" | "30days" | "90days";
@@ -232,6 +233,9 @@ export default function DashboardPage() {
   );
 
   const hasChartData = chartData.some((item) => item.bookings > 0);
+  const totalRevenue = appointments.reduce((sum, appointment) => {
+  return sum + (appointment.service_price || 0);
+}, 0);
 
   const todaysAppointments = appointments.filter((appointment) => {
     if (!appointment.appointment_at) return false;
@@ -258,6 +262,12 @@ export default function DashboardPage() {
       value: todaysAppointments.toString(),
       change: "live from database",
       icon: CalendarDays,
+    },
+    {
+      label: "Total Revenue",
+      value: formatPrice(totalRevenue.toString(), workspaceSettings?.currency),
+      change: "from appointments",
+      icon: Sparkles,
     },
     {
       label: "New Clients",
@@ -296,7 +306,7 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             {loading
               ? [1, 2, 3].map((item) => (
                   <div
@@ -309,12 +319,14 @@ export default function DashboardPage() {
                     key={label}
                     className="app-card rounded-[28px] p-5 transition hover:bg-white/[0.09]"
                   >
-                    <div className="mb-6 flex items-center justify-between">
-                      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--app-accent)]/15 ring-1 ring-[var(--app-accent)]/20">
+                    <div className="mb-6 flex items-start justify-between gap-3">
+                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[var(--app-accent)]/15 ring-1 ring-[var(--app-accent)]/20">
                         <Icon className="h-5 w-5 text-[var(--app-accent)]" />
                       </div>
 
-                      <span className="app-muted text-xs">{change}</span>
+                      <span className="app-muted max-w-[95px] text-right text-xs leading-4">
+                        {change}
+                      </span>
                     </div>
 
                     <p className="app-muted text-sm">{label}</p>
