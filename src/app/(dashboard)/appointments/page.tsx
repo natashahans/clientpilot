@@ -51,6 +51,9 @@ export default function AppointmentsPage() {
   const [clientSearch, setClientSearch] = useState("");
   const [creatingClient, setCreatingClient] = useState(false);
 
+  const [serviceSearch, setServiceSearch] = useState("");
+  const [creatingService, setCreatingService] = useState(false);
+
   const { workspaceSettings } = useWorkspace();
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -62,6 +65,12 @@ export default function AppointmentsPage() {
   const [newClientForm, setNewClientForm] = useState({
     name: "",
     email: "",
+  });
+
+  const [newServiceForm, setNewServiceForm] = useState({
+    name: "",
+    price: "",
+    duration: "",
   });
 
   const [form, setForm] = useState({
@@ -206,6 +215,65 @@ export default function AppointmentsPage() {
     showToast("Client created");
   }
 
+  async function createService() {
+    if (!newServiceForm.name.trim() || !newServiceForm.price.trim()) {
+      showToast("Service name and price are required", "error");
+      return;
+    }
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      showToast("You must be logged in", "error");
+      return;
+    }
+
+    const { data, error } = await supabase
+      .from("services")
+      .insert([
+        {
+          name: newServiceForm.name,
+          price: newServiceForm.price,
+          duration: newServiceForm.duration || null,
+          tag: "Active",
+          user_id: user.id,
+        },
+      ])
+      .select()
+      .single();
+
+    if (error) {
+      console.log("CREATE SERVICE ERROR:", error);
+      showToast("Could not create service", "error");
+      return;
+    }
+
+    const createdService = data as Service;
+
+    setServices((prev) => [...prev, createdService]);
+
+    setForm({
+      ...form,
+      service_id: createdService.id.toString(),
+      service: createdService.name,
+      service_price: createdService.price,
+    });
+
+    setServiceSearch(createdService.name);
+
+    setNewServiceForm({
+      name: "",
+      price: "",
+      duration: "",
+    });
+
+    setCreatingService(false);
+
+    showToast("Service created");
+  }
+
   async function addOrUpdateAppointment() {
     if (
       !form.client_id ||
@@ -322,8 +390,9 @@ export default function AppointmentsPage() {
       status: appointment.status || "Confirmed",
     });
 
-    setClientSearch(appointment.client_name);
-    setShowModal(true);
+      setClientSearch(appointment.client_name);
+      setServiceSearch(appointment.service);
+      setShowModal(true);
   }
 
   function openAdd() {
@@ -339,6 +408,9 @@ export default function AppointmentsPage() {
     });
 
     setClientSearch("");
+    setServiceSearch("");
+    setCreatingClient(false);
+    setCreatingService(false);
     setShowModal(true);
   }
 
@@ -366,6 +438,14 @@ export default function AppointmentsPage() {
         .includes(clientSearch.toLowerCase())
     )
     .slice(0, 6);
+
+  const filteredServices = services
+  .filter((service) =>
+    `${service.name} ${service.price} ${service.duration || ""}`
+      .toLowerCase()
+      .includes(serviceSearch.toLowerCase())
+  )
+  .slice(0, 6);
 
   useEffect(() => {
     setCurrentPage(1);
@@ -688,32 +768,136 @@ export default function AppointmentsPage() {
                 )}
               </div>
 
-              <select
-                value={form.service_id}
-                onChange={(e) => {
-                  const selectedService = services.find(
-                    (service) => service.id === Number(e.target.value)
-                  );
+              <div className="relative">
+                <input
+                  value={serviceSearch}
+                  onChange={(e) => {
+                    setServiceSearch(e.target.value);
 
-                  setForm({
-                    ...form,
-                    service_id: e.target.value,
-                    service: selectedService?.name || "",
-                    service_price: selectedService?.price || "",
-                  });
-                }}
-                className="app-input px-4 py-3"
-              >
-                <option value="">
-                  {services.length === 0 ? "No services available" : "Select service"}
-                </option>
+                    setForm({
+                      ...form,
+                      service_id: "",
+                      service: "",
+                      service_price: "",
+                    });
+                  }}
+                  placeholder={
+                    services.length === 0 ? "No services available" : "Search service..."
+                  }
+                  className="app-input w-full px-4 py-3"
+                />
 
-                {services.map((service) => (
-                  <option key={service.id} value={service.id}>
-                    {service.name} — {formatPrice(service.price, workspaceSettings?.currency)}
-                  </option>
-                ))}
-              </select>
+                {serviceSearch && !form.service_id && filteredServices.length > 0 && (
+                  <div className="absolute left-0 right-0 top-14 z-50 rounded-[22px] border app-border bg-[var(--app-surface)] p-2 shadow-2xl shadow-black/30">
+                    {filteredServices.map((service) => (
+                      <button
+                        key={service.id}
+                        type="button"
+                        onClick={() => {
+                          setForm({
+                            ...form,
+                            service_id: service.id.toString(),
+                            service: service.name,
+                            service_price: service.price,
+                          });
+
+                          setServiceSearch(service.name);
+                        }}
+                        className="block w-full rounded-2xl px-4 py-3 text-left transition hover:bg-white/10"
+                      >
+                        <p className="font-bold">{service.name}</p>
+                        <p className="app-muted text-sm">
+                          {formatPrice(service.price, workspaceSettings?.currency)}
+                          {service.duration ? ` • ${service.duration}` : ""}
+                        </p>
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {serviceSearch && !form.service_id && filteredServices.length === 0 && (
+                  <div className="mt-3 space-y-3 rounded-[24px] border border-white/10 bg-white/[0.03] p-4">
+                    <p className="text-sm font-semibold">
+                      No matching service found
+                    </p>
+
+                    {!creatingService ? (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setCreatingService(true);
+
+                          setNewServiceForm({
+                            ...newServiceForm,
+                            name: serviceSearch,
+                          });
+                        }}
+                        className="app-button-secondary px-4 py-2 text-sm"
+                      >
+                        Create "{serviceSearch}" as new service
+                      </button>
+                    ) : (
+                      <div className="space-y-3">
+                        <input
+                          value={newServiceForm.name}
+                          onChange={(e) =>
+                            setNewServiceForm({
+                              ...newServiceForm,
+                              name: e.target.value,
+                            })
+                          }
+                          placeholder="Service name"
+                          className="app-input w-full px-4 py-3"
+                        />
+
+                        <input
+                          type="number"
+                          min="0"
+                          value={newServiceForm.price}
+                          onChange={(e) =>
+                            setNewServiceForm({
+                              ...newServiceForm,
+                              price: e.target.value,
+                            })
+                          }
+                          placeholder="Service price e.g. 200"
+                          className="app-input w-full px-4 py-3"
+                        />
+
+                        <input
+                          value={newServiceForm.duration}
+                          onChange={(e) =>
+                            setNewServiceForm({
+                              ...newServiceForm,
+                              duration: e.target.value,
+                            })
+                          }
+                          placeholder="Duration e.g. 30 min"
+                          className="app-input w-full px-4 py-3"
+                        />
+
+                        <div className="flex gap-3">
+                          <button
+                            type="button"
+                            onClick={createService}
+                            className="app-button-primary px-4 py-2 text-sm"
+                          >
+                            Save Service
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => setCreatingService(false)}
+                            className="app-button-secondary px-4 py-2 text-sm"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
 
               <input
                 type="number"
