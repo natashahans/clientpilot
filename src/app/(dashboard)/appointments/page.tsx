@@ -49,6 +49,8 @@ export default function AppointmentsPage() {
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState<Toast | null>(null);
   const [clientSearch, setClientSearch] = useState("");
+  const [creatingClient, setCreatingClient] = useState(false);
+
   const { workspaceSettings } = useWorkspace();
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -56,6 +58,11 @@ export default function AppointmentsPage() {
 
   const [editingAppointment, setEditingAppointment] =
     useState<Appointment | null>(null);
+
+  const [newClientForm, setNewClientForm] = useState({
+    name: "",
+    email: "",
+  });
 
   const [form, setForm] = useState({
     client_id: "",
@@ -142,6 +149,61 @@ export default function AppointmentsPage() {
     }
 
     setLoading(false);
+  }
+
+  async function createClient() {
+    if (!newClientForm.name.trim()) {
+      showToast("Client name is required", "error");
+      return;
+    }
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      showToast("You must be logged in", "error");
+      return;
+    }
+
+    const { data, error } = await supabase
+      .from("clients")
+      .insert([
+        {
+          name: newClientForm.name,
+          email: newClientForm.email || null,
+          user_id: user.id,
+        },
+      ])
+      .select()
+      .single();
+
+    if (error) {
+      console.log("CREATE CLIENT ERROR:", error);
+      showToast("Could not create client", "error");
+      return;
+    }
+
+    const createdClient = data as Client;
+
+    setClients((prev) => [...prev, createdClient]);
+
+    setForm({
+      ...form,
+      client_id: createdClient.id.toString(),
+      client_name: createdClient.name,
+    });
+
+    setClientSearch(createdClient.name);
+
+    setNewClientForm({
+      name: "",
+      email: "",
+    });
+
+    setCreatingClient(false);
+
+    showToast("Client created");
   }
 
   async function addOrUpdateAppointment() {
@@ -557,9 +619,72 @@ export default function AppointmentsPage() {
                 )}
 
                 {clientSearch && !form.client_id && filteredClients.length === 0 && (
-                  <p className="app-muted mt-2 text-sm">
-                    No matching client found. Add this client from the Clients page first.
-                  </p>
+                  <div className="mt-3 space-y-3 rounded-[24px] border border-white/10 bg-white/[0.03] p-4">
+                    <p className="text-sm font-semibold">
+                      No matching client found
+                    </p>
+
+                    {!creatingClient ? (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setCreatingClient(true);
+
+                          setNewClientForm({
+                            ...newClientForm,
+                            name: clientSearch,
+                          });
+                        }}
+                        className="app-button-secondary px-4 py-2 text-sm"
+                      >
+                        Create "{clientSearch}" as new client
+                      </button>
+                    ) : (
+                      <div className="space-y-3">
+                        <input
+                          value={newClientForm.name}
+                          onChange={(e) =>
+                            setNewClientForm({
+                              ...newClientForm,
+                              name: e.target.value,
+                            })
+                          }
+                          placeholder="Client name"
+                          className="app-input w-full px-4 py-3"
+                        />
+
+                        <input
+                          value={newClientForm.email}
+                          onChange={(e) =>
+                            setNewClientForm({
+                              ...newClientForm,
+                              email: e.target.value,
+                            })
+                          }
+                          placeholder="Client email"
+                          className="app-input w-full px-4 py-3"
+                        />
+
+                        <div className="flex gap-3">
+                          <button
+                            type="button"
+                            onClick={createClient}
+                            className="app-button-primary px-4 py-2 text-sm"
+                          >
+                            Save Client
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => setCreatingClient(false)}
+                            className="app-button-secondary px-4 py-2 text-sm"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 )}
               </div>
 
