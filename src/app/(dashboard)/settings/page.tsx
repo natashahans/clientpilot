@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { useWorkspace } from "@/context/workspace-context";
 
 type WorkspaceSettings = {
   id: number;
@@ -45,6 +46,7 @@ export default function SettingsPage() {
   const [isEditing, setIsEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState<Toast | null>(null);
+  const { refreshWorkspaceSettings } = useWorkspace();
 
   const [form, setForm] = useState({
     business_name: "",
@@ -178,6 +180,8 @@ export default function SettingsPage() {
       currency: data.currency || "",
       timezone: data.timezone || "",
     });
+
+    await refreshWorkspaceSettings();
 
     setSaving(false);
     setIsEditing(false);
