@@ -19,6 +19,13 @@ type Appointment = {
   service_price: number | null;
 };
 
+type Service = {
+  id: number;
+  name: string;
+  price: string;
+  duration: string | null;
+};
+
 type Toast = {
   message: string;
   type: "success" | "error";
@@ -26,6 +33,7 @@ type Toast = {
 
 export default function AppointmentsPage() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [services, setServices] = useState<Service[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
@@ -77,20 +85,37 @@ export default function AppointmentsPage() {
       return;
     }
 
-    const { data, error } = await supabase
-      .from("appointments")
-      .select("*")
-      .eq("user_id", user.id)
-      .order("appointment_at", { ascending: true, nullsFirst: false });
+    const [appointmentsRes, servicesRes] = await Promise.all([
+      supabase
+        .from("appointments")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("appointment_at", {
+          ascending: true,
+          nullsFirst: false,
+        }),
 
-    if (error) {
-      console.log("APPOINTMENTS ERROR:", error);
+      supabase
+        .from("services")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("name", { ascending: true }),
+    ]);
+
+    if (appointmentsRes.error) {
+      console.log("APPOINTMENTS ERROR:", appointmentsRes.error);
       setLoading(false);
       showToast("Could not load appointments", "error");
       return;
     }
 
-    setAppointments(data || []);
+    setAppointments(appointmentsRes.data || []);
+
+    if (servicesRes.error) {
+      console.log("SERVICES ERROR:", servicesRes.error);
+    } else {
+      setServices(servicesRes.data || []);
+    }
     setLoading(false);
   }
 
@@ -451,12 +476,31 @@ export default function AppointmentsPage() {
                 className="app-input px-4 py-3"
               />
 
-              <input
+              <select
                 value={form.service}
-                onChange={(e) => setForm({ ...form, service: e.target.value })}
-                placeholder="Service"
+                onChange={(e) => {
+                  const selectedService = services.find(
+                    (service) => service.name === e.target.value
+                  );
+
+                  setForm({
+                    ...form,
+                    service: e.target.value,
+                    service_price: selectedService?.price || "",
+                  });
+                }}
                 className="app-input px-4 py-3"
-              />
+              >
+                <option value="">
+                  {services.length === 0 ? "No services available" : "Select service"}
+                </option>
+
+                {services.map((service) => (
+                  <option key={service.id} value={service.name}>
+                    {service.name} — {formatPrice(service.price, workspaceSettings?.currency)}
+                  </option>
+                ))}
+              </select>
 
               <input
                 type="number"
