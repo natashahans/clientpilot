@@ -13,6 +13,8 @@ type Appointment = {
   id: number;
   client_name: string;
   service: string;
+  client_id: number | null;
+  service_id: number | null;
   time: string;
   status: string | null;
   appointment_at: string | null;
@@ -26,6 +28,12 @@ type Service = {
   duration: string | null;
 };
 
+type Client = {
+  id: number;
+  name: string;
+  email: string | null;
+};
+
 type Toast = {
   message: string;
   type: "success" | "error";
@@ -34,6 +42,7 @@ type Toast = {
 export default function AppointmentsPage() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [services, setServices] = useState<Service[]>([]);
+  const [clients, setClients] = useState<Client[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
@@ -48,7 +57,9 @@ export default function AppointmentsPage() {
     useState<Appointment | null>(null);
 
   const [form, setForm] = useState({
+    client_id: "",
     client_name: "",
+    service_id: "",
     service: "",
     service_price: "",
     appointment_at: "",
@@ -85,7 +96,7 @@ export default function AppointmentsPage() {
       return;
     }
 
-    const [appointmentsRes, servicesRes] = await Promise.all([
+    const [appointmentsRes, servicesRes, clientsRes] = await Promise.all([
       supabase
         .from("appointments")
         .select("*")
@@ -97,6 +108,12 @@ export default function AppointmentsPage() {
 
       supabase
         .from("services")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("name", { ascending: true }),
+
+      supabase
+        .from("clients")
         .select("*")
         .eq("user_id", user.id)
         .order("name", { ascending: true }),
@@ -116,13 +133,20 @@ export default function AppointmentsPage() {
     } else {
       setServices(servicesRes.data || []);
     }
+
+    if (clientsRes.error) {
+      console.log("CLIENTS ERROR:", clientsRes.error);
+    } else {
+      setClients(clientsRes.data || []);
+    }
+
     setLoading(false);
   }
 
   async function addOrUpdateAppointment() {
     if (
-      !form.client_name.trim() ||
-      !form.service.trim() ||
+      !form.client_id ||
+      !form.service_id ||
       !form.appointment_at.trim()
     ) {
       showToast("Please fill all appointment fields", "error");
@@ -140,6 +164,8 @@ export default function AppointmentsPage() {
       const { error } = await supabase
         .from("appointments")
         .update({
+          client_id: form.client_id ? Number(form.client_id) : null,
+          service_id: form.service_id ? Number(form.service_id) : null,
           client_name: form.client_name,
           service: form.service,
           service_price: form.service_price ? parseFloat(form.service_price) : null,
@@ -170,6 +196,8 @@ export default function AppointmentsPage() {
 
       const { error } = await supabase.from("appointments").insert([
         {
+          client_id: form.client_id ? Number(form.client_id) : null,
+          service_id: form.service_id ? Number(form.service_id) : null,
           client_name: form.client_name,
           service: form.service,
           service_price: form.service_price ? parseFloat(form.service_price) : null,
@@ -191,7 +219,9 @@ export default function AppointmentsPage() {
     }
 
     setForm({
+      client_id: "",
       client_name: "",
+      service_id: "",
       service: "",
       service_price: "",
       appointment_at: "",
@@ -220,7 +250,9 @@ export default function AppointmentsPage() {
   function openEdit(appointment: Appointment) {
     setEditingAppointment(appointment);
     setForm({
+      client_id: appointment.client_id?.toString() || "",
       client_name: appointment.client_name,
+      service_id: appointment.service_id?.toString() || "",
       service: appointment.service,
       service_price: appointment.service_price?.toString() || "",
       appointment_at: formatDateTimeForInput(appointment.appointment_at),
@@ -232,7 +264,9 @@ export default function AppointmentsPage() {
   function openAdd() {
     setEditingAppointment(null);
     setForm({
+      client_id: "",
       client_name: "",
+      service_id: "",
       service: "",
       service_price: "",
       appointment_at: "",
@@ -246,7 +280,7 @@ export default function AppointmentsPage() {
   }, []);
 
   const filteredAppointments = appointments.filter((appointment) =>
-    `${appointment.client_name} ${appointment.service} ${appointment.service_price} ${appointment.time} ${appointment.status}`
+    `${appointment.client_name} ${appointment.client_id} ${appointment.service} ${appointment.service_id} ${appointment.service_price} ${appointment.time} ${appointment.status}`
       .toLowerCase()
       .includes(searchTerm.toLowerCase())
   );
@@ -467,25 +501,43 @@ export default function AppointmentsPage() {
             </div>
 
             <div className="grid gap-4">
-              <input
-                value={form.client_name}
-                onChange={(e) =>
-                  setForm({ ...form, client_name: e.target.value })
-                }
-                placeholder="Client name"
-                className="app-input px-4 py-3"
-              />
-
               <select
-                value={form.service}
+                value={form.client_id}
                 onChange={(e) => {
-                  const selectedService = services.find(
-                    (service) => service.name === e.target.value
+                  const selectedClient = clients.find(
+                    (client) => client.id === Number(e.target.value)
                   );
 
                   setForm({
                     ...form,
-                    service: e.target.value,
+                    client_id: e.target.value,
+                    client_name: selectedClient?.name || "",
+                  });
+                }}
+                className="app-input px-4 py-3"
+              >
+                <option value="">
+                  {clients.length === 0 ? "No clients available" : "Select client"}
+                </option>
+
+                {clients.map((client) => (
+                  <option key={client.id} value={client.id}>
+                    {client.name}
+                  </option>
+                ))}
+              </select>
+
+              <select
+                value={form.service_id}
+                onChange={(e) => {
+                  const selectedService = services.find(
+                    (service) => service.id === Number(e.target.value)
+                  );
+
+                  setForm({
+                    ...form,
+                    service_id: e.target.value,
+                    service: selectedService?.name || "",
                     service_price: selectedService?.price || "",
                   });
                 }}
@@ -496,7 +548,7 @@ export default function AppointmentsPage() {
                 </option>
 
                 {services.map((service) => (
-                  <option key={service.id} value={service.name}>
+                  <option key={service.id} value={service.id}>
                     {service.name} — {formatPrice(service.price, workspaceSettings?.currency)}
                   </option>
                 ))}
