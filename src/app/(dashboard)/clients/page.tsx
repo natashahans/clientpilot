@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { useRouter } from "next/navigation";
 
 type Client = {
   id: number;
@@ -26,6 +27,7 @@ export default function ClientsPage() {
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState<Toast | null>(null);
+  const router = useRouter();
 
   const [currentPage, setCurrentPage] = useState(1);
   const clientsPerPage = 10;
@@ -280,7 +282,8 @@ export default function ClientsPage() {
               paginatedClients.map((client) => (
                 <div
                   key={client.id}
-                  className="app-card-dark grid gap-4 px-5 py-4 lg:grid-cols-[1.5fr_1.5fr_1fr_1fr] lg:items-center"
+                  onClick={() => router.push(`/clients/${client.id}`)}
+                  className="app-card-dark grid cursor-pointer gap-4 px-5 py-4 transition hover:bg-white/[0.06] lg:grid-cols-[1.5fr_1.5fr_1fr_1fr] lg:items-center"
                 >
                   <div className="flex items-center gap-4">
                     <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[var(--app-accent)] font-black text-[var(--app-accent-text)]">
@@ -309,14 +312,19 @@ export default function ClientsPage() {
 
                   <div className="flex justify-start gap-3 lg:justify-end">
                     <button
-                      onClick={() => openEdit(client)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openEdit(client);
+                      }}
                       className="text-xs font-semibold text-blue-400 hover:text-blue-300"
                     >
                       Edit
                     </button>
 
                     <button
-                      onClick={() => {
+                      onClick={(e) => {
+                        e.stopPropagation();
+
                         const confirmed = window.confirm(
                           "Delete this client permanently?"
                         );
