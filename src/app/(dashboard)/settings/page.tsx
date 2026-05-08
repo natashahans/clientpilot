@@ -18,6 +18,28 @@ type Toast = {
   type: "success" | "error";
 };
 
+const currencyOptions = [
+  { label: "US Dollar", value: "USD", symbol: "$" },
+  { label: "Pakistani Rupee", value: "PKR", symbol: "Rs" },
+  { label: "Euro", value: "EUR", symbol: "€" },
+  { label: "British Pound", value: "GBP", symbol: "£" },
+  { label: "Canadian Dollar", value: "CAD", symbol: "$" },
+  { label: "Australian Dollar", value: "AUD", symbol: "$" },
+  { label: "UAE Dirham", value: "AED", symbol: "د.إ" },
+];
+
+const timezoneOptions = [
+  "Asia/Karachi",
+  "Asia/Dubai",
+  "Europe/London",
+  "Europe/Paris",
+  "America/New_York",
+  "America/Chicago",
+  "America/Los_Angeles",
+  "America/Toronto",
+  "Australia/Sydney",
+];
+
 export default function SettingsPage() {
   const [settings, setSettings] = useState<WorkspaceSettings | null>(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -137,6 +159,16 @@ export default function SettingsPage() {
       return;
     }
 
+    const updatedSettings = {
+      ...settings,
+      business_name: form.business_name,
+      business_type: form.business_type,
+      owner_name: form.owner_name,
+      currency: form.currency,
+      timezone: form.timezone,
+    };
+
+    setSettings(updatedSettings);
     setSaving(false);
     setIsEditing(false);
     showToast("Workspace updated");
@@ -302,28 +334,38 @@ export default function SettingsPage() {
                     <span className="text-xs font-semibold uppercase tracking-[0.18em] text-white/35">
                       Currency
                     </span>
-                    <input
+                    <select
                       value={form.currency}
                       onChange={(e) =>
                         setForm({ ...form, currency: e.target.value })
                       }
-                      placeholder="USD"
                       className="app-input w-full px-4 py-3"
-                    />
+                    >
+                      {currencyOptions.map((currency) => (
+                        <option key={currency.value} value={currency.value}>
+                          {currency.symbol} {currency.label} ({currency.value})
+                        </option>
+                      ))}
+                    </select>
                   </label>
 
                   <label className="space-y-2 md:col-span-2">
                     <span className="text-xs font-semibold uppercase tracking-[0.18em] text-white/35">
                       Timezone
                     </span>
-                    <input
+                    <select
                       value={form.timezone}
                       onChange={(e) =>
                         setForm({ ...form, timezone: e.target.value })
                       }
-                      placeholder="Asia/Karachi"
                       className="app-input w-full px-4 py-3"
-                    />
+                    >
+                      {timezoneOptions.map((timezone) => (
+                        <option key={timezone} value={timezone}>
+                          {timezone}
+                        </option>
+                      ))}
+                    </select>
                   </label>
                 </div>
 
