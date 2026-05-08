@@ -12,6 +12,7 @@ import {
   YAxis,
 } from "recharts";
 import { supabase } from "@/lib/supabase";
+import { formatTimeWithTimezone } from "@/lib/formatters";
 import { useWorkspace } from "@/context/workspace-context";
 import Link from "next/link";
 
@@ -145,20 +146,6 @@ function getChartData(appointments: Appointment[], range: ChartRange) {
       label: `Month ${index + 1}`,
       bookings,
     };
-  });
-}
-
-function formatAppointmentTime(
-  dateTime: string | null,
-  timezone?: string | null
-) {
-  if (!dateTime) return "No time";
-
-  return new Date(dateTime).toLocaleTimeString("en-US", {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-    timeZone: timezone || "Asia/Karachi",
   });
 }
 
@@ -521,7 +508,7 @@ export default function DashboardPage() {
                   <div className="absolute left-0 top-6 h-8 w-1 rounded-full bg-[var(--app-accent)]" />
 
                   <p className="text-sm font-bold text-[var(--app-accent)]">
-                    {formatAppointmentTime(
+                    {formatTimeWithTimezone(
                       appointment.appointment_at,
                       workspaceSettings?.timezone
                     )}
