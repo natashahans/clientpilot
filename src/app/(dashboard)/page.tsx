@@ -12,6 +12,7 @@ import {
   YAxis,
 } from "recharts";
 import { supabase } from "@/lib/supabase";
+import { useWorkspace } from "@/context/workspace-context";
 import Link from "next/link";
 
 type Client = {
@@ -147,13 +148,17 @@ function getChartData(appointments: Appointment[], range: ChartRange) {
   });
 }
 
-function formatAppointmentTime(dateTime: string | null) {
+function formatAppointmentTime(
+  dateTime: string | null,
+  timezone?: string | null
+) {
   if (!dateTime) return "No time";
 
   return new Date(dateTime).toLocaleTimeString("en-US", {
     hour: "2-digit",
     minute: "2-digit",
     hour12: false,
+    timeZone: timezone || "Asia/Karachi",
   });
 }
 
@@ -162,6 +167,7 @@ export default function DashboardPage() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [chartRange, setChartRange] = useState<ChartRange>("7days");
   const [loading, setLoading] = useState(true);
+  const { workspaceSettings } = useWorkspace();
 
   useEffect(() => {
     async function fetchDashboardData() {
@@ -515,7 +521,10 @@ export default function DashboardPage() {
                   <div className="absolute left-0 top-6 h-8 w-1 rounded-full bg-[var(--app-accent)]" />
 
                   <p className="text-sm font-bold text-[var(--app-accent)]">
-                    {formatAppointmentTime(appointment.appointment_at)}
+                    {formatAppointmentTime(
+                      appointment.appointment_at,
+                      workspaceSettings?.timezone
+                    )}
                   </p>
 
                   <p className="mt-2 text-lg font-bold">
