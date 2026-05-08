@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { useWorkspace } from "@/context/workspace-context";
 
 type Appointment = {
   id: number;
@@ -24,6 +25,7 @@ export default function AppointmentsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState<Toast | null>(null);
+  const { workspaceSettings } = useWorkspace();
 
   const [currentPage, setCurrentPage] = useState(1);
   const appointmentsPerPage = 10;
@@ -46,13 +48,14 @@ export default function AppointmentsPage() {
     }, 2500);
   }
 
-  function formatTime(dateTime: string) {
+  function formatTime(dateTime: string | null) {
     if (!dateTime) return "";
 
     return new Date(dateTime).toLocaleTimeString("en-US", {
       hour: "2-digit",
       minute: "2-digit",
       hour12: false,
+      timeZone: workspaceSettings?.timezone || "Asia/Karachi",
     });
   }
 
@@ -63,6 +66,7 @@ export default function AppointmentsPage() {
       month: "short",
       day: "numeric",
       year: "numeric",
+      timeZone: workspaceSettings?.timezone || "Asia/Karachi",
     });
   }
 
@@ -329,7 +333,7 @@ export default function AppointmentsPage() {
                   >
                     <div>
                       <p className="font-black text-[var(--app-accent)]">
-                        {appointment.time}
+                        {formatTime(appointment.appointment_at)}
                       </p>
                       <p className="app-muted mt-1 text-xs">
                         {formatDate(appointment.appointment_at)}
