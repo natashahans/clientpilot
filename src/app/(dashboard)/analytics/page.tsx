@@ -11,6 +11,8 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { supabase } from "@/lib/supabase";
+import { useWorkspace } from "@/context/workspace-context";
+import { formatPrice } from "@/lib/formatters";
 
 type Client = {
   id: number;
@@ -19,8 +21,10 @@ type Client = {
 
 type Appointment = {
   id: number;
+  service: string;
   status: string | null;
   appointment_at: string | null;
+  service_price: number | null;
 };
 
 type Service = {
@@ -148,20 +152,52 @@ export default function AnalyticsPage() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [services, setServices] = useState<Service[]>([]);
   const [chartRange, setChartRange] = useState<ChartRange>("7days");
+  const [loading, setLoading] = useState(true);
+  const { workspaceSettings } = useWorkspace();
 
   useEffect(() => {
     async function fetchAnalyticsData() {
-      const { data: clientsData } = await supabase.from("clients").select("*");
+      setLoading(true);
 
-      const { data: appointmentsData } = await supabase
-        .from("appointments")
-        .select("id, status, appointment_at");
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
 
-      const { data: servicesData } = await supabase.from("services").select("*");
+      if (!user) {
+        setLoading(false);
+        return;
+      }
 
-      setClients(clientsData || []);
-      setAppointments(appointmentsData || []);
-      setServices(servicesData || []);
+      const [clientsRes, appointmentsRes, servicesRes] = await Promise.all([
+        supabase.from("clients").select("id, status").eq("user_id", user.id),
+
+        supabase
+          .from("appointments")
+          .select("id, service, status, appointment_at, service_price")
+          .eq("user_id", user.id),
+
+        supabase.from("services").select("id, name, tag").eq("user_id", user.id),
+      ]);
+
+      if (clientsRes.error) {
+        console.log("ANALYTICS CLIENTS ERROR:", clientsRes.error);
+      } else {
+        setClients(clientsRes.data || []);
+      }
+
+      if (appointmentsRes.error) {
+        console.log("ANALYTICS APPOINTMENTS ERROR:", appointmentsRes.error);
+      } else {
+        setAppointments(appointmentsRes.data || []);
+      }
+
+      if (servicesRes.error) {
+        console.log("ANALYTICS SERVICES ERROR:", servicesRes.error);
+      } else {
+        setServices(servicesRes.data || []);
+      }
+
+      setLoading(false);
     }
 
     fetchAnalyticsData();
@@ -179,10 +215,37 @@ export default function AnalyticsPage() {
     (appointment) => appointment.status === "Confirmed"
   ).length;
 
-  const topService =
-    services.find((service) => service.tag === "High Value")?.name ||
-    services[0]?.name ||
-    "No service yet";
+  const pendingAppointments = appointments.filter(
+    (appointment) => appointment.status === "Pending"
+  ).length;
+
+  const cancelledAppointments = appointments.filter(
+    (appointment) => appointment.status === "Cancelled"
+  ).length;
+
+  const totalRevenue = appointments.reduce((sum, appointment) => {
+    return sum + (appointment.service_price || 0);
+  }, 0);
+
+  const confirmedRevenue = appointments
+    .filter((appointment) => appointment.status === "Confirmed")
+    .reduce((sum, appointment) => sum + (appointment.service_price || 0), 0);
+
+  const serviceCounts = appointments.reduce<Record<string, number>>(
+    (acc, appointment) => {
+      if (!appointment.service) return acc;
+
+      acc[appointment.service] = (acc[appointment.service] || 0) + 1;
+      return acc;
+    },
+    {}
+  );
+
+  const mostPopularService =
+    Object.entries(serviceCounts).sort((a, b) => b[1] - a[1])[0];
+
+  const topService = mostPopularService?.[0] || services[0]?.name || "No service yet";
+  const topServiceBookings = mostPopularService?.[1] || 0;
 
   const chartData: ChartPoint[] = useMemo(
     () => getChartData(appointments, chartRange),
@@ -194,6 +257,12 @@ export default function AnalyticsPage() {
     [chartData]
   );
 
+  const statusItems = [
+    ["Confirmed", confirmedAppointments],
+    ["Pending", pendingAppointments],
+    ["Cancelled", cancelledAppointments],
+  ];
+
   return (
     <section className="space-y-7">
       <div>
@@ -202,43 +271,60 @@ export default function AnalyticsPage() {
         <h1 className="app-page-title mt-2">Analytics</h1>
 
         <p className="app-muted mt-3">
-          Understand live client, service and appointment performance from your database.
+          Understand live revenue, service demand, appointment status and client activity.
         </p>
       </div>
 
       <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
         <div className="app-accent-card p-6">
           <p className="text-sm font-bold uppercase tracking-[0.25em] text-black/50">
-            Clients
+            Revenue
           </p>
-          <h2 className="mt-3 text-5xl font-black">{clients.length}</h2>
-          <p className="mt-2 text-sm font-semibold">{activeClients} active</p>
+          <h2 className="mt-3 text-5xl font-black">
+            {loading
+              ? "..."
+              : formatPrice(totalRevenue.toString(), workspaceSettings?.currency)}
+          </h2>
+          <p className="mt-2 text-sm font-semibold">from all appointments</p>
+        </div>
+
+        <div className="app-card p-6">
+          <p className="app-muted text-sm">Confirmed Revenue</p>
+          <h2 className="mt-3 text-5xl font-black">
+            {loading
+              ? "..."
+              : formatPrice(
+                  confirmedRevenue.toString(),
+                  workspaceSettings?.currency
+                )}
+          </h2>
+          <p className="app-muted mt-2 text-sm">confirmed bookings only</p>
         </div>
 
         <div className="app-card p-6">
           <p className="app-muted text-sm">Appointments</p>
-          <h2 className="mt-3 text-5xl font-black">{appointments.length}</h2>
+          <h2 className="mt-3 text-5xl font-black">
+            {loading ? "..." : appointments.length}
+          </h2>
           <p className="app-muted mt-2 text-sm">
             {confirmedAppointments} confirmed
           </p>
         </div>
 
         <div className="app-card p-6">
-          <p className="app-muted text-sm">Services</p>
-          <h2 className="mt-3 text-5xl font-black">{services.length}</h2>
-          <p className="app-muted mt-2 text-sm">available offers</p>
-        </div>
-
-        <div className="app-card p-6">
-          <p className="app-muted text-sm">Returning Clients</p>
-          <h2 className="mt-3 text-5xl font-black">{returningClients}</h2>
-          <p className="app-muted mt-2 text-sm">relationship strength</p>
+          <p className="app-muted text-sm">Clients</p>
+          <h2 className="mt-3 text-5xl font-black">
+            {loading ? "..." : clients.length}
+          </h2>
+          <p className="app-muted mt-2 text-sm">
+            {activeClients} active / {returningClients} returning
+          </p>
         </div>
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[1.5fr_1fr]">
         <div className="app-card p-6">
-          <div className="mb-6 flex items-center justify-between gap-4">
+          <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h2 className="app-section-title">Booking Performance</h2>
               <p className="app-muted text-sm">
@@ -345,26 +431,44 @@ export default function AnalyticsPage() {
               {topService}
             </h2>
             <p className="mt-2 text-sm font-semibold">
-              Based on service catalogue data
+              {topServiceBookings} bookings from appointments
             </p>
           </div>
 
           <div className="app-card p-6">
-            <p className="app-muted text-sm">Client activity</p>
-            <h2 className="mt-3 text-2xl font-black">
-              {activeClients} active clients
-            </h2>
-            <p className="app-muted mt-1 text-sm">Pulled live from Supabase</p>
+            <p className="app-muted text-sm">Appointment Status</p>
+
+            <div className="mt-5 space-y-4">
+              {statusItems.map(([label, count]) => (
+                <div key={label as string}>
+                  <div className="mb-2 flex items-center justify-between text-sm">
+                    <span className="font-bold">{label}</span>
+                    <span className="app-muted">{count}</span>
+                  </div>
+
+                  <div className="h-2 overflow-hidden rounded-full bg-white/10">
+                    <div
+                      className="h-full rounded-full bg-[var(--app-accent)]"
+                      style={{
+                        width: `${
+                          appointments.length
+                            ? ((count as number) / appointments.length) * 100
+                            : 0
+                        }%`,
+                      }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
 
           <div className="app-card p-6">
-            <p className="app-muted text-sm">Booking status</p>
+            <p className="app-muted text-sm">Service Catalogue</p>
             <h2 className="mt-3 text-2xl font-black">
-              {confirmedAppointments} confirmed
+              {services.length} services
             </h2>
-            <p className="app-muted mt-1 text-sm">
-              Active appointment pipeline
-            </p>
+            <p className="app-muted mt-1 text-sm">available offers</p>
           </div>
         </div>
       </div>
