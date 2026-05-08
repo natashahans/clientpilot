@@ -11,10 +11,29 @@ type Service = {
   tag: string | null;
 };
 
+type WorkspaceSettings = {
+  currency: string | null;
+};
+
 type Toast = {
   message: string;
   type: "success" | "error";
 };
+
+const currencySymbols: Record<string, string> = {
+  USD: "$",
+  PKR: "Rs",
+  EUR: "€",
+  GBP: "£",
+  CAD: "$",
+  AUD: "$",
+  AED: "د.إ",
+};
+
+function formatPrice(price: string, currency: string | null) {
+  const symbol = currencySymbols[currency || "USD"] || "$";
+  return `${symbol} ${price}`;
+}
 
 export default function ServicesPage() {
   const [services, setServices] = useState<Service[]>([]);
@@ -24,6 +43,8 @@ export default function ServicesPage() {
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState<Toast | null>(null);
+  const [workspaceSettings, setWorkspaceSettings] =
+    useState<WorkspaceSettings | null>(null);
 
   const [currentPage, setCurrentPage] = useState(1);
   const servicesPerPage = 8;
@@ -41,6 +62,28 @@ export default function ServicesPage() {
     setTimeout(() => {
       setToast(null);
     }, 2500);
+  }
+
+  async function fetchWorkspaceSettings() {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) return;
+
+    const { data, error } = await supabase
+      .from("workspace_settings")
+      .select("currency")
+      .eq("user_id", user.id)
+      .limit(1)
+      .maybeSingle();
+
+    if (error) {
+      console.log("WORKSPACE SETTINGS ERROR:", error);
+      return;
+    }
+
+    setWorkspaceSettings(data);
   }
 
   async function fetchServices() {
@@ -180,6 +223,7 @@ export default function ServicesPage() {
 
   useEffect(() => {
     fetchServices();
+    fetchWorkspaceSettings();
   }, []);
 
   const filteredServices = services.filter((service) =>
@@ -285,7 +329,7 @@ export default function ServicesPage() {
                     </h2>
 
                     <p className="mt-3 text-5xl font-black tracking-[-0.06em] text-[var(--app-accent)]">
-                      {service.price}
+                      {formatPrice(service.price, workspaceSettings?.currency || "USD")}
                     </p>
 
                     <div className="mt-8 flex gap-3">
@@ -379,9 +423,11 @@ export default function ServicesPage() {
               />
 
               <input
+                type="number"
+                min="0"
                 value={form.price}
                 onChange={(e) => setForm({ ...form, price: e.target.value })}
-                placeholder="Price e.g. $40"
+                placeholder="Price e.g. 40"
                 className="app-input px-4 py-3"
               />
 

@@ -73,6 +73,7 @@ export default function SettingsPage() {
       .from("workspace_settings")
       .select("*")
       .eq("user_id", user.id)
+      .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle();
 
@@ -140,7 +141,7 @@ export default function SettingsPage() {
 
     setSaving(true);
 
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from("workspace_settings")
       .update({
         business_name: form.business_name,
@@ -150,7 +151,9 @@ export default function SettingsPage() {
         timezone: form.timezone,
       })
       .eq("id", settings.id)
-      .eq("user_id", settings.user_id);
+      .eq("user_id", settings.user_id)
+      .select()
+      .single();
 
     if (error) {
       console.log("UPDATE SETTINGS ERROR:", error);
@@ -159,20 +162,26 @@ export default function SettingsPage() {
       return;
     }
 
-    const updatedSettings = {
-      ...settings,
-      business_name: form.business_name,
-      business_type: form.business_type,
-      owner_name: form.owner_name,
-      currency: form.currency,
-      timezone: form.timezone,
-    };
+    if (!data) {
+      console.log("NO SETTINGS ROW UPDATED");
+      setSaving(false);
+      showToast("No settings row was updated", "error");
+      return;
+    }
 
-    setSettings(updatedSettings);
+    setSettings(data);
+
+    setForm({
+      business_name: data.business_name || "",
+      business_type: data.business_type || "",
+      owner_name: data.owner_name || "",
+      currency: data.currency || "",
+      timezone: data.timezone || "",
+    });
+
     setSaving(false);
     setIsEditing(false);
     showToast("Workspace updated");
-    fetchSettings();
   }
 
   function cancelEditing() {
