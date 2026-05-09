@@ -327,25 +327,30 @@ export default function DashboardPage() {
     Object.entries(serviceBookingCounts).sort((a, b) => b[1] - a[1])[0]?.[0] ||
     "No service yet";
 
+  const serviceRevenueMap = appointments.reduce<Record<string, number>>(
+    (acc, appointment) => {
+      if (!appointment.service) return acc;
+
+      acc[appointment.service] =
+        (acc[appointment.service] || 0) +
+        (appointment.service_price || 0);
+
+      return acc;
+    },
+    {}
+  );
+
   const topServices = Object.entries(serviceBookingCounts)
     .map(([serviceName, bookings]) => {
       const matchingService = services.find(
         (service) => service.name === serviceName
       );
 
-      const serviceAppointments = appointments.filter(
-        (appointment) => appointment.service === serviceName
-      );
-
-      const revenue = serviceAppointments.reduce((sum, appointment) => {
-        return sum + (appointment.service_price || 0);
-      }, 0);
-
       return {
         id: matchingService?.id || null,
         name: serviceName,
         bookings,
-        revenue,
+        revenue: serviceRevenueMap[serviceName] || 0,
       };
     })
     .sort((a, b) => b.bookings - a.bookings)
@@ -649,10 +654,10 @@ export default function DashboardPage() {
         <div className="app-card p-5 sm:p-7">
           <div className="mb-6 flex items-center justify-between">
             <div>
-              <h3 className="app-section-title">Today’s Timeline</h3>
+              <h3 className="app-section-title">Upcoming Appointments</h3>
 
               <p className="app-muted mt-1 text-sm">
-                Live appointments from Supabase
+                Your next scheduled bookings from Supabase
               </p>
             </div>
 
