@@ -719,7 +719,7 @@ export default function AppointmentsPage() {
                         }}
                         className="app-button-secondary px-4 py-2 text-sm"
                       >
-                        Create "{clientSearch}" as new client
+                        Create &quot;{clientSearch}&quot; as new client
                       </button>
                     ) : (
                       <div className="space-y-3">
@@ -836,7 +836,7 @@ export default function AppointmentsPage() {
                         }}
                         className="app-button-secondary px-4 py-2 text-sm"
                       >
-                        Create "{serviceSearch}" as new service
+                        Create &quot;{serviceSearch}&quot; as new service
                       </button>
                     ) : (
                       <div className="space-y-3">
