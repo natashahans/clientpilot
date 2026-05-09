@@ -199,59 +199,65 @@ export default function DashboardPage() {
   const [chartMode, setChartMode] = useState<ChartMode>("bookings");
   const [loading, setLoading] = useState(true);
   const { workspaceSettings } = useWorkspace();
+  const now = new Date();
 
   useEffect(() => {
     async function fetchDashboardData() {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+      try {
+        setLoading(true);
 
-      if (!user) {
-        setLoading(false);
-        return;
-      }
-      setLoading(true);
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
 
-      const [clientsRes, appointmentsRes, servicesRes] = await Promise.all([
-        supabase
-          .from("clients")
-          .select("*")
-          .eq("user_id", user.id)
-          .order("id", { ascending: false }),
+        if (!user) {
+          return;
+        }
 
-        supabase
-          .from("appointments")
-          .select("*")
-          .eq("user_id", user.id)
-          .order("appointment_at", {
-            ascending: true,
-            nullsFirst: false,
-          }),
+        const [clientsRes, appointmentsRes, servicesRes] = await Promise.all([
+          supabase
+            .from("clients")
+            .select("*")
+            .eq("user_id", user.id)
+            .order("id", { ascending: false }),
+
+          supabase
+            .from("appointments")
+            .select("*")
+            .eq("user_id", user.id)
+            .order("appointment_at", {
+              ascending: true,
+              nullsFirst: false,
+            }),
+
           supabase
             .from("services")
             .select("id, name")
             .eq("user_id", user.id),
-      ]);
+        ]);
 
-      if (clientsRes.error) {
-        console.log("DASHBOARD CLIENTS ERROR:", clientsRes.error);
-      } else {
-        setClients(clientsRes.data || []);
+        if (clientsRes.error) {
+          console.log("DASHBOARD CLIENTS ERROR:", clientsRes.error);
+        } else {
+          setClients(clientsRes.data || []);
+        }
+
+        if (appointmentsRes.error) {
+          console.log("APPOINTMENTS ERROR:", appointmentsRes.error);
+        } else {
+          setAppointments(appointmentsRes.data || []);
+        }
+
+        if (servicesRes.error) {
+          console.log("DASHBOARD SERVICES ERROR:", servicesRes.error);
+        } else {
+          setServices(servicesRes.data || []);
+        }
+      } catch (error) {
+        console.log("DASHBOARD FETCH ERROR:", error);
+      } finally {
+        setLoading(false);
       }
-
-      if (appointmentsRes.error) {
-        console.log("APPOINTMENTS ERROR:", appointmentsRes.error);
-      } else {
-        setAppointments(appointmentsRes.data || []);
-      }
-
-      if (servicesRes.error) {
-        console.log("DASHBOARD SERVICES ERROR:", servicesRes.error);
-      } else {
-        setServices(servicesRes.data || []);
-      }
-
-      setLoading(false);
     }
 
     fetchDashboardData();
@@ -272,7 +278,7 @@ export default function DashboardPage() {
       if (!appointment.appointment_at) return false;
 
       return (
-        new Date(appointment.appointment_at).getTime() >= Date.now()
+        new Date(appointment.appointment_at).getTime() >= now.getTime()
       );
     })
     .sort(
@@ -308,11 +314,10 @@ export default function DashboardPage() {
     if (!appointment.appointment_at) return sum;
 
     const appointmentDate = new Date(appointment.appointment_at);
-    const today = new Date();
 
     const isCurrentMonth =
-      appointmentDate.getMonth() === today.getMonth() &&
-      appointmentDate.getFullYear() === today.getFullYear();
+      appointmentDate.getMonth() === now.getMonth() &&
+      appointmentDate.getFullYear() === now.getFullYear()
 
     return isCurrentMonth ? sum + (appointment.service_price || 0) : sum;
   }, 0);
@@ -374,11 +379,10 @@ export default function DashboardPage() {
   const todaysAppointments = appointments.filter((appointment) => {
     if (!appointment.appointment_at) return false;
 
-    const today = new Date();
     const appointmentDate = new Date(appointment.appointment_at);
 
     return (
-      appointmentDate.toDateString() === today.toDateString()
+      appointmentDate.toDateString() === now.toDateString()
     );
   }).length;
 
@@ -676,7 +680,7 @@ export default function DashboardPage() {
               ))
             ) : upcomingAppointments.length === 0 ? (
               <div className="app-card-dark p-6 text-center">
-                <p className="font-bold">No appointments yet</p>
+                <p className="font-bold">No upcoming appointments</p>
                 <p className="app-muted mt-1 text-sm">
                   New bookings will appear here once you add them.
                 </p>
@@ -710,12 +714,6 @@ export default function DashboardPage() {
                   </p>
                 </Link>
               ))
-            )}
-
-            {appointments.length > 8 && (
-              <p className="pt-2 text-center text-xs text-white/40">
-                Showing first 8 appointments
-              </p>
             )}
           </div>
         </div>
