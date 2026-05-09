@@ -667,7 +667,7 @@ export default function DashboardPage() {
                   className="app-card-dark h-[104px] animate-pulse"
                 />
               ))
-            ) : appointments.length === 0 ? (
+            ) : upcomingAppointments.length === 0 ? (
               <div className="app-card-dark p-6 text-center">
                 <p className="font-bold">No appointments yet</p>
                 <p className="app-muted mt-1 text-sm">
@@ -679,7 +679,7 @@ export default function DashboardPage() {
                 <Link
                   key={appointment.id}
                   href="/appointments"
-                  className="app-card-dark relative block p-5 transition hover:bg-white/[0.06]"
+                  className="app-card-dark relative block p-5 transition hover:-translate-y-1 hover:bg-white/[0.06]"
                 >
                   <div className="absolute left-0 top-6 h-8 w-1 rounded-full bg-[var(--app-accent)]" />
 
@@ -879,7 +879,7 @@ export default function DashboardPage() {
                 <Link
                   key={client.id}
                   href={`/clients/${client.id}`}
-                  className="app-card-dark block p-5 transition hover:bg-white/[0.06]"
+                  className="app-card-dark block p-5 transition hover:-translate-y-1 hover:bg-white/[0.06]"
                 >
                   <div className="mb-6 flex items-center justify-between">
                     <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--app-accent)] font-black text-[var(--app-accent-text)]">
