@@ -444,7 +444,7 @@ export default function DashboardPage() {
               : stats.map(({ label, value, change, icon: Icon }) => (
                   <div
                     key={label}
-                    className="app-card rounded-[28px] p-5 transition hover:bg-white/[0.09]"
+                    className="app-card rounded-[28px] p-5 transition hover:-translate-y-1 hover:bg-white/[0.09]"
                   >
                     <div className="mb-6 flex items-start justify-between gap-3">
                       <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[var(--app-accent)]/15 ring-1 ring-[var(--app-accent)]/20">
