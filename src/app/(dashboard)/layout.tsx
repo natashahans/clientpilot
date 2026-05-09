@@ -49,7 +49,7 @@ export default function DashboardLayout({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [userEmail, setUserEmail] = useState("");
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<Awaited<ReturnType<typeof supabase.auth.getUser>>["data"]["user"]>(null);
 
   useEffect(() => {
     async function checkUser() {
