@@ -13,6 +13,14 @@ type Service = {
   tag: string | null;
 };
 
+type Appointment = {
+  id: number;
+  service_id: number | null;
+  service: string;
+  service_price: number | null;
+  appointment_at: string | null;
+};
+
 type Toast = {
   message: string;
   type: "success" | "error";
@@ -20,6 +28,7 @@ type Toast = {
 
 export default function ServicesPage() {
   const [services, setServices] = useState<Service[]>([]);
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [editingService, setEditingService] = useState<Service | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -58,20 +67,33 @@ export default function ServicesPage() {
       return;
     }
 
-    const { data, error } = await supabase
-      .from("services")
-      .select("*")
-      .eq("user_id", user.id)
-      .order("id", { ascending: false });
+    const [servicesRes, appointmentsRes] = await Promise.all([
+      supabase
+        .from("services")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("id", { ascending: false }),
 
-    if (error) {
-      console.log("SERVICES ERROR:", error);
+      supabase
+        .from("appointments")
+        .select("id, service_id, service, service_price, appointment_at")
+        .eq("user_id", user.id),
+    ]);
+
+    if (servicesRes.error) {
+      console.log("SERVICES ERROR:", servicesRes.error);
       showToast("Could not load services", "error");
       setLoading(false);
       return;
     }
 
-    setServices(data || []);
+    if (appointmentsRes.error) {
+      console.log("SERVICE APPOINTMENTS ERROR:", appointmentsRes.error);
+    } else {
+      setAppointments(appointmentsRes.data || []);
+    }
+
+    setServices(servicesRes.data || []);
     setLoading(false);
   }
 
@@ -201,6 +223,34 @@ export default function ServicesPage() {
   useEffect(() => {
     setCurrentPage(1);
   }, [searchTerm]);
+
+function getServiceStats(service: Service) {
+  const linkedAppointments = appointments.filter((appointment) => {
+    if (appointment.service_id) {
+      return appointment.service_id === service.id;
+    }
+
+    return appointment.service === service.name;
+  });
+
+  const revenue = linkedAppointments.reduce((sum, appointment) => {
+    return sum + (appointment.service_price || 0);
+  }, 0);
+
+  const latestAppointment = linkedAppointments
+    .filter((appointment) => appointment.appointment_at)
+    .sort(
+      (a, b) =>
+        new Date(b.appointment_at || "").getTime() -
+        new Date(a.appointment_at || "").getTime()
+    )[0];
+
+  return {
+    bookings: linkedAppointments.length,
+    revenue,
+    latestAppointment,
+  };
+}
   return (
     <>
       {toast && (
@@ -268,7 +318,10 @@ export default function ServicesPage() {
           ) : (
             <>
               <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-                {paginatedServices.map((service) => (
+                {paginatedServices.map((service) => {
+                  const stats = getServiceStats(service);
+
+                  return (
                   <div
                     key={service.id}
                     className="app-card-dark p-8 transition-all duration-200 hover:-translate-y-1 hover:bg-white/[0.06] hover:shadow-xl hover:shadow-black/5"
@@ -289,6 +342,27 @@ export default function ServicesPage() {
 
                     <p className="mt-3 text-5xl font-black tracking-[-0.06em] text-[var(--app-accent)]">
                       {formatPrice(service.price, workspaceSettings?.currency)}
+                    </p>
+
+                    <div className="mt-6 grid grid-cols-2 gap-3">
+                      <div className="rounded-2xl bg-white/50 p-3">
+                        <p className="app-muted text-xs">Bookings</p>
+                        <p className="mt-1 text-xl font-black">{stats.bookings}</p>
+                      </div>
+
+                      <div className="rounded-2xl bg-white/50 p-3">
+                        <p className="app-muted text-xs">Revenue</p>
+                        <p className="mt-1 text-xl font-black">
+                          {formatPrice(stats.revenue.toString(), workspaceSettings?.currency)}
+                        </p>
+                      </div>
+                    </div>
+
+                    <p className="mt-4 text-xs font-semibold app-muted">
+                      Latest booking:{" "}
+                      {stats.latestAppointment?.appointment_at
+                        ? new Date(stats.latestAppointment.appointment_at).toLocaleDateString()
+                        : "No bookings yet"}
                     </p>
 
                     <div className="mt-8 flex gap-3">
@@ -315,7 +389,8 @@ export default function ServicesPage() {
                       </button>
                     </div>
                   </div>
-                ))}
+                  );
+                })}
               </div>
 
               {!loading && filteredServices.length > servicesPerPage && (
