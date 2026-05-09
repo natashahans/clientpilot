@@ -264,6 +264,13 @@ export default function DashboardPage() {
   const recentClients = clients.slice(0, 4);
 
   const upcomingAppointments = [...appointments]
+    .filter((appointment) => {
+      if (!appointment.appointment_at) return false;
+
+      return (
+        new Date(appointment.appointment_at).getTime() >= Date.now()
+      );
+    })
     .sort(
       (a, b) =>
         new Date(a.appointment_at || "").getTime() -
