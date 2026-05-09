@@ -12,7 +12,11 @@ import {
   YAxis,
 } from "recharts";
 import { supabase } from "@/lib/supabase";
-import { formatPrice, formatTimeWithTimezone } from "@/lib/formatters";
+import {
+  formatDateWithTimezone,
+  formatPrice,
+  formatTimeWithTimezone,
+} from "@/lib/formatters";
 import { useWorkspace } from "@/context/workspace-context";
 import Link from "next/link";
 
@@ -374,9 +378,7 @@ export default function DashboardPage() {
     const appointmentDate = new Date(appointment.appointment_at);
 
     return (
-      appointmentDate.getDate() === today.getDate() &&
-      appointmentDate.getMonth() === today.getMonth() &&
-      appointmentDate.getFullYear() === today.getFullYear()
+      appointmentDate.toDateString() === today.toDateString()
     );
   }).length;
 
@@ -838,7 +840,10 @@ export default function DashboardPage() {
                   </p>
 
                   <p className="app-muted mt-1 text-xs">
-                    {new Date(appointment.appointment_at || "").toLocaleDateString()}
+                    {formatDateWithTimezone(
+                      appointment.appointment_at,
+                      workspaceSettings?.timezone
+                    )}
                   </p>
                 </div>
 
