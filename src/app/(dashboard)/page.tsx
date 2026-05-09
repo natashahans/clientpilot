@@ -42,7 +42,10 @@ type ChartRange = "24h" | "7days" | "30days" | "90days";
 type ChartPoint = {
   label: string;
   bookings: number;
+  revenue: number;
 };
+
+type ChartMode = "bookings" | "revenue";
 
 const rangeLabels = {
   "24h": "Last 24 hours",
@@ -74,14 +77,21 @@ function getChartData(appointments: Appointment[], range: ChartRange) {
       const end = new Date(start);
       end.setHours(hour + 4, 0, 0, 0);
 
-      const bookings = validAppointments.filter((appointment) => {
+      const matchingAppointments = validAppointments.filter((appointment) => {
         const appointmentDate = new Date(appointment.appointment_at as string);
         return appointmentDate >= start && appointmentDate < end;
-      }).length;
+      });
+
+      const bookings = matchingAppointments.length;
+
+      const revenue = matchingAppointments.reduce((sum, appointment) => {
+        return sum + (appointment.service_price || 0);
+      }, 0);
 
       return {
         label: `${hour.toString().padStart(2, "0")}:00`,
         bookings,
+        revenue,
       };
     });
   }
@@ -96,14 +106,21 @@ function getChartData(appointments: Appointment[], range: ChartRange) {
       const nextDay = new Date(day);
       nextDay.setDate(day.getDate() + 1);
 
-      const bookings = validAppointments.filter((appointment) => {
+      const matchingAppointments = validAppointments.filter((appointment) => {
         const appointmentDate = new Date(appointment.appointment_at as string);
         return appointmentDate >= day && appointmentDate < nextDay;
-      }).length;
+      });
+
+      const bookings = matchingAppointments.length;
+
+      const revenue = matchingAppointments.reduce((sum, appointment) => {
+        return sum + (appointment.service_price || 0);
+      }, 0);
 
       return {
         label: day.toLocaleDateString("en-US", { weekday: "short" }),
         bookings,
+        revenue,
       };
     });
   }
@@ -118,14 +135,21 @@ function getChartData(appointments: Appointment[], range: ChartRange) {
       const end = new Date(start);
       end.setDate(start.getDate() + 7);
 
-      const bookings = validAppointments.filter((appointment) => {
+      const matchingAppointments = validAppointments.filter((appointment) => {
         const appointmentDate = new Date(appointment.appointment_at as string);
         return appointmentDate >= start && appointmentDate < end;
-      }).length;
+      });
+
+      const bookings = matchingAppointments.length;
+
+      const revenue = matchingAppointments.reduce((sum, appointment) => {
+        return sum + (appointment.service_price || 0);
+      }, 0);
 
       return {
         label: `Week ${index + 1}`,
         bookings,
+        revenue,
       };
     });
   }
@@ -139,14 +163,21 @@ function getChartData(appointments: Appointment[], range: ChartRange) {
     const end = new Date(start);
     end.setDate(start.getDate() + 30);
 
-    const bookings = validAppointments.filter((appointment) => {
+    const matchingAppointments = validAppointments.filter((appointment) => {
       const appointmentDate = new Date(appointment.appointment_at as string);
       return appointmentDate >= start && appointmentDate < end;
-    }).length;
+    });
+
+    const bookings = matchingAppointments.length;
+
+    const revenue = matchingAppointments.reduce((sum, appointment) => {
+      return sum + (appointment.service_price || 0);
+    }, 0);
 
     return {
       label: `Month ${index + 1}`,
       bookings,
+      revenue,
     };
   });
 }
@@ -155,6 +186,7 @@ export default function DashboardPage() {
   const [clients, setClients] = useState<Client[]>([]);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [chartRange, setChartRange] = useState<ChartRange>("7days");
+  const [chartMode, setChartMode] = useState<ChartMode>("bookings");
   const [loading, setLoading] = useState(true);
   const { workspaceSettings } = useWorkspace();
 
@@ -233,7 +265,14 @@ export default function DashboardPage() {
     [chartData]
   );
 
-  const hasChartData = chartData.some((item) => item.bookings > 0);
+  const totalRevenueInChart = useMemo(
+    () => chartData.reduce((sum, item) => sum + item.revenue, 0),
+    [chartData]
+  );
+
+  const hasChartData = chartData.some((item) =>
+    chartMode === "bookings" ? item.bookings > 0 : item.revenue > 0
+  );
   const totalRevenue = appointments.reduce((sum, appointment) => {
     return sum + (appointment.service_price || 0);
   }, 0);
@@ -405,8 +444,38 @@ export default function DashboardPage() {
               </p>
 
               <p className="mt-2 text-sm font-bold text-[var(--app-accent)]">
-                {loading ? "Loading bookings..." : `${totalBookingsInChart} total bookings shown`}
+                {loading
+                  ? "Loading performance..."
+                  : chartMode === "bookings"
+                  ? `${totalBookingsInChart} total bookings shown`
+                  : `${formatPrice(totalRevenueInChart.toString(), workspaceSettings?.currency)} revenue shown`}
               </p>
+            </div>
+
+            <div className="flex rounded-full border app-border bg-white/50 p-1">
+              <button
+                type="button"
+                onClick={() => setChartMode("bookings")}
+                className={`rounded-full px-4 py-2 text-sm font-bold transition ${
+                  chartMode === "bookings"
+                    ? "bg-[var(--app-accent)] text-[var(--app-accent-text)]"
+                    : "app-muted"
+                }`}
+              >
+                Bookings
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setChartMode("revenue")}
+                className={`rounded-full px-4 py-2 text-sm font-bold transition ${
+                  chartMode === "revenue"
+                    ? "bg-[var(--app-accent)] text-[var(--app-accent-text)]"
+                    : "app-muted"
+                }`}
+              >
+                Revenue
+              </button>
             </div>
 
             <select
@@ -470,7 +539,14 @@ export default function DashboardPage() {
                       stroke: "var(--app-accent)",
                       strokeOpacity: 0.25,
                     }}
-                    formatter={(value) => [`${value} bookings`, "Bookings"]}
+                    formatter={(value) =>
+                      chartMode === "bookings"
+                        ? [`${value} bookings`, "Bookings"]
+                        : [
+                            formatPrice(String(value), workspaceSettings?.currency),
+                            "Revenue",
+                          ]
+                    }
                     labelFormatter={(label) =>
                       `${rangeLabels[chartRange]} • ${label}`
                     }
@@ -485,8 +561,8 @@ export default function DashboardPage() {
 
                   <Area
                     type="monotone"
-                    dataKey="bookings"
-                    name="Bookings"
+                    dataKey={chartMode}
+                    name={chartMode === "bookings" ? "Bookings" : "Revenue"}
                     stroke="var(--app-accent)"
                     strokeWidth={4}
                     fill="url(#areaGlow)"
