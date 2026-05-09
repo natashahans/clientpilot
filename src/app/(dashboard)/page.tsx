@@ -878,7 +878,7 @@ export default function DashboardPage() {
             : recentClients.map((client) => (
                 <Link
                   key={client.id}
-                  href="/clients"
+                  href={`/clients/${client.id}`}
                   className="app-card-dark block p-5 transition hover:bg-white/[0.06]"
                 >
                   <div className="mb-6 flex items-center justify-between">
