@@ -732,7 +732,16 @@ export default function DashboardPage() {
           </Link>
         </div>
 
-        {topServices.length === 0 ? (
+        {loading ? (
+          <div className="grid gap-4 md:grid-cols-3">
+            {[1, 2, 3].map((item) => (
+              <div
+                key={item}
+                className="app-card-dark h-[180px] animate-pulse"
+              />
+            ))}
+          </div>
+        ) : topServices.length === 0 ? (
           <div className="app-card-dark p-6 text-center">
             <p className="font-bold">No service performance yet</p>
             <p className="app-muted mt-1 text-sm">
@@ -786,7 +795,16 @@ export default function DashboardPage() {
           <Clock className="h-5 w-5 text-[var(--app-accent)]" />
         </div>
 
-        {recentRevenueActivity.length === 0 ? (
+        {loading ? (
+          <div className="space-y-3">
+            {[1, 2, 3].map((item) => (
+              <div
+                key={item}
+                className="app-card-dark h-[88px] animate-pulse"
+              />
+            ))}
+          </div>
+        ) : recentRevenueActivity.length === 0 ? (
           <div className="app-card-dark p-6 text-center">
             <p className="font-bold">No revenue activity yet</p>
             <p className="app-muted mt-1 text-sm">
