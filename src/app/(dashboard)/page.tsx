@@ -323,6 +323,17 @@ export default function DashboardPage() {
     .sort((a, b) => b.bookings - a.bookings)
     .slice(0, 3);
 
+
+  const recentRevenueActivity = [...appointments]
+    .filter((appointment) => appointment.service_price && appointment.appointment_at)
+    .sort(
+      (a, b) =>
+        new Date(b.appointment_at || "").getTime() -
+        new Date(a.appointment_at || "").getTime()
+    )
+    .slice(0, 5);
+  
+  
   const todaysAppointments = appointments.filter((appointment) => {
     if (!appointment.appointment_at) return false;
 
@@ -721,6 +732,63 @@ export default function DashboardPage() {
                 </p>
 
                 <p className="app-muted mt-1 text-sm">total revenue</p>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div className="app-card p-5 sm:p-7">
+        <div className="mb-6 flex items-center justify-between">
+          <div>
+            <h3 className="app-section-title">Recent Revenue Activity</h3>
+
+            <p className="app-muted mt-1 text-sm">
+              Latest appointments generating revenue.
+            </p>
+          </div>
+
+          <Clock className="h-5 w-5 text-[var(--app-accent)]" />
+        </div>
+
+        {recentRevenueActivity.length === 0 ? (
+          <div className="app-card-dark p-6 text-center">
+            <p className="font-bold">No revenue activity yet</p>
+            <p className="app-muted mt-1 text-sm">
+              Priced appointments will appear here once added.
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {recentRevenueActivity.map((appointment) => (
+              <div
+                key={appointment.id}
+                className="app-card-dark grid gap-4 px-5 py-4 md:grid-cols-[1.2fr_1fr_0.8fr] md:items-center"
+              >
+                <div>
+                  <p className="font-bold">{appointment.client_name}</p>
+                  <p className="app-muted mt-1 text-sm">{appointment.service}</p>
+                </div>
+
+                <div>
+                  <p className="text-sm font-bold text-[var(--app-accent)]">
+                    {formatTimeWithTimezone(
+                      appointment.appointment_at,
+                      workspaceSettings?.timezone
+                    )}
+                  </p>
+
+                  <p className="app-muted mt-1 text-xs">
+                    {new Date(appointment.appointment_at || "").toLocaleDateString()}
+                  </p>
+                </div>
+
+                <p className="text-xl font-black text-[var(--app-accent)] md:text-right">
+                  {formatPrice(
+                    appointment.service_price?.toString() || "0",
+                    workspaceSettings?.currency
+                  )}
+                </p>
               </div>
             ))}
           </div>
