@@ -786,9 +786,10 @@ export default function DashboardPage() {
         ) : (
           <div className="space-y-3">
             {recentRevenueActivity.map((appointment) => (
-              <div
+              <Link
                 key={appointment.id}
-                className="app-card-dark grid gap-4 px-5 py-4 md:grid-cols-[1.2fr_1fr_0.8fr] md:items-center"
+                href="/appointments"
+                className="app-card-dark grid gap-4 px-5 py-4 transition hover:-translate-y-1 hover:bg-white/[0.06] md:grid-cols-[1.2fr_1fr_0.8fr] md:items-center"
               >
                 <div>
                   <p className="font-bold">{appointment.client_name}</p>
@@ -814,7 +815,7 @@ export default function DashboardPage() {
                     workspaceSettings?.currency
                   )}
                 </p>
-              </div>
+              </Link>
             ))}
           </div>
         )}
