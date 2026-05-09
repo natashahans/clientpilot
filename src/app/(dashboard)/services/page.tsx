@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useWorkspace } from "@/context/workspace-context";
+import { useRouter } from "next/navigation";
 import { formatPrice } from "@/lib/formatters";
 
 type Service = {
@@ -36,6 +37,7 @@ export default function ServicesPage() {
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState<Toast | null>(null);
   const { workspaceSettings } = useWorkspace();
+  const router = useRouter();
 
   const [currentPage, setCurrentPage] = useState(1);
   const servicesPerPage = 8;
@@ -324,7 +326,8 @@ function getServiceStats(service: Service) {
                   return (
                   <div
                     key={service.id}
-                    className="app-card-dark p-8 transition-all duration-200 hover:-translate-y-1 hover:bg-white/[0.06] hover:shadow-xl hover:shadow-black/5"
+                    onClick={() => router.push(`/services/${service.id}`)}
+                    className="app-card-dark cursor-pointer p-8 transition-all duration-200 hover:-translate-y-1 hover:bg-white/[0.06] hover:shadow-xl hover:shadow-black/5"
                   >
                     <div className="mb-10 flex items-center justify-between">
                       <span className="rounded-full bg-[var(--app-accent)] px-3 py-1 text-xs font-bold text-[var(--app-accent-text)]">
@@ -367,14 +370,19 @@ function getServiceStats(service: Service) {
 
                     <div className="mt-8 flex gap-3">
                       <button
-                        onClick={() => openEdit(service)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openEdit(service);
+                        }}
                         className="app-button-secondary flex-1 py-3"
                       >
                         Edit
                       </button>
 
                       <button
-                        onClick={() => {
+                        onClick={(e) => {
+                          e.stopPropagation();
+
                           const confirmed = window.confirm(
                             "Delete this service permanently?"
                           );
