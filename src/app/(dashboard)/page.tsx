@@ -1,24 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { CalendarDays, Clock, Sparkles, Users, UserPlus } from "lucide-react";
-import {
-  Area,
-  AreaChart,
-  CartesianGrid,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
+import { CalendarDays, Sparkles, Users, UserPlus } from "lucide-react";
 import { supabase } from "@/lib/supabase";
-import {
-  formatDateWithTimezone,
-  formatPrice,
-  formatTimeWithTimezone,
-} from "@/lib/formatters";
+import { formatPrice } from "@/lib/formatters";
 import { useWorkspace } from "@/context/workspace-context";
-import Link from "next/link";
 import StatsCards from "@/components/dashboard/stats-cards";
 import UpcomingAppointments from "@/components/dashboard/upcoming-appointments";
 import TopServices from "@/components/dashboard/top-services";
