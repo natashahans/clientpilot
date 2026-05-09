@@ -30,6 +30,7 @@ type Appointment = {
   id: number;
   client_name: string;
   service: string;
+  service_id: number | null;
   time: string;
   status: string | null;
   appointment_at: string | null;
@@ -234,8 +235,35 @@ export default function DashboardPage() {
 
   const hasChartData = chartData.some((item) => item.bookings > 0);
   const totalRevenue = appointments.reduce((sum, appointment) => {
-  return sum + (appointment.service_price || 0);
-}, 0);
+    return sum + (appointment.service_price || 0);
+  }, 0);
+
+  const currentMonthRevenue = appointments.reduce((sum, appointment) => {
+    if (!appointment.appointment_at) return sum;
+
+    const appointmentDate = new Date(appointment.appointment_at);
+    const today = new Date();
+
+    const isCurrentMonth =
+      appointmentDate.getMonth() === today.getMonth() &&
+      appointmentDate.getFullYear() === today.getFullYear();
+
+    return isCurrentMonth ? sum + (appointment.service_price || 0) : sum;
+  }, 0);
+
+  const serviceBookingCounts = appointments.reduce<Record<string, number>>(
+    (acc, appointment) => {
+      if (!appointment.service) return acc;
+
+      acc[appointment.service] = (acc[appointment.service] || 0) + 1;
+      return acc;
+    },
+    {}
+  );
+
+  const mostBookedService =
+    Object.entries(serviceBookingCounts).sort((a, b) => b[1] - a[1])[0]?.[0] ||
+    "No service yet";
 
   const todaysAppointments = appointments.filter((appointment) => {
     if (!appointment.appointment_at) return false;
@@ -296,12 +324,14 @@ export default function DashboardPage() {
             </div>
 
             <div className="app-card hidden shrink-0 rounded-[28px] p-5 xl:block">
-              <p className="app-muted text-sm">Client database</p>
+              <p className="app-muted text-sm">This month revenue</p>
               <p className="mt-2 text-2xl font-black tracking-tight">
-                {loading ? "..." : `${totalClients} records`}
+                {loading
+                  ? "..."
+                  : formatPrice(currentMonthRevenue.toString(), workspaceSettings?.currency)}
               </p>
               <p className="mt-1 text-sm text-[var(--app-accent)]">
-                Live from Supabase
+                From booked appointments
               </p>
             </div>
           </div>
@@ -347,17 +377,17 @@ export default function DashboardPage() {
               </p>
 
               <h2 className="mt-2 text-3xl font-black tracking-[-0.05em]">
-                {loading ? "Loading..." : `${activeClients} active clients.`}
+                {loading ? "Loading..." : mostBookedService}
               </h2>
             </div>
 
             <Sparkles className="h-7 w-7" />
           </div>
 
-          <div className="rounded-[28px] bg-white/40 p-5 text-white">
-            <p className="text-sm text-white/45">Suggested action</p>
-            <p className="mt-2 text-xl font-bold">
-              Follow up with returning clients and convert new clients into repeat bookings.
+          <div className="rounded-[28px] border border-white/35 bg-white/35 p-5 text-black/80 backdrop-blur-xl">
+            <p className="text-sm font-semibold text-black/55">Suggested action</p>
+            <p className="mt-2 text-xl font-bold text-black/80">
+              Your most booked service is leading demand. Use it to create bundles, upsells, or repeat booking offers.
             </p>
           </div>
         </div>
