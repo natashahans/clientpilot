@@ -757,6 +757,9 @@ export default function DashboardPage() {
                 </p>
 
                 <p className="app-muted mt-1 text-sm">total revenue</p>
+                <p className="mt-5 text-sm font-bold text-[var(--app-accent)]">
+                  View details →
+                </p>
               </Link>
             ))}
           </div>
