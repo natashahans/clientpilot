@@ -428,7 +428,7 @@ export default function DashboardPage() {
 
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             {loading
-              ? [1, 2, 3].map((item) => (
+              ? [1, 2, 3, 4].map((item) => (
                   <div
                     key={item}
                     className="app-card h-[158px] rounded-[28px] animate-pulse"
