@@ -494,9 +494,11 @@ export default function AppointmentsPage() {
 
             <p className="mt-2 text-lg font-bold">appointments in database</p>
 
-            <div className="mt-8 rounded-[28px] bg-black p-5 text-white">
-              <p className="text-sm text-white/45">Data source</p>
-              <p className="mt-2 text-2xl font-black">Live from Supabase</p>
+            <div className="mt-8 rounded-[28px] bg-white/35 p-5 text-black/80 backdrop-blur-xl">
+              <p className="text-sm font-semibold text-black/55">Data source</p>
+              <p className="mt-2 text-2xl font-black text-black/80">
+                Live from Supabase
+              </p>
             </div>
           </div>
 

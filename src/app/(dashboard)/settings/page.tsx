@@ -247,7 +247,7 @@ export default function SettingsPage() {
               Your active business workspace for clients, bookings and service operations.
             </p>
 
-            <div className="mt-8 rounded-[26px] bg-black p-5 text-white">
+            <div className="mt-8 rounded-[26px] bg-white/40 p-5 text-white">
               <p className="text-sm text-white/45">Owner</p>
               <p className="mt-2 text-2xl font-black">
                 {settings?.owner_name || "Not set"}

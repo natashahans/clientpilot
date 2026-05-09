@@ -354,7 +354,7 @@ export default function DashboardPage() {
             <Sparkles className="h-7 w-7" />
           </div>
 
-          <div className="rounded-[28px] bg-black p-5 text-white">
+          <div className="rounded-[28px] bg-white/40 p-5 text-white">
             <p className="text-sm text-white/45">Suggested action</p>
             <p className="mt-2 text-xl font-bold">
               Follow up with returning clients and convert new clients into repeat bookings.

@@ -1,36 +1,37 @@
 @import "tailwindcss";
 
 :root {
-  --app-bg: #f5f2ea;
-  --app-surface: #ffffff;
-  --app-surface-soft: rgba(255, 255, 255, 0.72);
-  --app-card: #ffffff;
-  --app-border: rgba(28, 24, 18, 0.1);
+  --app-bg: #f6f1e8;
+  --app-surface: #fffaf3;
+  --app-surface-soft: rgba(255, 250, 243, 0.78);
+  --app-card: #fffdf8;
+  --app-border: rgba(35, 26, 18, 0.09);
 
-  --app-danger: #d96b5f;
-  --app-danger-soft: rgba(217, 107, 95, 0.12);
+  --app-danger: #d96557;
+  --app-danger-soft: rgba(217, 101, 87, 0.12);
 
-  --app-text: #17130f;
-  --app-muted: rgba(23, 19, 15, 0.55);
-  --app-muted-soft: rgba(23, 19, 15, 0.35);
+  --app-text: #17120d;
+  --app-muted: rgba(23, 18, 13, 0.56);
+  --app-muted-soft: rgba(23, 18, 13, 0.36);
 
-  --app-accent: #ff7a3d;
-  --app-accent-hover: #f06425;
+  --app-accent: #f9733d;
+  --app-accent-hover: #e85f27;
+  --app-accent-soft: rgba(249, 115, 61, 0.13);
   --app-accent-text: #ffffff;
 
-  --radius-card: 26px;
-  --radius-panel: 34px;
+  --radius-card: 24px;
+  --radius-panel: 32px;
   --radius-pill: 999px;
 
   --font-app: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
     "Segoe UI", sans-serif;
 
-  --text-page-title: 52px;
-  --text-section-title: 28px;
+  --text-page-title: 48px;
+  --text-section-title: 26px;
   --text-body: 15px;
   --text-small: 13px;
 
-  --tracking-tight-app: -0.06em;
+  --tracking-tight-app: -0.055em;
 }
 
 * {
@@ -46,6 +47,7 @@ body {
   background: var(--app-bg);
   color: var(--app-text);
   font-family: var(--font-app);
+  text-rendering: geometricPrecision;
 }
 
 /* App theme utility classes */
@@ -57,15 +59,20 @@ body {
 
 .app-shell-bg {
   background:
-    radial-gradient(circle at top left, rgba(255, 122, 61, 0.12) 0%, transparent 26%),
-    linear-gradient(135deg, #f7f3ea 0%, #fffdf8 48%, #f3efe7 100%);
+    radial-gradient(circle at 12% 0%, rgba(249, 115, 61, 0.13) 0%, transparent 28%),
+    radial-gradient(circle at 90% 8%, rgba(255, 199, 129, 0.18) 0%, transparent 26%),
+    linear-gradient(135deg, #f6f1e8 0%, #fffaf3 48%, #f1eadf 100%);
 }
+
+/* Cards */
 
 .app-card {
   border: 1px solid var(--app-border);
   background: var(--app-surface-soft);
   border-radius: var(--radius-panel);
-  box-shadow: 0 22px 50px rgba(49, 37, 25, 0.08);
+  box-shadow:
+    0 18px 48px rgba(45, 32, 20, 0.075),
+    inset 0 1px 0 rgba(255, 255, 255, 0.72);
   backdrop-filter: blur(18px);
 }
 
@@ -73,18 +80,28 @@ body {
   border: 1px solid var(--app-border);
   background: var(--app-card);
   border-radius: var(--radius-card);
-  box-shadow: 0 16px 34px rgba(49, 37, 25, 0.06);
+  box-shadow:
+    0 12px 28px rgba(45, 32, 20, 0.055),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.app-card-dark:hover {
+  border-color: rgba(249, 115, 61, 0.16);
 }
 
 .app-accent-card {
-  border: 1px solid rgba(255, 122, 61, 0.25);
+  border: 1px solid rgba(249, 115, 61, 0.25);
   background:
-    radial-gradient(circle at top right, rgba(255, 255, 255, 0.35), transparent 28%),
-    linear-gradient(135deg, #ff7a3d 0%, #ff9a5f 100%);
+    radial-gradient(circle at top right, rgba(255, 255, 255, 0.42), transparent 30%),
+    linear-gradient(135deg, #f9733d 0%, #ff9f64 100%);
   color: var(--app-accent-text);
   border-radius: var(--radius-panel);
-  box-shadow: 0 24px 60px rgba(255, 122, 61, 0.24);
+  box-shadow:
+    0 22px 55px rgba(249, 115, 61, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.28);
 }
+
+/* Buttons */
 
 .app-button-primary {
   border-radius: var(--radius-pill);
@@ -93,52 +110,63 @@ body {
   font-size: var(--text-small);
   font-weight: 850;
   transition: 0.2s ease;
-  box-shadow: 0 12px 26px rgba(255, 122, 61, 0.22);
+  box-shadow: 0 12px 26px rgba(249, 115, 61, 0.22);
 }
 
 .app-button-primary:hover {
   background: var(--app-accent-hover);
   transform: translateY(-1px);
+  box-shadow: 0 16px 32px rgba(249, 115, 61, 0.26);
 }
 
 .app-button-secondary {
   border: 1px solid var(--app-border);
   border-radius: var(--radius-pill);
-  background: rgba(255, 255, 255, 0.72);
+  background: rgba(255, 255, 255, 0.7);
   color: var(--app-muted);
   font-size: var(--text-small);
   font-weight: 750;
   transition: 0.2s ease;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
 }
 
 .app-button-secondary:hover {
   background: #ffffff;
   color: var(--app-text);
+  transform: translateY(-1px);
 }
+
+/* Inputs */
 
 .app-input {
   border: 1px solid var(--app-border);
   border-radius: 18px;
-  background: rgba(255, 255, 255, 0.86);
+  background: rgba(255, 255, 255, 0.82);
   color: var(--app-text);
   outline: none;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
+  transition: 0.2s ease;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65);
 }
 
 .app-input::placeholder {
-  color: rgba(23, 19, 15, 0.35);
+  color: var(--app-muted-soft);
 }
 
 .app-input:focus {
-  border-color: color-mix(in srgb, var(--app-accent) 55%, transparent);
-  box-shadow: 0 0 0 4px rgba(255, 122, 61, 0.12);
+  border-color: rgba(249, 115, 61, 0.5);
+  background: #ffffff;
+  box-shadow:
+    0 0 0 4px rgba(249, 115, 61, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
 }
+
+/* Typography */
 
 .app-kicker {
   color: var(--app-accent);
   font-size: var(--text-small);
   font-weight: 850;
-  letter-spacing: 0.28em;
+  letter-spacing: 0.25em;
   text-transform: uppercase;
 }
 
@@ -146,13 +174,13 @@ body {
   font-size: var(--text-page-title);
   font-weight: 900;
   letter-spacing: var(--tracking-tight-app);
-  line-height: 0.95;
+  line-height: 0.98;
 }
 
 .app-section-title {
   font-size: var(--text-section-title);
   font-weight: 900;
-  letter-spacing: -0.045em;
+  letter-spacing: -0.04em;
 }
 
 .app-muted {
@@ -163,13 +191,15 @@ body {
   border-color: var(--app-border);
 }
 
-/* Light theme compatibility patch for old hardcoded dark classes */
+/* Compatibility patch for old hardcoded dark classes */
 
 .app-bg .text-white,
 .app-shell-bg .text-white {
   color: var(--app-text) !important;
 }
 
+.app-bg .text-white\/35,
+.app-shell-bg .text-white\/35,
 .app-bg .text-white\/40,
 .app-shell-bg .text-white\/40,
 .app-bg .text-white\/45,
@@ -180,7 +210,7 @@ body {
 .app-shell-bg .text-white\/60,
 .app-bg .text-white\/70,
 .app-shell-bg .text-white\/70 {
-  color: rgba(23, 19, 15, 0.72) !important;
+  color: rgba(23, 18, 13, 0.68) !important;
 }
 
 .app-bg .placeholder\:text-white\/40::placeholder,
@@ -193,12 +223,18 @@ body {
 }
 
 .app-bg .border-white\/10,
-.app-shell-bg .border-white\/10 {
+.app-shell-bg .border-white\/10,
+.app-bg .border-white\/20,
+.app-shell-bg .border-white\/20 {
   border-color: var(--app-border) !important;
 }
 
+.app-bg .bg-white\/\[0\.04\],
+.app-shell-bg .bg-white\/\[0\.04\],
 .app-bg .bg-white\/\[0\.06\],
 .app-shell-bg .bg-white\/\[0\.06\],
+.app-bg .bg-white\/\[0\.08\],
+.app-shell-bg .bg-white\/\[0\.08\],
 .app-bg .bg-white\/5,
 .app-shell-bg .bg-white\/5,
 .app-bg .bg-white\/10,
@@ -206,18 +242,24 @@ body {
   background: var(--app-surface-soft) !important;
 }
 
+.app-bg .hover\:bg-white\/10:hover,
+.app-shell-bg .hover\:bg-white\/10:hover,
+.app-bg .hover\:bg-white\/\[0\.06\]:hover,
+.app-shell-bg .hover\:bg-white\/\[0\.06\]:hover,
+.app-bg .hover\:bg-white\/\[0\.08\]:hover,
+.app-shell-bg .hover\:bg-white\/\[0\.08\]:hover {
+  background: #ffffff !important;
+}
+
 .app-bg .bg-\[\#0B0B0B\],
 .app-shell-bg .bg-\[\#0B0B0B\],
 .app-bg .bg-\[\#101010\],
 .app-shell-bg .bg-\[\#101010\],
 .app-bg .bg-\[\#111111\],
-.app-shell-bg .bg-\[\#111111\] {
-  background: var(--app-card) !important;
-}
-
+.app-shell-bg .bg-\[\#111111\],
 .app-bg .bg-black,
 .app-shell-bg .bg-black {
-  background: var(--app-card) !important;
+  background: #21160f !important;
 }
 
 .app-bg .text-\[\#D7FF5F\],
@@ -233,13 +275,19 @@ body {
 
 .app-bg .text-black,
 .app-shell-bg .text-black {
-  color: var(--app-accent-text);
+  color: var(--app-accent-text) !important;
 }
 
-/* Fix action links so blue/red do not look random */
+/* Action links */
+
 .app-bg .text-blue-400,
 .app-shell-bg .text-blue-400 {
   color: var(--app-accent) !important;
+}
+
+.app-bg .hover\:text-blue-300:hover,
+.app-shell-bg .hover\:text-blue-300:hover {
+  color: var(--app-accent-hover) !important;
 }
 
 .app-bg .text-red-400,
@@ -247,19 +295,26 @@ body {
   color: var(--app-danger) !important;
 }
 
-/* Nav inactive items */
+.app-bg .hover\:text-red-300:hover,
+.app-shell-bg .hover\:text-red-300:hover {
+  color: #b94c3f !important;
+}
+
+/* Nav */
+
 .app-bg nav a:not([class*="bg-"]),
 .app-shell-bg nav a:not([class*="bg-"]) {
-  color: rgba(23, 19, 15, 0.72) !important;
+  color: rgba(23, 18, 13, 0.62) !important;
 }
 
 .app-bg nav a:hover,
 .app-shell-bg nav a:hover {
   color: var(--app-text) !important;
-  background: var(--app-surface-soft) !important;
+  background: rgba(255, 255, 255, 0.74) !important;
 }
 
-/* Top search visibility */
+/* Form controls */
+
 .app-bg input,
 .app-shell-bg input,
 .app-bg select,
@@ -270,4 +325,48 @@ body {
 .app-bg input::placeholder,
 .app-shell-bg input::placeholder {
   color: var(--app-muted-soft);
+}
+
+.app-bg option,
+.app-shell-bg option {
+  background: #fffaf3;
+  color: var(--app-text);
+}
+
+/* Scrollbar */
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: rgba(35, 26, 18, 0.16);
+  border-radius: 999px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(35, 26, 18, 0.28);
+}
+
+/* Mobile type safety */
+
+@media (max-width: 640px) {
+  :root {
+    --text-page-title: 38px;
+    --text-section-title: 22px;
+  }
+
+  .app-card,
+  .app-accent-card {
+    border-radius: 26px;
+  }
+
+  .app-card-dark {
+    border-radius: 20px;
+  }
 }
