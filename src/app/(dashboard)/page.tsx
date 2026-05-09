@@ -26,6 +26,11 @@ type Client = {
   last_visit: string | null;
 };
 
+type Service = {
+  id: number;
+  name: string;
+};
+
 type Appointment = {
   id: number;
   client_name: string;
@@ -185,6 +190,7 @@ function getChartData(appointments: Appointment[], range: ChartRange) {
 export default function DashboardPage() {
   const [clients, setClients] = useState<Client[]>([]);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [services, setServices] = useState<Service[]>([]);
   const [chartRange, setChartRange] = useState<ChartRange>("7days");
   const [chartMode, setChartMode] = useState<ChartMode>("bookings");
   const [loading, setLoading] = useState(true);
@@ -202,7 +208,7 @@ export default function DashboardPage() {
       }
       setLoading(true);
 
-      const [clientsRes, appointmentsRes] = await Promise.all([
+      const [clientsRes, appointmentsRes, servicesRes] = await Promise.all([
         supabase
           .from("clients")
           .select("*")
@@ -217,6 +223,10 @@ export default function DashboardPage() {
             ascending: true,
             nullsFirst: false,
           }),
+          supabase
+            .from("services")
+            .select("id, name")
+            .eq("user_id", user.id),
       ]);
 
       if (clientsRes.error) {
@@ -229,6 +239,12 @@ export default function DashboardPage() {
         console.log("APPOINTMENTS ERROR:", appointmentsRes.error);
       } else {
         setAppointments(appointmentsRes.data || []);
+      }
+
+      if (servicesRes.error) {
+        console.log("DASHBOARD SERVICES ERROR:", servicesRes.error);
+      } else {
+        setServices(servicesRes.data || []);
       }
 
       setLoading(false);
@@ -306,6 +322,10 @@ export default function DashboardPage() {
 
   const topServices = Object.entries(serviceBookingCounts)
     .map(([serviceName, bookings]) => {
+      const matchingService = services.find(
+        (service) => service.name === serviceName
+      );
+
       const serviceAppointments = appointments.filter(
         (appointment) => appointment.service === serviceName
       );
@@ -315,6 +335,7 @@ export default function DashboardPage() {
       }, 0);
 
       return {
+        id: matchingService?.id || null,
         name: serviceName,
         bookings,
         revenue,
@@ -714,7 +735,11 @@ export default function DashboardPage() {
         ) : (
           <div className="grid gap-4 md:grid-cols-3">
             {topServices.map((service, index) => (
-              <div key={service.name} className="app-card-dark p-5">
+              <Link
+                key={service.name}
+                href={service.id ? `/services/${service.id}` : "/services"}
+                className="app-card-dark block p-5 transition hover:-translate-y-1 hover:bg-white/[0.06]"
+              >
                 <div className="mb-5 flex items-center justify-between">
                   <span className="rounded-full bg-[var(--app-accent)] px-3 py-1 text-xs font-black text-[var(--app-accent-text)]">
                     #{index + 1}
@@ -732,7 +757,7 @@ export default function DashboardPage() {
                 </p>
 
                 <p className="app-muted mt-1 text-sm">total revenue</p>
-              </div>
+              </Link>
             ))}
           </div>
         )}
