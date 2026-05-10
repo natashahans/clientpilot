@@ -62,6 +62,9 @@ export default function AppointmentsPage() {
   const [editingAppointment, setEditingAppointment] =
     useState<Appointment | null>(null);
 
+  const [appointmentToDelete, setAppointmentToDelete] =
+    useState<Appointment | null>(null);
+
   const [newClientForm, setNewClientForm] = useState({
     name: "",
     email: "",
@@ -588,15 +591,7 @@ export default function AppointmentsPage() {
                       </button>
 
                       <button
-                        onClick={() => {
-                          const confirmed = window.confirm(
-                            "Delete this appointment permanently?"
-                          );
-
-                          if (confirmed) {
-                            deleteAppointment(appointment.id);
-                          }
-                        }}
+                        onClick={() => setAppointmentToDelete(appointment)}
                         className="text-xs font-semibold text-red-400 hover:text-red-300"
                       >
                         Delete
@@ -637,6 +632,45 @@ export default function AppointmentsPage() {
           </div>
         </div>
       </section>
+
+      {appointmentToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 backdrop-blur-sm">
+          <div className="app-card w-full max-w-md p-6">
+            <p className="app-kicker">Confirm Delete</p>
+
+            <h2 className="app-section-title mt-2">
+              Delete this appointment?
+            </h2>
+
+            <p className="app-muted mt-3 text-sm">
+              This will permanently delete the booking for{" "}
+              <span className="font-bold text-[var(--app-text)]">
+                {appointmentToDelete.client_name}
+              </span>
+              .
+            </p>
+
+            <div className="mt-7 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+              <button
+                onClick={() => setAppointmentToDelete(null)}
+                className="app-button-secondary w-full px-5 py-3 sm:w-auto"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={() => {
+                  deleteAppointment(appointmentToDelete.id);
+                  setAppointmentToDelete(null);
+                }}
+                className="w-full rounded-full bg-red-500 px-5 py-3 text-sm font-black text-white transition hover:bg-red-400 sm:w-auto"
+              >
+                Delete Appointment
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 backdrop-blur-sm">
