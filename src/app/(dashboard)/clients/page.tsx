@@ -14,6 +14,11 @@ type Client = {
   last_visit: string | null;
 };
 
+type Service = {
+  id: number;
+  name: string;
+};
+
 type Toast = {
   message: string;
   type: "success" | "error";
@@ -21,6 +26,7 @@ type Toast = {
 
 export default function ClientsPage() {
   const [clients, setClients] = useState<Client[]>([]);
+  const [services, setServices] = useState<Service[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [editingClient, setEditingClient] = useState<Client | null>(null);
@@ -61,20 +67,35 @@ export default function ClientsPage() {
       return;
     }
 
-    const { data, error } = await supabase
-      .from("clients")
-      .select("*")
-      .eq("user_id", user.id)
-      .order("id", { ascending: false });
+    const [clientsRes, servicesRes] = await Promise.all([
+      supabase
+        .from("clients")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("id", { ascending: false }),
 
-    if (error) {
-      console.log("CLIENTS ERROR:", error);
+      supabase
+        .from("services")
+        .select("id, name")
+        .eq("user_id", user.id)
+        .order("name", { ascending: true }),
+    ]);
+
+    if (clientsRes.error) {
+      console.log("CLIENTS ERROR:", clientsRes.error);
       showToast("Could not load clients", "error");
       setLoading(false);
       return;
     }
 
-    setClients(data || []);
+    if (servicesRes.error) {
+      console.log("CLIENT SERVICES ERROR:", servicesRes.error);
+      showToast("Could not load services", "error");
+    } else {
+      setServices(servicesRes.data || []);
+    }
+
+    setClients(clientsRes.data || []);
     setLoading(false);
   }
 
@@ -414,12 +435,19 @@ export default function ClientsPage() {
                 className="app-input px-4 py-3"
               />
 
-              <input
+              <select
                 value={form.service}
                 onChange={(e) => setForm({ ...form, service: e.target.value })}
-                placeholder="Service"
                 className="app-input px-4 py-3"
-              />
+              >
+                <option value="">Select service</option>
+
+                {services.map((service) => (
+                  <option key={service.id} value={service.name}>
+                    {service.name}
+                  </option>
+                ))}
+              </select>
 
               <select
                 value={form.status}
