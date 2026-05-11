@@ -30,6 +30,7 @@ export default function ClientsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [editingClient, setEditingClient] = useState<Client | null>(null);
+  const [clientToDelete, setClientToDelete] = useState<Client | null>(null);
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState<Toast | null>(null);
@@ -345,14 +346,7 @@ export default function ClientsPage() {
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-
-                        const confirmed = window.confirm(
-                          "Delete this client permanently?"
-                        );
-
-                        if (confirmed) {
-                          deleteClient(client.id);
-                        }
+                        setClientToDelete(client);
                       }}
                       className="text-xs font-semibold text-red-400 hover:text-red-300"
                     >
@@ -483,6 +477,41 @@ export default function ClientsPage() {
                   : editingClient
                   ? "Update Client"
                   : "Save Client"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {clientToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 backdrop-blur-sm">
+          <div className="app-card w-full max-w-md p-6">
+            <p className="app-kicker">Delete Client</p>
+
+            <h2 className="app-section-title mt-2">
+              Delete {clientToDelete.name}?
+            </h2>
+
+            <p className="app-muted mt-3 text-sm">
+              This will permanently remove this client record. This action cannot be undone.
+            </p>
+
+            <div className="mt-7 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+              <button
+                onClick={() => setClientToDelete(null)}
+                className="app-button-secondary w-full px-5 py-3 sm:w-auto"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={() => {
+                  deleteClient(clientToDelete.id);
+                  setClientToDelete(null);
+                }}
+                className="w-full rounded-full border border-red-400/20 bg-red-500/10 px-5 py-3 text-sm font-semibold text-red-300 transition hover:bg-red-500/20 sm:w-auto"
+              >
+                Delete Client
               </button>
             </div>
           </div>
