@@ -32,6 +32,7 @@ export default function ServicesPage() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [editingService, setEditingService] = useState<Service | null>(null);
+  const [serviceToDelete, setServiceToDelete] = useState<Service | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -382,14 +383,7 @@ function getServiceStats(service: Service) {
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-
-                          const confirmed = window.confirm(
-                            "Delete this service permanently?"
-                          );
-
-                          if (confirmed) {
-                            deleteService(service.id);
-                          }
+                          setServiceToDelete(service);
                         }}
                         className="flex-1 rounded-full border border-red-400/20 bg-red-500/10 py-3 text-sm font-semibold text-red-300 transition hover:bg-red-500/20"
                       >
@@ -517,6 +511,41 @@ function getServiceStats(service: Service) {
                   : editingService
                   ? "Update Service"
                   : "Save Service"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {serviceToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 backdrop-blur-sm">
+          <div className="app-card w-full max-w-md p-6">
+            <p className="app-kicker">Delete Service</p>
+
+            <h2 className="app-section-title mt-2">
+              Delete {serviceToDelete.name}?
+            </h2>
+
+            <p className="app-muted mt-3 text-sm">
+              This will permanently remove this service. Existing appointments may still show the old service name.
+            </p>
+
+            <div className="mt-7 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+              <button
+                onClick={() => setServiceToDelete(null)}
+                className="app-button-secondary w-full px-5 py-3 sm:w-auto"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={() => {
+                  deleteService(serviceToDelete.id);
+                  setServiceToDelete(null);
+                }}
+                className="w-full rounded-full border border-red-400/20 bg-red-500/10 px-5 py-3 text-sm font-semibold text-red-300 transition hover:bg-red-500/20 sm:w-auto"
+              >
+                Delete Service
               </button>
             </div>
           </div>
