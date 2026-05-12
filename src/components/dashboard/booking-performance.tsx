@@ -61,18 +61,18 @@ export default function BookingPerformance({
     chartData.length > 0 ? Math.round(totalRevenueInChart / chartData.length) : 0;
 
   return (
-    <div className="relative overflow-hidden rounded-[32px] border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
-      <div className="absolute right-[-120px] top-[-130px] h-[320px] w-[320px] rounded-full bg-indigo-100/70 blur-3xl" />
-      <div className="absolute bottom-[-150px] left-[20%] h-[280px] w-[280px] rounded-full bg-sky-100/50 blur-3xl" />
+    <div className="relative overflow-hidden rounded-[38px] border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+      <div className="absolute right-[-120px] top-[-120px] h-[340px] w-[340px] rounded-full bg-indigo-100/70 blur-3xl" />
+      <div className="absolute bottom-[-150px] left-[20%] h-[320px] w-[320px] rounded-full bg-sky-100/60 blur-3xl" />
 
       <div className="relative z-10">
-        <div className="mb-4 flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
+        <div className="mb-5 flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
           <div>
             <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#4f46e5]">
               Performance Center
             </p>
 
-            <h3 className="mt-2 text-[26px] font-extrabold tracking-[-0.05em] text-slate-950">
+            <h3 className="mt-2 text-[28px] font-extrabold tracking-[-0.055em] text-slate-950">
               Booking Performance
             </h3>
 
@@ -122,7 +122,7 @@ export default function BookingPerformance({
           </div>
         </div>
 
-        <div className="mb-4 grid gap-2 sm:grid-cols-4">
+        <div className="mb-5 grid gap-3 sm:grid-cols-4">
           {[
             ["Bookings", loading ? "..." : totalBookingsInChart],
             ["Revenue", loading ? "..." : `${currency || "$"}${totalRevenueInChart}`],
@@ -144,8 +144,8 @@ export default function BookingPerformance({
           ))}
         </div>
 
-        <div className="grid gap-3 xl:grid-cols-[1fr_160px]">
-          <div className="h-[205px] min-w-0 rounded-[24px] border border-slate-200 bg-white/75 p-3 shadow-sm backdrop-blur-xl">
+        <div className="grid gap-4 xl:grid-cols-[1fr_190px]">
+          <div className="h-[390px] min-w-0 rounded-[28px] border border-slate-200 bg-white/75 p-4 shadow-sm backdrop-blur-xl">
             {loading ? (
               <div className="h-full animate-pulse rounded-[22px] bg-slate-50" />
             ) : hasChartData ? (
@@ -224,7 +224,7 @@ export default function BookingPerformance({
             )}
           </div>
 
-          <div className="rounded-[24px] border border-slate-200 bg-slate-950 p-3 text-white shadow-[0_18px_45px_rgba(15,23,42,0.16)]">
+          <div className="rounded-[28px] border border-slate-200 bg-slate-950 p-4 text-white shadow-[0_18px_45px_rgba(15,23,42,0.16)]">
             <div className="mb-4">
               <p className="text-[11px] font-bold uppercase tracking-[0.15em] text-white/40">
                 Mini demand
@@ -235,7 +235,7 @@ export default function BookingPerformance({
               </p>
             </div>
 
-            <div className="h-[120px]">
+            <div className="h-[250px]">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={chartData}>
                   <Tooltip
@@ -249,6 +249,7 @@ export default function BookingPerformance({
                       fontWeight: 700,
                     }}
                   />
+
                   <Bar
                     dataKey={chartMode}
                     fill="#8b5cf6"

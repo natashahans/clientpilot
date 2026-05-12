@@ -136,13 +136,8 @@ export default function DashboardPage() {
   }, []);
 
   const totalClients = clients.length;
-
-  const activeClients = clients.filter(
-    (client) => client.status === "Active"
-  ).length;
-
+  const activeClients = clients.filter((client) => client.status === "Active").length;
   const newClients = clients.filter((client) => client.status === "New").length;
-
   const returningClients = clients.filter(
     (client) => client.status === "Returning"
   ).length;
@@ -258,13 +253,13 @@ export default function DashboardPage() {
   ];
 
   return (
-    <section className="space-y-4 lg:space-y-5">
-      <div className="grid gap-4 xl:grid-cols-[1.25fr_0.75fr]">
+    <section className="grid gap-4">
+      <div className="grid gap-4 xl:grid-cols-[1.35fr_0.65fr]">
         <div className="relative overflow-hidden rounded-[38px] border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
           <div className="absolute right-[-80px] top-[-90px] h-[260px] w-[260px] rounded-full bg-indigo-100/70 blur-3xl" />
           <div className="absolute bottom-[-110px] left-[30%] h-[260px] w-[260px] rounded-full bg-sky-100/60 blur-3xl" />
 
-          <div className="relative z-10 grid gap-8 xl:grid-cols-[1.15fr_0.85fr] xl:items-end">
+          <div className="relative z-10 grid gap-8 xl:grid-cols-[1.1fr_0.9fr] xl:items-end">
             <div>
               <p className="text-[12px] font-bold uppercase tracking-[0.2em] text-[#4f46e5]">
                 Business Overview
@@ -281,16 +276,8 @@ export default function DashboardPage() {
 
               <div className="mt-7 grid gap-3 sm:grid-cols-3">
                 {[
-                  {
-                    label: "Clients",
-                    value: totalClients,
-                    icon: Users,
-                  },
-                  {
-                    label: "Today",
-                    value: todaysAppointments,
-                    icon: Clock3,
-                  },
+                  { label: "Clients", value: totalClients, icon: Users },
+                  { label: "Today", value: todaysAppointments, icon: Clock3 },
                   {
                     label: "Revenue",
                     value: formatPrice(
@@ -390,7 +377,7 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              <div className="rounded-[28px] border border-white/15 bg-white/12 p-5 backdrop-blur-xl">
+              <div className="rounded-[28px] border border-white/15 bg-white/[0.12] p-5 backdrop-blur-xl">
                 <p className="text-[13px] font-semibold text-white/65">
                   Suggested action
                 </p>
@@ -415,6 +402,7 @@ export default function DashboardPage() {
                   <p className="text-[11px] font-semibold text-white/55">
                     {label}
                   </p>
+
                   <p className="mt-2 text-[24px] font-extrabold tracking-[-0.05em]">
                     {loading ? "..." : value}
                   </p>
@@ -427,70 +415,81 @@ export default function DashboardPage() {
 
       <StatsCards loading={loading} stats={stats} />
 
-      <div className="grid items-start gap-4 xl:grid-cols-[1.32fr_0.68fr]">
-        <BookingPerformance
-          loading={loading}
-          chartData={chartData}
-          chartMode={chartMode}
-          chartRange={chartRange}
-          hasChartData={hasChartData}
-          totalBookingsInChart={totalBookingsInChart}
-          totalRevenueInChart={totalRevenueInChart}
-          currency={workspaceSettings?.currency}
-          onChartModeChange={setChartMode}
-          onChartRangeChange={setChartRange}
-        />
+      <div className="grid gap-4 xl:grid-cols-[1.28fr_0.72fr]">
+        <div className="grid gap-4">
+          <BookingPerformance
+            loading={loading}
+            chartData={chartData}
+            chartMode={chartMode}
+            chartRange={chartRange}
+            hasChartData={hasChartData}
+            totalBookingsInChart={totalBookingsInChart}
+            totalRevenueInChart={totalRevenueInChart}
+            currency={workspaceSettings?.currency}
+            onChartModeChange={setChartMode}
+            onChartRangeChange={setChartRange}
+          />
 
-        <div className="space-y-4">
+          <RecentRevenueActivity
+            loading={loading}
+            appointments={recentRevenueActivity}
+            timezone={workspaceSettings?.timezone}
+            currency={workspaceSettings?.currency}
+          />
+
+          <ClientPipeline loading={loading} clients={recentClients} />
+        </div>
+
+        <div className="grid content-start gap-4">
           <UpcomingAppointments
             loading={loading}
             appointments={upcomingAppointments}
             timezone={workspaceSettings?.timezone}
           />
 
-          <div className="relative overflow-hidden rounded-[34px] bg-slate-950 p-5 text-white shadow-[0_24px_70px_rgba(15,23,42,0.18)]">
-            <div className="absolute right-[-80px] top-[-80px] h-[220px] w-[220px] rounded-full bg-[#4f46e5]/40 blur-3xl" />
+          <div className="relative overflow-hidden rounded-[30px] bg-slate-950 p-4 text-white shadow-[0_20px_55px_rgba(15,23,42,0.16)]">
+            <div className="absolute right-[-80px] top-[-80px] h-[200px] w-[200px] rounded-full bg-[#4f46e5]/40 blur-3xl" />
 
             <div className="relative z-10">
-              <div className="mb-5 flex items-center justify-between">
+              <div className="mb-4 flex items-center justify-between">
                 <div>
-                  <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-white/40">
+                  <p className="text-[10.5px] font-bold uppercase tracking-[0.18em] text-white/40">
                     ClientPilot Insights
                   </p>
 
-                  <h3 className="mt-2 text-[22px] font-extrabold tracking-[-0.045em]">
+                  <h3 className="mt-1.5 text-[20px] font-extrabold tracking-[-0.045em]">
                     Smart recommendations
                   </h3>
                 </div>
 
-                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10 text-white">
-                  <Brain className="h-5 w-5" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/10 text-white">
+                  <Brain className="h-4 w-4" />
                 </div>
               </div>
 
-              <div className="space-y-3">
+              <div className="space-y-2.5">
                 {insightCards.map(({ title, value, text, icon: Icon }) => (
                   <div
                     key={title}
-                    className="rounded-[24px] border border-white/10 bg-white/8 p-4 backdrop-blur-xl"
+                    className="rounded-[20px] border border-white/10 bg-white/[0.08] p-3.5 backdrop-blur-xl"
                   >
-                    <div className="mb-3 flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-white/10">
-                          <Icon className="h-4 w-4" />
+                    <div className="mb-2 flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-2.5">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-white/10">
+                          <Icon className="h-3.5 w-3.5" />
                         </div>
 
-                        <p className="text-[13px] font-bold text-white/65">
+                        <p className="text-[12.5px] font-bold text-white/65">
                           {title}
                         </p>
                       </div>
 
-                      <p className="max-w-[150px] truncate text-right text-[15px] font-extrabold text-white">
+                      <p className="max-w-[130px] truncate text-right text-[13px] font-extrabold text-white">
                         {loading ? "..." : value}
                       </p>
                     </div>
 
-                    <p className="text-[12.5px] font-medium leading-5 text-white/55">
+                    <p className="text-[12px] font-medium leading-5 text-white/55">
                       {loading ? "Analyzing workspace data..." : text}
                     </p>
                   </div>
@@ -498,18 +497,7 @@ export default function DashboardPage() {
               </div>
             </div>
           </div>
-        </div>
-      </div>
 
-      <div className="grid items-start gap-4 xl:grid-cols-[1.15fr_0.85fr]">
-        <RecentRevenueActivity
-          loading={loading}
-          appointments={recentRevenueActivity}
-          timezone={workspaceSettings?.timezone}
-          currency={workspaceSettings?.currency}
-        />
-
-        <div className="space-y-5">
           <TopServices
             loading={loading}
             services={topServices}
@@ -517,12 +505,13 @@ export default function DashboardPage() {
           />
 
           <div className="grid gap-4 sm:grid-cols-2">
-            <div className="rounded-[30px] border border-slate-200 bg-white p-5 shadow-sm">
-              <div className="mb-5 flex items-center justify-between">
+            <div className="rounded-[26px] border border-slate-200 bg-white p-4 shadow-sm">
+              <div className="mb-4 flex items-center justify-between">
                 <div>
                   <p className="text-[13px] font-bold text-slate-950">
                     Booking Health
                   </p>
+
                   <p className="mt-1 text-[12px] font-medium text-slate-400">
                     Confirmed vs pending
                   </p>
@@ -533,29 +522,30 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              <p className="text-[34px] font-extrabold tracking-[-0.06em] text-slate-950">
+              <p className="text-[30px] font-extrabold tracking-[-0.06em] text-slate-950">
                 {loading ? "..." : `${completionRate}%`}
               </p>
 
-              <div className="mt-4 h-3 overflow-hidden rounded-full bg-slate-100">
+              <div className="mt-3 h-2.5 overflow-hidden rounded-full bg-slate-100">
                 <div
                   className="h-full rounded-full bg-[#4f46e5]"
                   style={{ width: `${completionRate}%` }}
                 />
               </div>
 
-              <div className="mt-4 flex items-center justify-between text-[12px] font-semibold text-slate-400">
+              <div className="mt-3 flex items-center justify-between text-[12px] font-semibold text-slate-400">
                 <span>{confirmedAppointments} confirmed</span>
                 <span>{pendingAppointments} pending</span>
               </div>
             </div>
 
-            <div className="rounded-[30px] border border-slate-200 bg-white p-5 shadow-sm">
-              <div className="mb-5 flex items-center justify-between">
+            <div className="rounded-[26px] border border-slate-200 bg-white p-4 shadow-sm">
+              <div className="mb-4 flex items-center justify-between">
                 <div>
                   <p className="text-[13px] font-bold text-slate-950">
                     Client Mix
                   </p>
+
                   <p className="mt-1 text-[12px] font-medium text-slate-400">
                     Returning client share
                   </p>
@@ -566,15 +556,15 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              <p className="text-[34px] font-extrabold tracking-[-0.06em] text-slate-950">
+              <p className="text-[30px] font-extrabold tracking-[-0.06em] text-slate-950">
                 {loading ? "..." : `${returningRate}%`}
               </p>
 
-              <div className="mt-4 grid grid-cols-8 gap-1">
+              <div className="mt-3 grid grid-cols-8 gap-1">
                 {Array.from({ length: 24 }).map((_, index) => (
                   <div
                     key={index}
-                    className={`h-7 rounded-full ${
+                    className={`h-5 rounded-full ${
                       index < Math.round((returningRate / 100) * 24)
                         ? "bg-[#4f46e5]"
                         : "bg-slate-100"
@@ -583,18 +573,19 @@ export default function DashboardPage() {
                 ))}
               </div>
 
-              <p className="mt-4 text-[12px] font-semibold text-slate-400">
+              <p className="mt-3 text-[12px] font-semibold text-slate-400">
                 {returningClients} returning clients from {totalClients} total
               </p>
             </div>
           </div>
 
-          <div className="rounded-[30px] border border-slate-200 bg-white p-5 shadow-sm">
-            <div className="mb-5 flex items-center justify-between">
+          <div className="rounded-[26px] border border-slate-200 bg-white p-4 shadow-sm">
+            <div className="mb-4 flex items-center justify-between">
               <div>
                 <p className="text-[13px] font-bold text-slate-950">
                   Demand Snapshot
                 </p>
+
                 <p className="mt-1 text-[12px] font-medium text-slate-400">
                   Services and bookings overview
                 </p>
@@ -605,7 +596,7 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-3 gap-2.5">
               {[
                 ["Services", services.length],
                 ["Bookings", appointments.length],
@@ -613,80 +604,68 @@ export default function DashboardPage() {
               ].map(([label, value]) => (
                 <div
                   key={label}
-                  className="rounded-[22px] border border-slate-200 bg-slate-50 p-4"
+                  className="rounded-[18px] border border-slate-200 bg-slate-50 p-3"
                 >
-                  <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-400">
+                  <p className="text-[10.5px] font-bold uppercase tracking-[0.12em] text-slate-400">
                     {label}
                   </p>
-                  <p className="mt-2 text-[24px] font-extrabold tracking-[-0.05em] text-slate-950">
+
+                  <p className="mt-1.5 text-[22px] font-extrabold tracking-[-0.05em] text-slate-950">
                     {loading ? "..." : value}
                   </p>
                 </div>
               ))}
             </div>
 
-            <div className="mt-4 flex items-center gap-2 rounded-[22px] bg-indigo-50 p-4 text-[#4f46e5]">
+            <div className="mt-3 flex items-center gap-2 rounded-[18px] bg-indigo-50 p-3 text-[#4f46e5]">
               <TrendingUp className="h-4 w-4" />
-              <p className="text-[13px] font-bold">
+
+              <p className="text-[12.5px] font-bold">
                 {loading
                   ? "Checking demand..."
                   : `${mostBookedService} is currently your strongest demand signal.`}
               </p>
             </div>
           </div>
-        </div>
-      </div>
 
-      <div className="grid items-start gap-4 xl:grid-cols-[0.9fr_1.1fr]">
-        <ClientPipeline loading={loading} clients={recentClients} />
-
-        <div className="rounded-[34px] border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-          <div className="mb-5 flex items-center justify-between">
-            <div>
-              <h3 className="text-[23px] font-extrabold tracking-[-0.04em] text-slate-950">
-                Workspace Summary
-              </h3>
-
-              <p className="mt-1 text-[13px] font-medium text-slate-500">
-                A quick operational snapshot of your business data.
-              </p>
-            </div>
-
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-indigo-50 text-[#4f46e5] ring-1 ring-indigo-100">
-              <Sparkles className="h-5 w-5" />
-            </div>
-          </div>
-
-          <div className="grid gap-3 sm:grid-cols-2">
-            {[
-              ["Total clients", totalClients],
-              ["Active clients", activeClients],
-              ["Appointments", appointments.length],
-              ["Services", services.length],
-            ].map(([label, value]) => (
-              <div
-                key={label}
-                className="rounded-[22px] border border-slate-200 bg-slate-50 p-4"
-              >
-                <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-400">
-                  {label}
+          <div className="rounded-[26px] border border-slate-200 bg-white p-4 shadow-sm">
+            <div className="mb-4 flex items-center justify-between">
+              <div>
+                <p className="text-[13px] font-bold text-slate-950">
+                  Workspace Summary
                 </p>
 
-                <p className="mt-2 text-[26px] font-extrabold tracking-[-0.05em] text-slate-950">
-                  {loading ? "..." : value}
+                <p className="mt-1 text-[12px] font-medium text-slate-400">
+                  Operational snapshot.
                 </p>
               </div>
-            ))}
-          </div>
 
-          <div className="mt-4 rounded-[24px] bg-indigo-50 p-5 text-[#4f46e5]">
-            <p className="text-[13px] font-extrabold">
-              {loading
-                ? "Loading summary..."
-                : appointments.length > 0
-                ? `You currently have ${appointments.length} appointments tracked across ${services.length} services.`
-                : "Start by adding appointments to unlock stronger dashboard insights."}
-            </p>
+              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-indigo-50 text-[#4f46e5] ring-1 ring-indigo-100">
+                <Sparkles className="h-4 w-4" />
+              </div>
+            </div>
+
+            <div className="grid gap-2.5 sm:grid-cols-2">
+              {[
+                ["Clients", totalClients],
+                ["Active", activeClients],
+                ["Bookings", appointments.length],
+                ["Services", services.length],
+              ].map(([label, value]) => (
+                <div
+                  key={label}
+                  className="rounded-[18px] border border-slate-200 bg-slate-50 p-3"
+                >
+                  <p className="text-[10.5px] font-bold uppercase tracking-[0.12em] text-slate-400">
+                    {label}
+                  </p>
+
+                  <p className="mt-1.5 text-[22px] font-extrabold tracking-[-0.05em] text-slate-950">
+                    {loading ? "..." : value}
+                  </p>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
