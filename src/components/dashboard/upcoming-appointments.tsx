@@ -53,7 +53,7 @@ export default function UpcomingAppointments({
           appointments.map((appointment) => (
             <Link
               key={appointment.id}
-              href="/appointments"
+              href={`/appointments/${appointment.id}`}
               className="app-card-dark relative block p-5 transition hover:-translate-y-1 hover:bg-white/[0.06]"
             >
               <div className="absolute left-0 top-6 h-8 w-1 rounded-full bg-[var(--app-accent)]" />

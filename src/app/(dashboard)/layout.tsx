@@ -153,7 +153,7 @@ export default function DashboardLayout({
             title: appointment.client_name,
             subtitle: `${appointment.service} at ${appointment.time || "No time"}`,
             type: "Appointment" as const,
-            path: "/appointments",
+            path: `/appointments/${appointment.id}`,
           })) || [];
 
       const serviceResults =

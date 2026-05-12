@@ -60,7 +60,7 @@ export default function RecentRevenueActivity({
           {appointments.map((appointment) => (
             <Link
               key={appointment.id}
-              href="/appointments"
+              href={`/appointments/${appointment.id}`}
               className="app-card-dark grid gap-4 px-5 py-4 transition hover:-translate-y-1 hover:bg-white/[0.06] md:grid-cols-[1.2fr_1fr_0.8fr] md:items-center"
             >
               <div>
