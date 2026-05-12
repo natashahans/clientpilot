@@ -8,9 +8,27 @@ import {
   BarChart3,
   CalendarDays,
   CheckCircle2,
-  LockKeyhole,
+  Mail,
   Users,
 } from "lucide-react";
+
+function ClientPilotLogo() {
+  return (
+    <div className="flex items-center gap-3">
+      <div className="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-[#4f46e5] shadow-[0_10px_30px_rgba(79,70,229,0.22)]">
+        <div className="absolute left-2 top-2 h-3 w-3 rounded-full border-2 border-white" />
+        <div className="absolute bottom-2 right-2 h-3 w-3 rounded-full border-2 border-white" />
+        <div className="absolute left-[17px] top-[17px] h-2 w-2 rounded-full bg-white" />
+        <div className="absolute left-[13px] top-[14px] h-[2px] w-[15px] rotate-45 rounded-full bg-white/85" />
+        <div className="absolute bottom-[14px] right-[13px] h-[2px] w-[15px] rotate-45 rounded-full bg-white/85" />
+      </div>
+
+      <p className="text-[20px] font-extrabold tracking-[-0.04em] text-slate-950">
+        ClientPilot
+      </p>
+    </div>
+  );
+}
 
 export default function LoginPage() {
   const router = useRouter();
@@ -49,14 +67,13 @@ export default function LoginPage() {
       },
     });
 
-    if (error) {
-      setAuthError(error.message);
-    }
+    if (error) setAuthError(error.message);
   }
 
   async function handleAuth() {
     setAuthError("");
     setAuthMessage("");
+
     if (!form.email || !form.password) return;
 
     if (!isLogin && !form.name.trim()) {
@@ -97,16 +114,14 @@ export default function LoginPage() {
         "Account created. Please check your email to verify your account."
       );
 
-      setAuthError("");
-
       setIsLogin(true);
     }
   }
 
   if (checkingAuth) {
     return (
-      <div className="app-bg flex min-h-screen items-center justify-center">
-        <div className="app-card px-6 py-4 text-sm font-bold">
+      <div className="flex min-h-screen items-center justify-center bg-[#f7f8fc]">
+        <div className="rounded-2xl border border-slate-200 bg-white px-6 py-4 text-sm font-semibold text-slate-900 shadow-sm">
           Checking session...
         </div>
       </div>
@@ -114,97 +129,98 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="app-bg min-h-screen">
-      <div className="grid min-h-screen lg:grid-cols-[0.9fr_1.1fr]">
-        <section className="flex items-center justify-center px-6 py-10">
-          <div className="w-full max-w-md">
-            <div className="mb-16 flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[var(--app-accent)] text-sm font-black text-[var(--app-accent-text)]">
-                CP
-              </div>
-              <p className="text-lg font-black tracking-tight">ClientPilot</p>
-            </div>
+    <main className="h-screen overflow-x-hidden overflow-y-auto bg-[#f7f8fc] text-slate-950">
+      <div className="grid min-h-full lg:grid-cols-[0.9fr_1.1fr]">
+        <section className="relative flex min-h-full flex-col px-6 py-5 sm:px-10 sm:py-6 lg:px-14 lg:py-5">
+          <ClientPilotLogo />
 
-            <div>
-              <p className="app-kicker">
-                {isLogin ? "Welcome Back" : "Start Workspace"}
-              </p>
-
-              <h1 className="mt-3 text-5xl font-black leading-[0.95] tracking-[-0.06em]">
-                {isLogin ? "Sign in to your account." : "Create your account."}
+          <div className="mx-auto flex w-full max-w-[430px] flex-1 flex-col justify-center pb-16 pt-2 sm:pb-20 lg:-mt-10 lg:pb-10">
+            <div className="text-center">
+              <h1 className="text-[33px] font-extrabold leading-[1.08] tracking-[-0.045em] text-slate-950 sm:text-[36px]">
+                {isLogin ? "Welcome Back" : "Create Account"}
               </h1>
 
-              <p className="app-muted mt-5 max-w-sm text-base leading-7">
+              <p className="mt-3 text-[14px] leading-7 text-slate-500 sm:text-[14.5px]">
                 {isLogin
-                  ? "Access your clients, bookings, services and business dashboard."
-                  : "Set up your workspace and start managing service operations."}
+                  ? "Enter your email and password to access your workspace."
+                  : "Create your workspace and start managing clients, services and bookings."}
               </p>
             </div>
 
             <button
               onClick={handleGoogleLogin}
-              className="app-card mt-10 flex h-14 w-full items-center justify-center gap-3 border app-border text-sm font-bold transition hover:border-[var(--app-accent)] hover:bg-white/[0.06]"
+              className="mt-7 flex h-[54px] w-full items-center justify-center gap-3 rounded-2xl border border-slate-200 bg-white text-[13.5px] font-semibold text-slate-800 shadow-sm transition hover:border-indigo-200 hover:bg-slate-50 sm:mt-8"
             >
-              <span className="text-lg font-black">G</span>
+              <span className="text-lg font-extrabold text-[#4285F4]">G</span>
               Continue with Google
             </button>
 
-            <div className="relative my-6">
+            <div className="relative my-5 sm:my-6">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t app-border" />
+                <div className="w-full border-t border-slate-200" />
               </div>
 
               <div className="relative flex justify-center">
-                <span className="app-bg px-4 text-xs font-bold uppercase tracking-[0.2em] app-muted">
-                  Or continue with email
+                <span className="bg-[#f7f8fc] px-4 text-[13px] font-medium text-slate-400">
+                  or continue with email
                 </span>
               </div>
             </div>
 
             {authError && (
-              <div className="mb-5 rounded-2xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm font-semibold text-red-400">
+              <div className="mb-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-[13px] font-semibold text-red-600">
                 {authError}
               </div>
             )}
 
             {authMessage && (
-              <div className="mb-5 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-3 text-sm font-semibold text-emerald-400">
+              <div className="mb-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-[13px] font-semibold text-emerald-700">
                 {authMessage}
               </div>
             )}
-            
+
             <form
               onSubmit={(e) => {
                 e.preventDefault();
                 handleAuth();
               }}
-              className="space-y-5"
+              className="space-y-4"
             >
               {!isLogin && (
                 <label className="block space-y-2">
-                  <span className="text-sm font-bold app-muted">Full Name</span>
+                  <span className="text-[13px] font-semibold text-slate-800">
+                    Full Name
+                  </span>
+
                   <input
                     type="text"
                     placeholder="Your name"
                     value={form.name}
                     onChange={(e) => setForm({ ...form, name: e.target.value })}
-                    className="app-input h-14 w-full px-4"
+                    className="h-[54px] w-full rounded-[18px] border border-slate-200 bg-white px-4 text-[13.5px] font-medium outline-none transition placeholder:text-slate-300 focus:border-indigo-300 focus:ring-4 focus:ring-indigo-500/10"
                   />
                 </label>
               )}
+
               <label className="block space-y-2">
-                <span className="text-sm font-bold app-muted">Email</span>
+                <span className="text-[13px] font-semibold text-slate-800">
+                  Email
+                </span>
+
                 <input
                   type="email"
                   placeholder="you@email.com"
                   value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  className="app-input h-14 w-full px-4"
+                  className="h-[54px] w-full rounded-[18px] border border-slate-200 bg-white px-4 text-[13.5px] font-medium outline-none transition placeholder:text-slate-300 focus:border-indigo-300 focus:ring-4 focus:ring-indigo-500/10"
                 />
               </label>
 
               <label className="block space-y-2">
-                <span className="text-sm font-bold app-muted">Password</span>
+                <span className="text-[13px] font-semibold text-slate-800">
+                  Password
+                </span>
+
                 <input
                   type="password"
                   placeholder="Enter your password"
@@ -212,81 +228,151 @@ export default function LoginPage() {
                   onChange={(e) =>
                     setForm({ ...form, password: e.target.value })
                   }
-                  className="app-input h-14 w-full px-4"
+                  className="h-[54px] w-full rounded-[18px] border border-slate-200 bg-white px-4 text-[13.5px] font-medium outline-none transition placeholder:text-slate-300 focus:border-indigo-300 focus:ring-4 focus:ring-indigo-500/10"
                 />
               </label>
+
               <button
                 type="submit"
-                className="app-button-primary mt-8 flex h-14 w-full items-center justify-center gap-2"
+                className="mt-7 flex h-[52px] w-full items-center justify-center gap-2 rounded-2xl bg-[#4f46e5] text-[13.5px] font-bold text-white shadow-[0_10px_30px_rgba(79,70,229,0.22)] transition hover:-translate-y-0.5 hover:bg-[#4338ca]"
               >
-                {isLogin ? "Sign In" : "Create Account"}
+                {isLogin ? "Log In" : "Create Account"}
                 <ArrowRight className="h-4 w-4" />
               </button>
 
               <button
                 type="button"
-                onClick={() => setIsLogin(!isLogin)}
-                className="app-muted mt-6 w-full text-center text-sm transition hover:text-[var(--app-text)]"
+                onClick={() => {
+                  setIsLogin(!isLogin);
+                  setAuthError("");
+                  setAuthMessage("");
+                }}
+                className="w-full text-center text-[13.5px] font-medium text-slate-500 transition hover:text-slate-900"
               >
-                {isLogin ? "Don’t have an account? " : "Already have an account? "}
-                <span className="font-black text-[var(--app-text)]">
-                  {isLogin ? "Sign up" : "Login"}
+                {isLogin
+                  ? "Don’t have an account? "
+                  : "Already have an account? "}
+
+                <span className="font-bold text-[#4f46e5]">
+                  {isLogin ? "Register Now." : "Login"}
                 </span>
               </button>
             </form>
           </div>
+
+          <div className="hidden text-[13px] font-medium text-slate-400 sm:block">
+            © 2026 ClientPilot
+          </div>
         </section>
 
-        <section className="hidden p-5 lg:block">
-          <div className="app-shell-bg relative flex h-full overflow-hidden rounded-[42px] border app-border p-10">
-            <div className="relative z-10 flex w-full flex-col justify-between">
-              <div className="flex items-center justify-between">
-                <div className="rounded-full border app-border bg-white/10 px-4 py-2 text-sm app-muted">
-                  Service Business CRM
-                </div>
+        <section className="hidden h-full p-5 lg:block xl:p-6">
+          <div className="relative flex min-h-[calc(100vh-48px)] overflow-hidden rounded-[30px] bg-gradient-to-br from-[#5652f4] via-[#4f46e5] to-[#4338ca] p-10 text-white shadow-2xl shadow-indigo-500/20 xl:rounded-[34px] xl:p-14">
+            <div className="absolute inset-0 overflow-hidden">
+              {/* top glow */}
+              <div className="absolute left-[-140px] top-[-140px] h-[360px] w-[360px] rounded-full bg-white/[0.045] blur-3xl" />
+              {/* bottom glow */}
+              <div className="absolute bottom-[-180px] right-[-120px] h-[420px] w-[420px] rounded-full bg-black/[0.12] blur-3xl" />
+              {/* center smooth radial */}
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.06),transparent_58%)]" />
+              {/* subtle lines */}
+              <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.015)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.015)_1px,transparent_1px)] bg-[size:120px_120px]" />
+            </div>
 
-                <LockKeyhole className="h-5 w-5 text-[var(--app-accent)]" />
+            <div className="relative z-10 flex w-full flex-col justify-center">
+              <div className="absolute right-0 top-0">
+                <div className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-[13px] font-medium text-white/75 backdrop-blur-sm">
+                  Service CRM
+                </div>
               </div>
 
-              <div>
-                <h2 className="max-w-xl text-6xl font-black leading-[0.95] tracking-[-0.065em]">
-                  Organize your service business without messy spreadsheets.
+              <div className="mx-auto w-full max-w-[650px]">
+                <h2 className="max-w-[500px] text-[34px] font-extrabold leading-[1.03] tracking-[-0.055em] xl:text-[40px]">
+                  Effortlessly manage your clients and bookings.
                 </h2>
 
-                <p className="app-muted mt-6 max-w-md text-base leading-7">
-                  ClientPilot helps service businesses manage clients, bookings,
-                  offers and workspace settings from one clean dashboard.
+                <p className="mt-5 max-w-[470px] text-[14px] font-medium leading-7 text-white/68 xl:text-[15px] xl:leading-8">
+                  Access your CRM dashboard, manage appointments, track revenue
+                  and keep your service business organized from one clean
+                  workspace.
                 </p>
-              </div>
 
-              <div className="app-card p-5">
-                <p className="app-muted mb-4 text-sm">What you can manage</p>
-
-                <div className="grid gap-3">
-                  {[
-                    ["Clients", "Store client details and relationship status", Users],
-                    ["Appointments", "Track bookings, times and session status", CalendarDays],
-                    ["Analytics", "View simple business activity signals", BarChart3],
-                  ].map(([title, description, Icon]) => (
-                    <div
-                      key={title as string}
-                      className="app-card-dark flex items-center justify-between p-4"
-                    >
+                <div className="mt-8 rounded-[28px] border border-white/15 bg-white p-4 shadow-[0_30px_80px_rgba(15,23,42,0.28)] xl:mt-10 xl:rounded-[30px]">
+                  <div className="rounded-[22px] border border-slate-200 bg-slate-50 p-4 xl:rounded-[24px] xl:p-5">
+                    <div className="mb-4 flex items-center justify-between xl:mb-5">
                       <div>
-                        <p className="font-bold">{title as string}</p>
-                        <p className="app-muted mt-1 text-sm">
-                          {description as string}
+                        <p className="text-[13px] font-extrabold text-slate-950">
+                          Business Overview
+                        </p>
+                        <p className="mt-1 text-[11.5px] font-medium text-slate-400">
+                          Live workspace snapshot
                         </p>
                       </div>
 
-                      <Icon className="h-5 w-5 text-[var(--app-accent)]" />
+                      <div className="rounded-full bg-indigo-50 px-3 py-1 text-[11.5px] font-bold text-[#4f46e5]">
+                        This month
+                      </div>
                     </div>
-                  ))}
-                </div>
 
-                <div className="mt-5 flex items-center gap-2 text-sm app-muted">
-                  <CheckCircle2 className="h-4 w-4 text-[var(--app-accent)]" />
-                  Secure workspace access with Supabase Auth
+                    <div className="grid gap-3 md:grid-cols-3">
+                      {[
+                        ["Clients", "248", Users],
+                        ["Bookings", "86", CalendarDays],
+                        ["Revenue", "$12.4k", BarChart3],
+                      ].map(([label, value, Icon]) => (
+                        <div
+                          key={label as string}
+                          className="rounded-[20px] border border-slate-200 bg-white p-3 shadow-sm xl:p-4"
+                        >
+                          <Icon className="h-4 w-4 text-[#4f46e5]" />
+
+                          <p className="mt-3 text-[11.5px] font-semibold text-slate-400 xl:mt-4">
+                            {label as string}
+                          </p>
+
+                          <p className="mt-1 text-[22px] font-extrabold tracking-[-0.04em] text-slate-950 xl:text-[24px]">
+                            {value as string}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="mt-4 rounded-[20px] border border-slate-200 bg-white p-4">
+                      <div className="mb-4 flex items-center justify-between">
+                        <p className="text-[13px] font-extrabold text-slate-950">
+                          Upcoming appointments
+                        </p>
+
+                        <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                      </div>
+
+                      <div className="space-y-3">
+                        {[
+                          ["10:30 AM", "Hair Consultation"],
+                          ["12:00 PM", "Body Wax"],
+                          ["02:45 PM", "Skin Checkup"],
+                        ].map(([time, service]) => (
+                          <div
+                            key={service}
+                            className="flex items-center justify-between rounded-[16px] bg-slate-50 px-3 py-3"
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-100 shadow-inner">
+                                <Mail className="h-3.5 w-3.5 text-[#4f46e5]" />
+                              </div>
+
+                              <p className="text-[13px] font-bold text-slate-800">
+                                {service}
+                              </p>
+                            </div>
+
+                            <p className="text-[12px] font-bold text-slate-400">
+                              {time}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

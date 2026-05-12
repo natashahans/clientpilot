@@ -1,37 +1,37 @@
 @import "tailwindcss";
 
 :root {
-  --app-bg: #f6f1e8;
-  --app-surface: #fffaf3;
-  --app-surface-soft: rgba(255, 250, 243, 0.78);
-  --app-card: #fffdf8;
-  --app-border: rgba(35, 26, 18, 0.09);
+  --app-bg: #f7f8fc;
+  --app-surface: #ffffff;
+  --app-surface-soft: rgba(255, 255, 255, 0.9);
+  --app-card: #ffffff;
+  --app-border: rgba(15, 23, 42, 0.08);
 
-  --app-danger: #d96557;
-  --app-danger-soft: rgba(217, 101, 87, 0.12);
+  --app-danger: #ef4444;
+  --app-danger-soft: rgba(239, 68, 68, 0.1);
 
-  --app-text: #17120d;
-  --app-muted: rgba(23, 18, 13, 0.56);
-  --app-muted-soft: rgba(23, 18, 13, 0.36);
+  --app-text: #111827;
+  --app-muted: rgba(17, 24, 39, 0.56);
+  --app-muted-soft: rgba(17, 24, 39, 0.34);
 
-  --app-accent: #f9733d;
-  --app-accent-hover: #e85f27;
-  --app-accent-soft: rgba(249, 115, 61, 0.13);
+  --app-accent: #4f46e5;
+  --app-accent-hover: #4338ca;
+  --app-accent-soft: rgba(79, 70, 229, 0.1);
   --app-accent-text: #ffffff;
 
-  --radius-card: 24px;
-  --radius-panel: 32px;
+  --radius-card: 20px;
+  --radius-panel: 28px;
   --radius-pill: 999px;
 
-  --font-app: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
-    "Segoe UI", sans-serif;
+  --font-app-stack: var(--font-app), ui-sans-serif, system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", sans-serif;
 
-  --text-page-title: 48px;
-  --text-section-title: 26px;
+  --text-page-title: 42px;
+  --text-section-title: 24px;
   --text-body: 15px;
   --text-small: 13px;
 
-  --tracking-tight-app: -0.055em;
+  --tracking-tight-app: -0.04em;
 }
 
 * {
@@ -46,11 +46,9 @@ body {
   margin: 0;
   background: var(--app-bg);
   color: var(--app-text);
-  font-family: var(--font-app);
+  font-family: var(--font-app-stack);
   text-rendering: geometricPrecision;
 }
-
-/* App theme utility classes */
 
 .app-bg {
   background: var(--app-bg);
@@ -59,20 +57,18 @@ body {
 
 .app-shell-bg {
   background:
-    radial-gradient(circle at 12% 0%, rgba(249, 115, 61, 0.13) 0%, transparent 28%),
-    radial-gradient(circle at 90% 8%, rgba(255, 199, 129, 0.18) 0%, transparent 26%),
-    linear-gradient(135deg, #f6f1e8 0%, #fffaf3 48%, #f1eadf 100%);
+    radial-gradient(circle at 10% 0%, rgba(79, 70, 229, 0.08), transparent 30%),
+    radial-gradient(circle at 90% 10%, rgba(99, 102, 241, 0.1), transparent 26%),
+    linear-gradient(135deg, #f7f8fc 0%, #ffffff 48%, #eef2ff 100%);
 }
-
-/* Cards */
 
 .app-card {
   border: 1px solid var(--app-border);
   background: var(--app-surface-soft);
   border-radius: var(--radius-panel);
   box-shadow:
-    0 18px 48px rgba(45, 32, 20, 0.075),
-    inset 0 1px 0 rgba(255, 255, 255, 0.72);
+    0 18px 45px rgba(15, 23, 42, 0.055),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(18px);
 }
 
@@ -81,71 +77,69 @@ body {
   background: var(--app-card);
   border-radius: var(--radius-card);
   box-shadow:
-    0 12px 28px rgba(45, 32, 20, 0.055),
-    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    0 10px 26px rgba(15, 23, 42, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
 
 .app-card-dark:hover {
-  border-color: rgba(249, 115, 61, 0.16);
+  border-color: rgba(79, 70, 229, 0.18);
 }
 
 .app-accent-card {
-  border: 1px solid rgba(249, 115, 61, 0.25);
+  border: 1px solid rgba(79, 70, 229, 0.25);
   background:
-    radial-gradient(circle at top right, rgba(255, 255, 255, 0.42), transparent 30%),
-    linear-gradient(135deg, #f9733d 0%, #ff9f64 100%);
+    radial-gradient(circle at top right, rgba(255, 255, 255, 0.24), transparent 32%),
+    linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
   color: var(--app-accent-text);
   border-radius: var(--radius-panel);
   box-shadow:
-    0 22px 55px rgba(249, 115, 61, 0.22),
-    inset 0 1px 0 rgba(255, 255, 255, 0.28);
+    0 22px 55px rgba(79, 70, 229, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.24);
 }
 
-/* Buttons */
-
 .app-button-primary {
-  border-radius: var(--radius-pill);
+  border-radius: 14px;
   background: var(--app-accent);
   color: var(--app-accent-text);
   font-size: var(--text-small);
-  font-weight: 850;
+  font-weight: 700;
   transition: 0.2s ease;
-  box-shadow: 0 12px 26px rgba(249, 115, 61, 0.22);
+  box-shadow: 0 12px 26px rgba(79, 70, 229, 0.18);
 }
 
 .app-button-primary:hover {
   background: var(--app-accent-hover);
   transform: translateY(-1px);
-  box-shadow: 0 16px 32px rgba(249, 115, 61, 0.26);
+  box-shadow: 0 16px 34px rgba(79, 70, 229, 0.22);
 }
 
 .app-button-secondary {
   border: 1px solid var(--app-border);
-  border-radius: var(--radius-pill);
-  background: rgba(255, 255, 255, 0.7);
+  border-radius: 14px;
+  background: #ffffff;
   color: var(--app-muted);
   font-size: var(--text-small);
-  font-weight: 750;
+  font-weight: 650;
   transition: 0.2s ease;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.035);
 }
 
 .app-button-secondary:hover {
-  background: #ffffff;
+  background: #f8fafc;
   color: var(--app-text);
   transform: translateY(-1px);
 }
 
-/* Inputs */
-
 .app-input {
   border: 1px solid var(--app-border);
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.82);
+  border-radius: 14px;
+  background: #ffffff;
   color: var(--app-text);
   outline: none;
   transition: 0.2s ease;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65);
+  box-shadow:
+    0 8px 18px rgba(15, 23, 42, 0.03),
+    inset 0 1px 0 rgba(255, 255, 255, 0.85);
 }
 
 .app-input::placeholder {
@@ -153,34 +147,32 @@ body {
 }
 
 .app-input:focus {
-  border-color: rgba(249, 115, 61, 0.5);
+  border-color: rgba(79, 70, 229, 0.42);
   background: #ffffff;
   box-shadow:
-    0 0 0 4px rgba(249, 115, 61, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    0 0 0 4px rgba(79, 70, 229, 0.1),
+    0 8px 18px rgba(15, 23, 42, 0.04);
 }
-
-/* Typography */
 
 .app-kicker {
   color: var(--app-accent);
   font-size: var(--text-small);
-  font-weight: 850;
-  letter-spacing: 0.25em;
+  font-weight: 700;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
 }
 
 .app-page-title {
   font-size: var(--text-page-title);
-  font-weight: 900;
+  font-weight: 800;
   letter-spacing: var(--tracking-tight-app);
-  line-height: 0.98;
+  line-height: 1.04;
 }
 
 .app-section-title {
   font-size: var(--text-section-title);
-  font-weight: 900;
-  letter-spacing: -0.04em;
+  font-weight: 800;
+  letter-spacing: -0.03em;
 }
 
 .app-muted {
@@ -190,8 +182,6 @@ body {
 .app-border {
   border-color: var(--app-border);
 }
-
-/* Compatibility patch for old hardcoded dark classes */
 
 .app-bg .text-white,
 .app-shell-bg .text-white {
@@ -210,7 +200,7 @@ body {
 .app-shell-bg .text-white\/60,
 .app-bg .text-white\/70,
 .app-shell-bg .text-white\/70 {
-  color: rgba(23, 18, 13, 0.68) !important;
+  color: rgba(17, 24, 39, 0.62) !important;
 }
 
 .app-bg .placeholder\:text-white\/40::placeholder,
@@ -239,7 +229,7 @@ body {
 .app-shell-bg .bg-white\/5,
 .app-bg .bg-white\/10,
 .app-shell-bg .bg-white\/10 {
-  background: var(--app-surface-soft) !important;
+  background: #ffffff !important;
 }
 
 .app-bg .hover\:bg-white\/10:hover,
@@ -248,37 +238,8 @@ body {
 .app-shell-bg .hover\:bg-white\/\[0\.06\]:hover,
 .app-bg .hover\:bg-white\/\[0\.08\]:hover,
 .app-shell-bg .hover\:bg-white\/\[0\.08\]:hover {
-  background: #ffffff !important;
+  background: #f8fafc !important;
 }
-
-.app-bg .bg-\[\#0B0B0B\],
-.app-shell-bg .bg-\[\#0B0B0B\],
-.app-bg .bg-\[\#101010\],
-.app-shell-bg .bg-\[\#101010\],
-.app-bg .bg-\[\#111111\],
-.app-shell-bg .bg-\[\#111111\],
-.app-bg .bg-black,
-.app-shell-bg .bg-black {
-  background: #21160f !important;
-}
-
-.app-bg .text-\[\#D7FF5F\],
-.app-shell-bg .text-\[\#D7FF5F\] {
-  color: var(--app-accent) !important;
-}
-
-.app-bg .bg-\[\#D7FF5F\],
-.app-shell-bg .bg-\[\#D7FF5F\] {
-  background: var(--app-accent) !important;
-  color: var(--app-accent-text) !important;
-}
-
-.app-bg .text-black,
-.app-shell-bg .text-black {
-  color: var(--app-accent-text) !important;
-}
-
-/* Action links */
 
 .app-bg .text-blue-400,
 .app-shell-bg .text-blue-400 {
@@ -297,23 +258,8 @@ body {
 
 .app-bg .hover\:text-red-300:hover,
 .app-shell-bg .hover\:text-red-300:hover {
-  color: #b94c3f !important;
+  color: #dc2626 !important;
 }
-
-/* Nav */
-
-.app-bg nav a:not([class*="bg-"]),
-.app-shell-bg nav a:not([class*="bg-"]) {
-  color: rgba(23, 18, 13, 0.62) !important;
-}
-
-.app-bg nav a:hover,
-.app-shell-bg nav a:hover {
-  color: var(--app-text) !important;
-  background: rgba(255, 255, 255, 0.74) !important;
-}
-
-/* Form controls */
 
 .app-bg input,
 .app-shell-bg input,
@@ -329,11 +275,9 @@ body {
 
 .app-bg option,
 .app-shell-bg option {
-  background: #fffaf3;
+  background: #ffffff;
   color: var(--app-text);
 }
-
-/* Scrollbar */
 
 *::-webkit-scrollbar {
   width: 10px;
@@ -345,28 +289,26 @@ body {
 }
 
 *::-webkit-scrollbar-thumb {
-  background: rgba(35, 26, 18, 0.16);
+  background: rgba(17, 24, 39, 0.16);
   border-radius: 999px;
 }
 
 *::-webkit-scrollbar-thumb:hover {
-  background: rgba(35, 26, 18, 0.28);
+  background: rgba(17, 24, 39, 0.28);
 }
-
-/* Mobile type safety */
 
 @media (max-width: 640px) {
   :root {
-    --text-page-title: 38px;
-    --text-section-title: 22px;
+    --text-page-title: 34px;
+    --text-section-title: 21px;
   }
 
   .app-card,
   .app-accent-card {
-    border-radius: 26px;
+    border-radius: 24px;
   }
 
   .app-card-dark {
-    border-radius: 20px;
+    border-radius: 18px;
   }
 }
