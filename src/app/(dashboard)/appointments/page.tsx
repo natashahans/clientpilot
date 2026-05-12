@@ -49,6 +49,8 @@ export default function AppointmentsPage() {
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState<Toast | null>(null);
   const [clientSearch, setClientSearch] = useState("");
+  const [activeClientIndex, setActiveClientIndex] = useState(0);
+  const [activeServiceIndex, setActiveServiceIndex] = useState(0);
   const [creatingClient, setCreatingClient] = useState(false);
 
   const [serviceSearch, setServiceSearch] = useState("");
@@ -411,10 +413,35 @@ export default function AppointmentsPage() {
     });
 
     setClientSearch("");
+    setActiveClientIndex(0);
+    setActiveServiceIndex(0);
     setServiceSearch("");
     setCreatingClient(false);
     setCreatingService(false);
     setShowModal(true);
+  }
+
+  function selectClient(client: Client) {
+    setForm({
+      ...form,
+      client_id: client.id.toString(),
+      client_name: client.name,
+    });
+
+    setClientSearch(client.name);
+    setActiveClientIndex(0);
+  }
+
+  function selectService(service: Service) {
+    setForm({
+      ...form,
+      service_id: service.id.toString(),
+      service: service.name,
+      service_price: service.price,
+    });
+
+    setServiceSearch(service.name);
+    setActiveServiceIndex(0);
   }
 
   useEffect(() => {
@@ -697,6 +724,7 @@ export default function AppointmentsPage() {
                   value={clientSearch}
                   onChange={(e) => {
                     setClientSearch(e.target.value);
+                    setActiveClientIndex(0);
 
                     setForm({
                       ...form,
@@ -704,28 +732,67 @@ export default function AppointmentsPage() {
                       client_name: "",
                     });
                   }}
+
+                  onKeyDown={(e) => {
+                    if (!clientSearch || filteredClients.length === 0) {
+                      return;
+                    }
+
+                    if (e.key === "ArrowDown") {
+                      e.preventDefault();
+
+                      setActiveClientIndex((index) =>
+                        index === filteredClients.length - 1 ? 0 : index + 1
+                      );
+                    }
+
+                    if (e.key === "ArrowUp") {
+                      e.preventDefault();
+
+                      setActiveClientIndex((index) =>
+                        index === 0 ? filteredClients.length - 1 : index - 1
+                      );
+                    }
+
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+
+                      selectClient(filteredClients[activeClientIndex]);
+                    }
+
+                    if (e.key === "Escape") {
+                      e.preventDefault();
+
+                      setClientSearch("");
+                      setActiveClientIndex(0);
+                      setForm({
+                        ...form,
+                        client_id: "",
+                        client_name: "",
+                      });
+                    }
+                  }}
+
                   placeholder={
-                    clients.length === 0 ? "No clients available" : "Search client..."
+                    clients.length === 0
+                      ? "No clients available"
+                      : "Search client..."
                   }
                   className="app-input w-full px-4 py-3"
                 />
 
                 {clientSearch && !form.client_id && filteredClients.length > 0 && (
                   <div className="absolute left-0 right-0 top-14 z-50 rounded-[22px] border app-border bg-[var(--app-surface)] p-2 shadow-2xl shadow-black/30">
-                    {filteredClients.map((client) => (
+                    {filteredClients.map((client, index) => (
                       <button
                         key={client.id}
                         type="button"
-                        onClick={() => {
-                          setForm({
-                            ...form,
-                            client_id: client.id.toString(),
-                            client_name: client.name,
-                          });
-
-                          setClientSearch(client.name);
-                        }}
-                        className="block w-full rounded-2xl px-4 py-3 text-left transition hover:bg-white/10"
+                        onClick={() => selectClient(client)}
+                        className={`block w-full rounded-2xl px-4 py-3 text-left transition ${
+                          activeClientIndex === index
+                            ? "bg-[var(--app-accent)] text-[var(--app-accent-text)]"
+                            : "hover:bg-white/10"
+                        }`}
                       >
                         <p className="font-bold">{client.name}</p>
                         <p className="app-muted text-sm">{client.email || "No email"}</p>
@@ -809,6 +876,7 @@ export default function AppointmentsPage() {
                   value={serviceSearch}
                   onChange={(e) => {
                     setServiceSearch(e.target.value);
+                    setActiveServiceIndex(0);
 
                     setForm({
                       ...form,
@@ -817,6 +885,48 @@ export default function AppointmentsPage() {
                       service_price: "",
                     });
                   }}
+
+                  onKeyDown={(e) => {
+                    if (!serviceSearch || filteredServices.length === 0) {
+                      return;
+                    }
+
+                    if (e.key === "ArrowDown") {
+                      e.preventDefault();
+
+                      setActiveServiceIndex((index) =>
+                        index === filteredServices.length - 1 ? 0 : index + 1
+                      );
+                    }
+
+                    if (e.key === "ArrowUp") {
+                      e.preventDefault();
+
+                      setActiveServiceIndex((index) =>
+                        index === 0 ? filteredServices.length - 1 : index - 1
+                      );
+                    }
+
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+
+                      selectService(filteredServices[activeServiceIndex]);
+                    }
+
+                    if (e.key === "Escape") {
+                      e.preventDefault();
+
+                      setServiceSearch("");
+                      setActiveServiceIndex(0);
+                      setForm({
+                        ...form,
+                        service_id: "",
+                        service: "",
+                        service_price: "",
+                      });
+                    }
+                  }}
+
                   placeholder={
                     services.length === 0 ? "No services available" : "Search service..."
                   }
@@ -825,21 +935,16 @@ export default function AppointmentsPage() {
 
                 {serviceSearch && !form.service_id && filteredServices.length > 0 && (
                   <div className="absolute left-0 right-0 top-14 z-50 rounded-[22px] border app-border bg-[var(--app-surface)] p-2 shadow-2xl shadow-black/30">
-                    {filteredServices.map((service) => (
+                    {filteredServices.map((service, index) => (
                       <button
                         key={service.id}
                         type="button"
-                        onClick={() => {
-                          setForm({
-                            ...form,
-                            service_id: service.id.toString(),
-                            service: service.name,
-                            service_price: service.price,
-                          });
-
-                          setServiceSearch(service.name);
-                        }}
-                        className="block w-full rounded-2xl px-4 py-3 text-left transition hover:bg-white/10"
+                        onClick={() => selectService(service)}
+                        className={`block w-full rounded-2xl px-4 py-3 text-left transition ${
+                          activeServiceIndex === index
+                            ? "bg-[var(--app-accent)] text-[var(--app-accent-text)]"
+                            : "hover:bg-white/10"
+                        }`}
                       >
                         <p className="font-bold">{service.name}</p>
                         <p className="app-muted text-sm">
