@@ -73,9 +73,14 @@ export default function DashboardLayout({
   }, [router]);
 
   useEffect(() => {
+    let cancelled = false;
+
     async function runSearch() {
-      if (!searchTerm.trim()) {
+      const trimmedTerm = searchTerm.trim();
+
+      if (!trimmedTerm) {
         setResults([]);
+        setActiveSearchIndex(0);
         return;
       }
 
@@ -83,8 +88,9 @@ export default function DashboardLayout({
         data: { user },
       } = await supabase.auth.getUser();
 
-      if (!user) {
+      if (!user || cancelled) {
         setResults([]);
+        setActiveSearchIndex(0);
         return;
       }
 
@@ -94,12 +100,16 @@ export default function DashboardLayout({
         supabase.from("services").select("*").eq("user_id", user.id),
       ]);
 
-      const term = searchTerm.toLowerCase();
+      if (cancelled) return;
+
+      const term = trimmedTerm.toLowerCase();
 
       const clientResults =
         clientsRes.data
           ?.filter((client) =>
-            `${client.name} ${client.email} ${client.service} ${client.status}`
+            `${client.name} ${client.email || ""} ${client.service || ""} ${
+              client.status || ""
+            }`
               .toLowerCase()
               .includes(term)
           )
@@ -108,20 +118,22 @@ export default function DashboardLayout({
             title: client.name,
             subtitle: client.email || client.service || "Client record",
             type: "Client" as const,
-            path: "/clients",
+            path: `/clients/${client.id}`,
           })) || [];
 
       const appointmentResults =
         appointmentsRes.data
           ?.filter((appointment) =>
-            `${appointment.client_name} ${appointment.service} ${appointment.time} ${appointment.status}`
+            `${appointment.client_name} ${appointment.service} ${
+              appointment.time || ""
+            } ${appointment.status || ""}`
               .toLowerCase()
               .includes(term)
           )
           .map((appointment) => ({
             id: appointment.id,
             title: appointment.client_name,
-            subtitle: `${appointment.service} at ${appointment.time}`,
+            subtitle: `${appointment.service} at ${appointment.time || "No time"}`,
             type: "Appointment" as const,
             path: "/appointments",
           })) || [];
@@ -129,16 +141,18 @@ export default function DashboardLayout({
       const serviceResults =
         servicesRes.data
           ?.filter((service) =>
-            `${service.name} ${service.price} ${service.duration} ${service.tag}`
+            `${service.name} ${service.price} ${service.duration || ""} ${
+              service.tag || ""
+            }`
               .toLowerCase()
               .includes(term)
           )
           .map((service) => ({
             id: service.id,
             title: service.name,
-            subtitle: `${service.price} • ${service.duration}`,
+            subtitle: `${service.price} • ${service.duration || "No duration"}`,
             type: "Service" as const,
-            path: "/services",
+            path: `/services/${service.id}`,
           })) || [];
 
       setResults([...clientResults, ...appointmentResults, ...serviceResults]);
@@ -146,6 +160,10 @@ export default function DashboardLayout({
     }
 
     runSearch();
+
+    return () => {
+      cancelled = true;
+    };
   }, [searchTerm]);
 
   if (checkingAuth) {
@@ -257,7 +275,10 @@ export default function DashboardLayout({
                   <Search className="h-4 w-4" />
                   <input
                     value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onChange={(e) => {
+                      setSearchTerm(e.target.value);
+                      setActiveSearchIndex(0);
+                    }}
 
                     onKeyDown={(e) => {
                       if (!searchTerm || results.length === 0) return;
