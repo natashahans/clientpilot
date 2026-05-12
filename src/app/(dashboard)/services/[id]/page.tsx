@@ -214,9 +214,10 @@ export default function ServiceDetailsPage() {
               </div>
             ) : (
               appointments.map((appointment) => (
-                <div
+                <Link
                   key={appointment.id}
-                  className="app-card-dark grid gap-4 px-5 py-4 md:grid-cols-[0.9fr_1.2fr_0.8fr] md:items-center"
+                  href={`/appointments/${appointment.id}`}
+                  className="app-card-dark grid gap-4 px-5 py-4 transition hover:bg-white/[0.06] md:grid-cols-[0.9fr_1.2fr_0.8fr] md:items-center"
                 >
                   <div>
                     <p className="font-black text-[var(--app-accent)]">
@@ -252,7 +253,7 @@ export default function ServiceDetailsPage() {
                         )
                       : "No price"}
                   </p>
-                </div>
+                </Link>
               ))
             )}
           </div>
