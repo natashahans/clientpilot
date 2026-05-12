@@ -45,6 +45,7 @@ export default function DashboardLayout({
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
+  const [activeSearchIndex, setActiveSearchIndex] = useState(0);
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
@@ -141,6 +142,7 @@ export default function DashboardLayout({
           })) || [];
 
       setResults([...clientResults, ...appointmentResults, ...serviceResults]);
+      setActiveSearchIndex(0);
     }
 
     runSearch();
@@ -178,7 +180,12 @@ export default function DashboardLayout({
             <Link
               key={name}
               href={path}
-              onClick={() => setMobileMenuOpen(false)}
+              onClick={() => {
+                setSearchTerm("");
+                setResults([]);
+                setActiveSearchIndex(0);
+                setMobileMenuOpen(false);
+              }}
               className={`flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold transition-colors duration-200 ${
                 isActive
                   ? "!bg-[var(--app-accent)] !text-[var(--app-accent-text)] hover:!bg-[var(--app-accent)] hover:!text-[var(--app-accent-text)] focus:!bg-[var(--app-accent)] focus:!text-[var(--app-accent-text)]"
@@ -251,6 +258,42 @@ export default function DashboardLayout({
                   <input
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
+
+                    onKeyDown={(e) => {
+                      if (!searchTerm || results.length === 0) return;
+
+                      if (e.key === "ArrowDown") {
+                        e.preventDefault();
+                        setActiveSearchIndex((index) =>
+                          index === results.length - 1 ? 0 : index + 1
+                        );
+                      }
+
+                      if (e.key === "ArrowUp") {
+                        e.preventDefault();
+                        setActiveSearchIndex((index) =>
+                          index === 0 ? results.length - 1 : index - 1
+                        );
+                      }
+
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+
+                        router.push(results[activeSearchIndex].path);
+                        setSearchTerm("");
+                        setResults([]);
+                        setActiveSearchIndex(0);
+                      }
+
+                      if (e.key === "Escape") {
+                        e.preventDefault();
+
+                        setSearchTerm("");
+                        setResults([]);
+                        setActiveSearchIndex(0);
+                      }
+                    }}                    
+
                     placeholder="Search clients, bookings, services..."
                     className="w-full bg-transparent text-sm text-[var(--app-text)] outline-none placeholder:text-white/40"
                   />
@@ -260,7 +303,7 @@ export default function DashboardLayout({
                   <div className="absolute left-0 top-14 z-50 w-full rounded-[24px] border app-border bg-[var(--app-surface)] p-3 shadow-2xl shadow-black/50">
                     {results.length > 0 ? (
                       <div className="space-y-2">
-                        {results.map((result) => (
+                        {results.map((result, index) => (
                           <Link
                             key={`${result.type}-${result.id}`}
                             href={result.path}
@@ -268,7 +311,11 @@ export default function DashboardLayout({
                               setSearchTerm("");
                               setMobileMenuOpen(false);
                             }}
-                            className="block rounded-2xl px-4 py-3 transition hover:bg-white/10"
+                            className={`block rounded-2xl px-4 py-3 transition ${
+                              activeSearchIndex === index
+                                ? "bg-[var(--app-accent)] text-[var(--app-accent-text)]"
+                                : "hover:bg-white/10"
+                            }`}
                           >
                             <div className="flex items-center justify-between">
                               <div>
