@@ -13,6 +13,9 @@ import {
   Repeat,
   Gauge,
   Layers3,
+  Brain,
+  Target,
+  BadgeCheck,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { formatPrice } from "@/lib/formatters";
@@ -149,7 +152,6 @@ export default function DashboardPage() {
   const upcomingAppointments = [...appointments]
     .filter((appointment) => {
       if (!appointment.appointment_at) return false;
-
       return new Date(appointment.appointment_at).getTime() >= now.getTime();
     })
     .sort(
@@ -228,9 +230,36 @@ export default function DashboardPage() {
     },
   ];
 
+  const insightCards = [
+    {
+      title: "Demand focus",
+      value: mostBookedService,
+      text: "This service is currently your strongest signal. Push it in bundles or repeat-booking offers.",
+      icon: Target,
+    },
+    {
+      title: "Retention signal",
+      value: `${returningRate}%`,
+      text:
+        returningRate > 0
+          ? "Returning clients are showing up in your client mix."
+          : "No returning client pattern yet. Focus on follow-ups after appointments.",
+      icon: Repeat,
+    },
+    {
+      title: "Booking health",
+      value: `${completionRate}%`,
+      text:
+        completionRate >= 60
+          ? "Most bookings are moving toward confirmed status."
+          : "A higher confirmed booking rate would make revenue more predictable.",
+      icon: BadgeCheck,
+    },
+  ];
+
   return (
-    <section className="space-y-5 lg:space-y-6">
-      <div className="grid gap-5 xl:grid-cols-[1.25fr_0.75fr]">
+    <section className="space-y-4 lg:space-y-5">
+      <div className="grid gap-4 xl:grid-cols-[1.25fr_0.75fr]">
         <div className="relative overflow-hidden rounded-[38px] border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
           <div className="absolute right-[-80px] top-[-90px] h-[260px] w-[260px] rounded-full bg-indigo-100/70 blur-3xl" />
           <div className="absolute bottom-[-110px] left-[30%] h-[260px] w-[260px] rounded-full bg-sky-100/60 blur-3xl" />
@@ -398,7 +427,7 @@ export default function DashboardPage() {
 
       <StatsCards loading={loading} stats={stats} />
 
-      <div className="grid items-start gap-5 xl:grid-cols-[1.2fr_0.8fr]">
+      <div className="grid items-start gap-4 xl:grid-cols-[1.32fr_0.68fr]">
         <BookingPerformance
           loading={loading}
           chartData={chartData}
@@ -412,14 +441,67 @@ export default function DashboardPage() {
           onChartRangeChange={setChartRange}
         />
 
-        <UpcomingAppointments
-          loading={loading}
-          appointments={upcomingAppointments}
-          timezone={workspaceSettings?.timezone}
-        />
+        <div className="space-y-4">
+          <UpcomingAppointments
+            loading={loading}
+            appointments={upcomingAppointments}
+            timezone={workspaceSettings?.timezone}
+          />
+
+          <div className="relative overflow-hidden rounded-[34px] bg-slate-950 p-5 text-white shadow-[0_24px_70px_rgba(15,23,42,0.18)]">
+            <div className="absolute right-[-80px] top-[-80px] h-[220px] w-[220px] rounded-full bg-[#4f46e5]/40 blur-3xl" />
+
+            <div className="relative z-10">
+              <div className="mb-5 flex items-center justify-between">
+                <div>
+                  <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-white/40">
+                    ClientPilot Insights
+                  </p>
+
+                  <h3 className="mt-2 text-[22px] font-extrabold tracking-[-0.045em]">
+                    Smart recommendations
+                  </h3>
+                </div>
+
+                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10 text-white">
+                  <Brain className="h-5 w-5" />
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                {insightCards.map(({ title, value, text, icon: Icon }) => (
+                  <div
+                    key={title}
+                    className="rounded-[24px] border border-white/10 bg-white/8 p-4 backdrop-blur-xl"
+                  >
+                    <div className="mb-3 flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-white/10">
+                          <Icon className="h-4 w-4" />
+                        </div>
+
+                        <p className="text-[13px] font-bold text-white/65">
+                          {title}
+                        </p>
+                      </div>
+
+                      <p className="max-w-[150px] truncate text-right text-[15px] font-extrabold text-white">
+                        {loading ? "..." : value}
+                      </p>
+                    </div>
+
+                    <p className="text-[12.5px] font-medium leading-5 text-white/55">
+                      {loading ? "Analyzing workspace data..." : text}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div className="grid items-start gap-5 xl:grid-cols-[1.1fr_0.9fr]">
+      <div className="grid items-start gap-4 xl:grid-cols-[1.15fr_0.85fr]">
         <RecentRevenueActivity
           loading={loading}
           appointments={recentRevenueActivity}
@@ -427,7 +509,7 @@ export default function DashboardPage() {
           currency={workspaceSettings?.currency}
         />
 
-        <div className="space-y-6">
+        <div className="space-y-5">
           <TopServices
             loading={loading}
             services={topServices}
@@ -555,7 +637,59 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <ClientPipeline loading={loading} clients={recentClients} />
+      <div className="grid items-start gap-4 xl:grid-cols-[0.9fr_1.1fr]">
+        <ClientPipeline loading={loading} clients={recentClients} />
+
+        <div className="rounded-[34px] border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+          <div className="mb-5 flex items-center justify-between">
+            <div>
+              <h3 className="text-[23px] font-extrabold tracking-[-0.04em] text-slate-950">
+                Workspace Summary
+              </h3>
+
+              <p className="mt-1 text-[13px] font-medium text-slate-500">
+                A quick operational snapshot of your business data.
+              </p>
+            </div>
+
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-indigo-50 text-[#4f46e5] ring-1 ring-indigo-100">
+              <Sparkles className="h-5 w-5" />
+            </div>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            {[
+              ["Total clients", totalClients],
+              ["Active clients", activeClients],
+              ["Appointments", appointments.length],
+              ["Services", services.length],
+            ].map(([label, value]) => (
+              <div
+                key={label}
+                className="rounded-[22px] border border-slate-200 bg-slate-50 p-4"
+              >
+                <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-400">
+                  {label}
+                </p>
+
+                <p className="mt-2 text-[26px] font-extrabold tracking-[-0.05em] text-slate-950">
+                  {loading ? "..." : value}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-4 rounded-[24px] bg-indigo-50 p-5 text-[#4f46e5]">
+            <p className="text-[13px] font-extrabold">
+              {loading
+                ? "Loading summary..."
+                : appointments.length > 0
+                ? `You currently have ${appointments.length} appointments tracked across ${services.length} services.`
+                : "Start by adding appointments to unlock stronger dashboard insights."}
+            </p>
+          </div>
+        </div>
+      </div>
     </section>
   );
 }

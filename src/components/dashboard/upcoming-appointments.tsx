@@ -22,10 +22,10 @@ export default function UpcomingAppointments({
   timezone,
 }: UpcomingAppointmentsProps) {
   return (
-    <div className="rounded-[34px] border border-slate-200 bg-white p-5 shadow-sm sm:p-7">
+    <div className="rounded-[30px] border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h3 className="text-[24px] font-extrabold tracking-[-0.04em] text-slate-950">
+          <h3 className="text-[22px] font-extrabold tracking-[-0.04em] text-slate-950">
             Upcoming Appointments
           </h3>
 
@@ -39,7 +39,7 @@ export default function UpcomingAppointments({
         </div>
       </div>
 
-      <div className="max-h-[540px] space-y-3 overflow-y-auto pr-2">
+      <div className="max-h-[500px] space-y-2.5 overflow-y-auto pr-1">
         {loading ? (
           [1, 2, 3].map((item) => (
             <div
@@ -59,7 +59,7 @@ export default function UpcomingAppointments({
             <Link
               key={appointment.id}
               href={`/appointments/${appointment.id}`}
-              className="relative block rounded-[24px] border border-slate-200 bg-slate-50 p-5 transition hover:-translate-y-1 hover:bg-white hover:shadow-[0_16px_40px_rgba(15,23,42,0.08)]"
+              className="relative block rounded-[20px] border border-slate-200 bg-slate-50 p-4 transition hover:-translate-y-1 hover:bg-white hover:shadow-[0_14px_34px_rgba(15,23,42,0.07)]"
             >
               <div className="absolute left-0 top-6 h-8 w-1 rounded-full bg-[#4f46e5]" />
 
@@ -67,7 +67,7 @@ export default function UpcomingAppointments({
                 {formatTimeWithTimezone(appointment.appointment_at, timezone)}
               </p>
 
-              <p className="mt-2 text-[16px] font-bold text-slate-950">
+              <p className="mt-1.5 text-[15px] font-bold text-slate-950">
                 {appointment.service}
               </p>
 
