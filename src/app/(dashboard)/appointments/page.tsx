@@ -52,6 +52,8 @@ export default function AppointmentsPage() {
   const [activeClientIndex, setActiveClientIndex] = useState(0);
   const [activeServiceIndex, setActiveServiceIndex] = useState(0);
   const [creatingClient, setCreatingClient] = useState(false);
+  const [creatingClientSaving, setCreatingClientSaving] = useState(false);
+  const [creatingServiceSaving, setCreatingServiceSaving] = useState(false);
 
   const [serviceSearch, setServiceSearch] = useState("");
   const [creatingService, setCreatingService] = useState(false);
@@ -166,16 +168,21 @@ export default function AppointmentsPage() {
   }
 
   async function createClient() {
+    if (creatingClientSaving) return;
+
     if (!newClientForm.name.trim()) {
       showToast("Client name is required", "error");
       return;
     }
+
+    setCreatingClientSaving(true);
 
     const {
       data: { user },
     } = await supabase.auth.getUser();
 
     if (!user) {
+      setCreatingClientSaving(false);
       showToast("You must be logged in", "error");
       return;
     }
@@ -185,7 +192,7 @@ export default function AppointmentsPage() {
       .insert([
         {
           name: newClientForm.name,
-          email: newClientForm.email || null,
+          email: newClientForm.email.trim().toLowerCase() || null,
           user_id: user.id,
         },
       ])
@@ -194,6 +201,7 @@ export default function AppointmentsPage() {
 
     if (error) {
       console.log("CREATE CLIENT ERROR:", error);
+      setCreatingClientSaving(false);
       showToast("Could not create client", "error");
       return;
     }
@@ -216,21 +224,27 @@ export default function AppointmentsPage() {
     });
 
     setCreatingClient(false);
+    setCreatingClientSaving(false);
 
     showToast("Client created");
   }
 
   async function createService() {
+    if (creatingServiceSaving) return;
+
     if (!newServiceForm.name.trim() || !newServiceForm.price.trim()) {
       showToast("Service name and price are required", "error");
       return;
     }
+
+    setCreatingServiceSaving(true);
 
     const {
       data: { user },
     } = await supabase.auth.getUser();
 
     if (!user) {
+      setCreatingServiceSaving(false);
       showToast("You must be logged in", "error");
       return;
     }
@@ -251,6 +265,7 @@ export default function AppointmentsPage() {
 
     if (error) {
       console.log("CREATE SERVICE ERROR:", error);
+      setCreatingServiceSaving(false);
       showToast("Could not create service", "error");
       return;
     }
@@ -275,6 +290,7 @@ export default function AppointmentsPage() {
     });
 
     setCreatingService(false);
+    setCreatingServiceSaving(false);
 
     showToast("Service created");
   }
@@ -418,6 +434,8 @@ export default function AppointmentsPage() {
     setServiceSearch("");
     setCreatingClient(false);
     setCreatingService(false);
+    setCreatingClientSaving(false);
+    setCreatingServiceSaving(false);
     setShowModal(true);
   }
 
@@ -852,9 +870,10 @@ export default function AppointmentsPage() {
                           <button
                             type="button"
                             onClick={createClient}
-                            className="app-button-primary px-4 py-2 text-sm"
+                            disabled={creatingClientSaving}
+                            className="app-button-primary px-4 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-60"
                           >
-                            Save Client
+                            {creatingClientSaving ? "Saving..." : "Save Client"}
                           </button>
 
                           <button
@@ -1021,9 +1040,10 @@ export default function AppointmentsPage() {
                           <button
                             type="button"
                             onClick={createService}
-                            className="app-button-primary px-4 py-2 text-sm"
+                            disabled={creatingServiceSaving}
+                            className="app-button-primary px-4 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-60"
                           >
-                            Save Service
+                            {creatingServiceSaving ? "Saving..." : "Save Service"}
                           </button>
 
                           <button
