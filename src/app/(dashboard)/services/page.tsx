@@ -100,6 +100,12 @@ export default function ServicesPage() {
     setLoading(false);
   }
 
+  function getFormattedDuration() {
+    if (!form.duration.trim()) return "";
+
+    return form.duration.trim();
+  }
+
   async function addOrUpdateService() {
     if (!form.name.trim() || !form.price.trim()) {
       showToast("Service name and price are required", "error");
@@ -114,7 +120,7 @@ export default function ServicesPage() {
         .update({
           name: form.name,
           price: form.price,
-          duration: form.duration,
+          duration: getFormattedDuration(),
           tag: form.tag,
         })
         .eq("id", editingService.id);
@@ -142,7 +148,7 @@ export default function ServicesPage() {
         {
           name: form.name,
           price: form.price,
-          duration: form.duration,
+          duration: getFormattedDuration(),
           tag: form.tag,
           user_id: user.id,
         },
@@ -472,7 +478,7 @@ function getServiceStats(service: Service) {
                 onChange={(e) =>
                   setForm({ ...form, duration: e.target.value })
                 }
-                placeholder="Duration e.g. 45 min"
+                placeholder="Duration e.g. 45 min, 1 hour, 2 hours"
                 className="app-input px-4 py-3"
               />
 
