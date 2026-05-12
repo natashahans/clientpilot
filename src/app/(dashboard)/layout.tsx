@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import {
   LayoutDashboard,
@@ -51,6 +51,7 @@ export default function DashboardLayout({
   const [profileOpen, setProfileOpen] = useState(false);
   const [userEmail, setUserEmail] = useState("");
   const [user, setUser] = useState<Awaited<ReturnType<typeof supabase.auth.getUser>>["data"]["user"]>(null);
+  const profileRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     async function checkUser() {
@@ -71,6 +72,23 @@ export default function DashboardLayout({
 
     checkUser();
   }, [router]);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        profileRef.current &&
+        !profileRef.current.contains(event.target as Node)
+      ) {
+        setProfileOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -335,8 +353,9 @@ export default function DashboardLayout({
                             className={`block rounded-2xl px-4 py-3 transition ${
                               activeSearchIndex === index
                                 ? "bg-[var(--app-accent)] text-[var(--app-accent-text)]"
-                                : "hover:bg-white/10"
+                                : ""
                             }`}
+                            onMouseEnter={() => setActiveSearchIndex(index)}
                           >
                             <div className="flex items-center justify-between">
                               <div>
@@ -370,7 +389,7 @@ export default function DashboardLayout({
                   Manage Bookings
                 </Link>
 
-                <div className="relative">
+                <div ref={profileRef} className="relative">
                   <button
                     onClick={() => setProfileOpen(!profileOpen)}
                     className="flex cursor-pointer items-center gap-3 rounded-full border app-border bg-white/[0.04] px-3 py-2 transition-all duration-200 hover:bg-white/[0.08] focus:outline-none focus:ring-2 focus:ring-[var(--app-accent)]/25"

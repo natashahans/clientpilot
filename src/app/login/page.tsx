@@ -30,7 +30,6 @@ export default function LoginPage() {
 
       if (user) {
         router.replace("/");
-        return;
       }
 
       setCheckingAuth(false);
