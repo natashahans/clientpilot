@@ -325,7 +325,7 @@ export default function ClientsPage() {
                   </div>
 
                   <p className="app-muted text-sm lg:text-base">
-                    {client.service || "No service"}
+                    {client.service || "No preferred service"}
                   </p>
 
                   <span className="w-fit rounded-full bg-white/10 px-3 py-1 text-xs text-white/60">
@@ -434,7 +434,7 @@ export default function ClientsPage() {
                 onChange={(e) => setForm({ ...form, service: e.target.value })}
                 className="app-input px-4 py-3"
               >
-                <option value="">Select service</option>
+                <option value="">Select preferred service</option>
 
                 {services.map((service) => (
                   <option key={service.id} value={service.name}>

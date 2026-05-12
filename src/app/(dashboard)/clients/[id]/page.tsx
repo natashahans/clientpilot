@@ -309,7 +309,7 @@ export default function ClientDetailsPage() {
               ["Name", client.name],
               ["Email", client.email],
               ["Phone", client.phone],
-              ["Main Service", client.service],
+              ["Preferred Service", client.service],
               ["Last Visit", client.last_visit],
               ["Status", client.status],
             ].map(([label, value]) => (
