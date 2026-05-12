@@ -76,33 +76,44 @@ export function getTopServices(
   appointments: DashboardAppointment[],
   services: DashboardService[]
 ) {
-  const serviceBookingCounts = getServiceBookingCounts(appointments);
+  const serviceMapById = new Map(services.map((service) => [service.id, service]));
 
-  const serviceRevenueMap = appointments.reduce<Record<string, number>>(
-    (acc, appointment) => {
-      if (!appointment.service) return acc;
-
-      acc[appointment.service] =
-        (acc[appointment.service] || 0) + (appointment.service_price || 0);
-
-      return acc;
-    },
-    {}
+  const serviceMapByName = new Map(
+    services.map((service) => [service.name.toLowerCase(), service])
   );
 
-  return Object.entries(serviceBookingCounts)
-    .map(([serviceName, bookings]) => {
-      const matchingService = services.find(
-        (service) => service.name === serviceName
-      );
+  const serviceStats = appointments.reduce<
+    Record<string, { id: number | null; name: string; bookings: number; revenue: number }>
+  >((acc, appointment) => {
+    if (!appointment.service) return acc;
 
-      return {
-        id: matchingService?.id || null,
+    const matchedService =
+      appointment.service_id
+        ? serviceMapById.get(appointment.service_id)
+        : serviceMapByName.get(appointment.service.toLowerCase());
+
+    const serviceKey = matchedService
+      ? `id-${matchedService.id}`
+      : `name-${appointment.service.toLowerCase()}`;
+
+    const serviceName = matchedService?.name || appointment.service;
+
+    if (!acc[serviceKey]) {
+      acc[serviceKey] = {
+        id: matchedService?.id || appointment.service_id || null,
         name: serviceName,
-        bookings,
-        revenue: serviceRevenueMap[serviceName] || 0,
+        bookings: 0,
+        revenue: 0,
       };
-    })
+    }
+
+    acc[serviceKey].bookings += 1;
+    acc[serviceKey].revenue += appointment.service_price || 0;
+
+    return acc;
+  }, {});
+
+  return Object.values(serviceStats)
     .sort((a, b) => b.bookings - a.bookings)
     .slice(0, 3);
 }
