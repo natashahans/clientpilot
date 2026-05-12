@@ -195,7 +195,14 @@ export default function ClientDetailsPage() {
       status: "Confirmed",
     });
 
-    window.location.reload();
+    const { data: newAppointments } = await supabase
+      .from("appointments")
+      .select("*")
+      .eq("client_id", client.id)
+      .eq("user_id", user.id)
+      .order("appointment_at", { ascending: false });
+
+    setAppointments(newAppointments || []);
   }
 
   if (loading) {
@@ -369,7 +376,7 @@ export default function ClientDetailsPage() {
         </div>
       </div>
     </section>
-    
+
     {showAppointmentModal && client && (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 backdrop-blur-sm">
         <div className="app-card max-h-[90vh] w-full max-w-xl overflow-y-auto p-5 sm:p-7">
