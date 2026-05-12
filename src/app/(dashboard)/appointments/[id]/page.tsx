@@ -34,6 +34,7 @@ export default function AppointmentDetailsPage() {
   const [deleting, setDeleting] = useState(false);
   const [saving, setSaving] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const [editForm, setEditForm] = useState({
     appointment_at: "",
@@ -143,10 +144,6 @@ export default function AppointmentDetailsPage() {
   async function deleteAppointment() {
     if (!appointment) return;
 
-    const confirmed = window.confirm("Delete this appointment permanently?");
-
-    if (!confirmed) return;
-
     setDeleting(true);
 
     const {
@@ -170,6 +167,7 @@ export default function AppointmentDetailsPage() {
       return;
     }
 
+    setShowDeleteModal(false);
     router.push("/appointments");
   }
 
@@ -232,11 +230,11 @@ export default function AppointmentDetailsPage() {
             </button>
 
             <button
-              onClick={deleteAppointment}
+              onClick={() => setShowDeleteModal(true)}
               disabled={deleting}
               className="rounded-full border border-red-400/20 bg-red-500/10 px-5 py-3 text-sm font-semibold text-red-300 transition hover:bg-red-500/20 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {deleting ? "Deleting..." : "Delete"}
+              Delete
             </button>
           </div>
         </div>
@@ -433,6 +431,44 @@ export default function AppointmentDetailsPage() {
                 className="app-button-primary w-full px-5 py-3 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
               >
                 {saving ? "Saving..." : "Save Changes"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 backdrop-blur-sm">
+          <div className="app-card w-full max-w-md p-6">
+            <p className="app-kicker">Delete Appointment</p>
+
+            <h2 className="app-section-title mt-2">
+              Delete this appointment?
+            </h2>
+
+            <p className="app-muted mt-3 text-sm">
+              This will permanently delete the booking for{" "}
+              <span className="font-bold text-[var(--app-text)]">
+                {appointment.client_name}
+              </span>
+              .
+            </p>
+
+            <div className="mt-7 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                disabled={deleting}
+                className="app-button-secondary w-full px-5 py-3 sm:w-auto"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={deleteAppointment}
+                disabled={deleting}
+                className="w-full rounded-full bg-red-500 px-5 py-3 text-sm font-black text-white transition hover:bg-red-400 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+              >
+                {deleting ? "Deleting..." : "Delete Appointment"}
               </button>
             </div>
           </div>
