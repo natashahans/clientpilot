@@ -16,8 +16,11 @@ export default function LoginPage() {
   const router = useRouter();
   const [isLogin, setIsLogin] = useState(true);
   const [checkingAuth, setCheckingAuth] = useState(true);
+  const [authMessage, setAuthMessage] = useState("");
+  const [authError, setAuthError] = useState("");
 
   const [form, setForm] = useState({
+    name: "",
     email: "",
     password: "",
   });
@@ -47,12 +50,19 @@ export default function LoginPage() {
     });
 
     if (error) {
-      alert(error.message);
+      setAuthError(error.message);
     }
   }
 
   async function handleAuth() {
+    setAuthError("");
+    setAuthMessage("");
     if (!form.email || !form.password) return;
+
+    if (!isLogin && !form.name.trim()) {
+      setAuthError("Name is required.");
+      return;
+    }
 
     if (isLogin) {
       const { error } = await supabase.auth.signInWithPassword({
@@ -61,23 +71,34 @@ export default function LoginPage() {
       });
 
       if (error) {
-        alert(error.message);
+        setAuthError(error.message);
         return;
       }
 
       router.replace("/");
     } else {
       const { error } = await supabase.auth.signUp({
-        email: form.email,
+        email: form.email.trim().toLowerCase(),
         password: form.password,
+        options: {
+          data: {
+            full_name: form.name.trim(),
+            name: form.name.trim(),
+          },
+        },
       });
 
       if (error) {
-        alert(error.message);
+        setAuthError(error.message);
         return;
       }
 
-      alert("Account created. You can now login.");
+      setAuthMessage(
+        "Account created. Please check your email to verify your account."
+      );
+
+      setAuthError("");
+
       setIsLogin(true);
     }
   }
@@ -140,7 +161,37 @@ export default function LoginPage() {
               </div>
             </div>
 
-            <div className="space-y-5">
+            {authError && (
+              <div className="mb-5 rounded-2xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm font-semibold text-red-400">
+                {authError}
+              </div>
+            )}
+
+            {authMessage && (
+              <div className="mb-5 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-3 text-sm font-semibold text-emerald-400">
+                {authMessage}
+              </div>
+            )}
+            
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleAuth();
+              }}
+              className="space-y-5"
+            >
+              {!isLogin && (
+                <label className="block space-y-2">
+                  <span className="text-sm font-bold app-muted">Full Name</span>
+                  <input
+                    type="text"
+                    placeholder="Your name"
+                    value={form.name}
+                    onChange={(e) => setForm({ ...form, name: e.target.value })}
+                    className="app-input h-14 w-full px-4"
+                  />
+                </label>
+              )}
               <label className="block space-y-2">
                 <span className="text-sm font-bold app-muted">Email</span>
                 <input
@@ -164,25 +215,25 @@ export default function LoginPage() {
                   className="app-input h-14 w-full px-4"
                 />
               </label>
-            </div>
+              <button
+                type="submit"
+                className="app-button-primary mt-8 flex h-14 w-full items-center justify-center gap-2"
+              >
+                {isLogin ? "Sign In" : "Create Account"}
+                <ArrowRight className="h-4 w-4" />
+              </button>
 
-            <button
-              onClick={handleAuth}
-              className="app-button-primary mt-8 flex h-14 w-full items-center justify-center gap-2"
-            >
-              {isLogin ? "Sign In" : "Create Account"}
-              <ArrowRight className="h-4 w-4" />
-            </button>
-
-            <button
-              onClick={() => setIsLogin(!isLogin)}
-              className="app-muted mt-6 w-full text-center text-sm transition hover:text-[var(--app-text)]"
-            >
-              {isLogin ? "Don’t have an account? " : "Already have an account? "}
-              <span className="font-black text-[var(--app-text)]">
-                {isLogin ? "Sign up" : "Login"}
-              </span>
-            </button>
+              <button
+                type="button"
+                onClick={() => setIsLogin(!isLogin)}
+                className="app-muted mt-6 w-full text-center text-sm transition hover:text-[var(--app-text)]"
+              >
+                {isLogin ? "Don’t have an account? " : "Already have an account? "}
+                <span className="font-black text-[var(--app-text)]">
+                  {isLogin ? "Sign up" : "Login"}
+                </span>
+              </button>
+            </form>
           </div>
         </section>
 
