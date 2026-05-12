@@ -48,6 +48,7 @@ export default function ClientDetailsPage() {
   const [services, setServices] = useState<Service[]>([]);
   const [showAppointmentModal, setShowAppointmentModal] = useState(false);
   const [savingAppointment, setSavingAppointment] = useState(false);
+  const [appointmentError, setAppointmentError] = useState("");
 
   const [appointmentForm, setAppointmentForm] = useState({
     service_id: "",
@@ -125,6 +126,8 @@ export default function ClientDetailsPage() {
   ).length;
 
   function openNewAppointmentModal() {
+    setAppointmentError("");
+
     setAppointmentForm({
       service_id: "",
       service: "",
@@ -137,11 +140,17 @@ export default function ClientDetailsPage() {
   }
 
   async function createAppointmentForClient() {
-    if (
-      !client ||
-      !appointmentForm.service_id ||
-      !appointmentForm.appointment_at.trim()
-    ) {
+    setAppointmentError("");
+
+    if (!client) return;
+
+    if (!appointmentForm.service_id) {
+      setAppointmentError("Please select a service.");
+      return;
+    }
+
+    if (!appointmentForm.appointment_at.trim()) {
+      setAppointmentError("Please select appointment date and time.");
       return;
     }
 
@@ -466,6 +475,12 @@ export default function ClientDetailsPage() {
               <option>Cancelled</option>
             </select>
           </div>
+
+          {appointmentError && (
+            <div className="rounded-2xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm font-semibold text-red-400">
+              {appointmentError}
+            </div>
+          )}
 
           <div className="mt-7 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
             <button
