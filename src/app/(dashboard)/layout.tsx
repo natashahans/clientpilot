@@ -401,19 +401,6 @@ export default function DashboardLayout({
                         "U")[0].toUpperCase()}
                     </div>
 
-                    <div className="hidden min-w-0 text-left sm:block">
-                      <p className="truncate text-sm font-semibold">
-                        {user?.user_metadata?.full_name ||
-                          user?.user_metadata?.name ||
-                          user?.email?.split("@")[0] ||
-                          "User"}
-                      </p>
-
-                      <p className="mt-1 truncate text-xs app-muted">
-                        {user?.email}
-                      </p>
-                    </div>
-
                     <ChevronDown
                       className={`h-4 w-4 text-white/45 transition-transform ${
                         profileOpen ? "rotate-180" : ""
