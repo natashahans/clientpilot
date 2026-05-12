@@ -30,6 +30,13 @@ type Appointment = {
   appointment_at: string | null;
 };
 
+type Service = {
+  id: number;
+  name: string;
+  price: string;
+  duration: string | null;
+};
+
 export default function ClientDetailsPage() {
   const params = useParams();
   const clientId = Number(params.id);
@@ -38,6 +45,17 @@ export default function ClientDetailsPage() {
   const [client, setClient] = useState<Client | null>(null);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
+  const [services, setServices] = useState<Service[]>([]);
+  const [showAppointmentModal, setShowAppointmentModal] = useState(false);
+  const [savingAppointment, setSavingAppointment] = useState(false);
+
+  const [appointmentForm, setAppointmentForm] = useState({
+    service_id: "",
+    service: "",
+    service_price: "",
+    appointment_at: "",
+    status: "Confirmed",
+  });
 
   useEffect(() => {
     async function fetchClientDetails() {
@@ -52,7 +70,7 @@ export default function ClientDetailsPage() {
         return;
       }
 
-      const [clientRes, appointmentsRes] = await Promise.all([
+      const [clientRes, appointmentsRes, servicesRes] = await Promise.all([
         supabase
           .from("clients")
           .select("*")
@@ -66,6 +84,12 @@ export default function ClientDetailsPage() {
           .eq("client_id", clientId)
           .eq("user_id", user.id)
           .order("appointment_at", { ascending: false }),
+
+        supabase
+          .from("services")
+          .select("*")
+          .eq("user_id", user.id)
+          .order("name", { ascending: true }),
       ]);
 
       if (clientRes.error) {
@@ -78,6 +102,12 @@ export default function ClientDetailsPage() {
         console.log("CLIENT APPOINTMENTS ERROR:", appointmentsRes.error);
       } else {
         setAppointments(appointmentsRes.data || []);
+      }
+
+      if (servicesRes.error) {
+        console.log("CLIENT DETAIL SERVICES ERROR:", servicesRes.error);
+      } else {
+        setServices(servicesRes.data || []);
       }
 
       setLoading(false);
@@ -93,6 +123,80 @@ export default function ClientDetailsPage() {
   const confirmedAppointments = appointments.filter(
     (appointment) => appointment.status === "Confirmed"
   ).length;
+
+  function openNewAppointmentModal() {
+    setAppointmentForm({
+      service_id: "",
+      service: "",
+      service_price: "",
+      appointment_at: "",
+      status: "Confirmed",
+    });
+
+    setShowAppointmentModal(true);
+  }
+
+  async function createAppointmentForClient() {
+    if (
+      !client ||
+      !appointmentForm.service_id ||
+      !appointmentForm.appointment_at.trim()
+    ) {
+      return;
+    }
+
+    setSavingAppointment(true);
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      setSavingAppointment(false);
+      return;
+    }
+
+    const appointmentIso = new Date(appointmentForm.appointment_at).toISOString();
+
+    const appointmentTime = formatTimeWithTimezone(
+      appointmentIso,
+      workspaceSettings?.timezone
+    );
+
+    const { error } = await supabase.from("appointments").insert([
+      {
+        client_id: client.id,
+        client_name: client.name,
+        service_id: Number(appointmentForm.service_id),
+        service: appointmentForm.service,
+        service_price: appointmentForm.service_price
+          ? parseFloat(appointmentForm.service_price)
+          : null,
+        time: appointmentTime,
+        appointment_at: appointmentIso,
+        status: appointmentForm.status,
+        user_id: user.id,
+      },
+    ]);
+
+    if (error) {
+      console.log("CREATE CLIENT APPOINTMENT ERROR:", error);
+      setSavingAppointment(false);
+      return;
+    }
+
+    setSavingAppointment(false);
+    setShowAppointmentModal(false);
+    setAppointmentForm({
+      service_id: "",
+      service: "",
+      service_price: "",
+      appointment_at: "",
+      status: "Confirmed",
+    });
+
+    window.location.reload();
+  }
 
   if (loading) {
     return (
@@ -125,7 +229,8 @@ export default function ClientDetailsPage() {
   }
 
   return (
-    <section className="space-y-7">
+    <>
+      <section className="space-y-7">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <Link href="/clients" className="app-muted text-sm hover:text-white">
@@ -141,9 +246,12 @@ export default function ClientDetailsPage() {
           </p>
         </div>
 
-        <Link href="/appointments" className="app-button-primary px-5 py-3">
+        <button
+          onClick={openNewAppointmentModal}
+          className="app-button-primary px-5 py-3"
+        >
           New Appointment
-        </Link>
+        </button>
       </div>
 
       <div className="grid gap-5 md:grid-cols-3">
@@ -261,5 +369,117 @@ export default function ClientDetailsPage() {
         </div>
       </div>
     </section>
+    
+    {showAppointmentModal && client && (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 backdrop-blur-sm">
+        <div className="app-card max-h-[90vh] w-full max-w-xl overflow-y-auto p-5 sm:p-7">
+          <div className="mb-6">
+            <p className="app-kicker">New Booking</p>
+
+            <h2 className="app-section-title mt-2">
+              Add Appointment
+            </h2>
+
+            <p className="app-muted mt-2 text-sm">
+              Create a new appointment for {client.name}.
+            </p>
+          </div>
+
+          <div className="grid gap-4">
+            <input
+              value={client.name}
+              disabled
+              className="app-input px-4 py-3 opacity-70"
+            />
+
+            <select
+              value={appointmentForm.service_id}
+              onChange={(e) => {
+                const selectedService = services.find(
+                  (service) => service.id.toString() === e.target.value
+                );
+
+                setAppointmentForm({
+                  ...appointmentForm,
+                  service_id: selectedService?.id.toString() || "",
+                  service: selectedService?.name || "",
+                  service_price: selectedService?.price || "",
+                });
+              }}
+              className="app-input px-4 py-3"
+            >
+              <option value="">Select service</option>
+
+              {services.map((service) => (
+                <option key={service.id} value={service.id}>
+                  {service.name}
+                </option>
+              ))}
+            </select>
+
+            <input
+              type="number"
+              min="0"
+              value={appointmentForm.service_price}
+              onChange={(e) =>
+                setAppointmentForm({
+                  ...appointmentForm,
+                  service_price: e.target.value,
+                })
+              }
+              placeholder="Service price"
+              className="app-input px-4 py-3"
+            />
+
+            <input
+              type="datetime-local"
+              value={appointmentForm.appointment_at}
+              onChange={(e) =>
+                setAppointmentForm({
+                  ...appointmentForm,
+                  appointment_at: e.target.value,
+                })
+              }
+              className="app-input px-4 py-3"
+            />
+
+            <select
+              value={appointmentForm.status}
+              onChange={(e) =>
+                setAppointmentForm({
+                  ...appointmentForm,
+                  status: e.target.value,
+                })
+              }
+              className="app-input px-4 py-3"
+            >
+              <option>Confirmed</option>
+              <option>In Progress</option>
+              <option>Pending</option>
+              <option>Cancelled</option>
+            </select>
+          </div>
+
+          <div className="mt-7 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+            <button
+              onClick={() => setShowAppointmentModal(false)}
+              disabled={savingAppointment}
+              className="app-button-secondary w-full px-5 py-3 sm:w-auto"
+            >
+              Cancel
+            </button>
+
+            <button
+              onClick={createAppointmentForClient}
+              disabled={savingAppointment}
+              className="app-button-primary w-full px-5 py-3 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+            >
+              {savingAppointment ? "Saving..." : "Save Appointment"}
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
+  </>
   );
 }
