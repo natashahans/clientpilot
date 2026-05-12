@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useWorkspace } from "@/context/workspace-context";
+import { useRouter } from "next/navigation";
 import {
   formatDateWithTimezone,
   formatPrice,
@@ -59,6 +60,7 @@ export default function AppointmentsPage() {
   const [creatingService, setCreatingService] = useState(false);
 
   const { workspaceSettings } = useWorkspace();
+  const router = useRouter();
 
   const [currentPage, setCurrentPage] = useState(1);
   const appointmentsPerPage = 10;
@@ -586,7 +588,8 @@ export default function AppointmentsPage() {
                 paginatedAppointments.map((appointment) => (
                   <div
                     key={appointment.id}
-                    className="app-card-dark grid gap-4 px-5 py-4 lg:grid-cols-[0.8fr_1.1fr_1.1fr_0.8fr_0.7fr] lg:items-center"
+                    onClick={() => router.push(`/appointments/${appointment.id}`)}
+                    className="app-card-dark grid cursor-pointer gap-4 px-5 py-4 transition hover:bg-white/[0.06] lg:grid-cols-[0.8fr_1.1fr_1.1fr_0.8fr_0.7fr] lg:items-center"
                   >
                     <div>
                       <p className="font-black text-[var(--app-accent)]">
@@ -629,14 +632,20 @@ export default function AppointmentsPage() {
 
                     <div className="flex justify-start gap-3 lg:justify-end">
                       <button
-                        onClick={() => openEdit(appointment)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openEdit(appointment);
+                        }}
                         className="text-xs font-semibold text-blue-400 hover:text-blue-300"
                       >
                         Edit
                       </button>
 
                       <button
-                        onClick={() => setAppointmentToDelete(appointment)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setAppointmentToDelete(appointment);
+                        }}
                         className="text-xs font-semibold text-red-400 hover:text-red-300"
                       >
                         Delete
