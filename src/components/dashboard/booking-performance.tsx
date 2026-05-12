@@ -15,7 +15,6 @@ type ChartPoint = {
 };
 
 type ChartRange = "24h" | "7days" | "30days" | "90days";
-
 type ChartMode = "bookings" | "revenue";
 
 type BookingPerformanceProps = {
@@ -50,144 +49,166 @@ export default function BookingPerformance({
   onChartModeChange,
   onChartRangeChange,
 }: BookingPerformanceProps) {
+  const peakPoint = chartData.reduce(
+    (best, item) =>
+      item.bookings > best.bookings || item.revenue > best.revenue ? item : best,
+    chartData[0] || { label: "-", bookings: 0, revenue: 0 }
+  );
+
   return (
-    <div className="app-card p-5 sm:p-7">
-        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div className="rounded-[34px] border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+      <div className="mb-5 flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
         <div>
-            <h3 className="app-section-title">Booking Performance</h3>
+          <h3 className="text-[23px] font-extrabold tracking-[-0.04em] text-slate-950">
+            Booking Performance
+          </h3>
 
-            <p className="app-muted mt-1 text-sm">
-            Real appointment demand from Supabase for{" "}
-            {rangeLabels[chartRange].toLowerCase()}.
-            </p>
-
-            <p className="mt-2 text-sm font-bold text-[var(--app-accent)]">
-            {loading
-                ? "Loading performance..."
-                : chartMode === "bookings"
-                ? `${totalBookingsInChart} total bookings shown`
-                : `${currency || "$"}${totalRevenueInChart} revenue shown`}
-            </p>
+          <p className="mt-1 text-[13px] font-medium text-slate-500">
+            Real appointment demand for {rangeLabels[chartRange].toLowerCase()}.
+          </p>
         </div>
 
-        <div className="flex rounded-full border app-border bg-white/50 p-1">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <div className="flex rounded-[18px] border border-slate-200 bg-slate-50 p-1">
             <button
-            type="button"
-            onClick={() => onChartModeChange("bookings")}
-            className={`rounded-full px-4 py-2 text-sm font-bold transition ${
+              type="button"
+              onClick={() => onChartModeChange("bookings")}
+              className={`rounded-[14px] px-4 py-2 text-[13px] font-bold transition ${
                 chartMode === "bookings"
-                ? "bg-[var(--app-accent)] text-[var(--app-accent-text)]"
-                : "app-muted"
-            }`}
+                  ? "bg-white text-slate-950 shadow-sm"
+                  : "text-slate-400 hover:text-slate-700"
+              }`}
             >
-            Bookings
+              Bookings
             </button>
 
             <button
-            type="button"
-            onClick={() => onChartModeChange("revenue")}
-            className={`rounded-full px-4 py-2 text-sm font-bold transition ${
+              type="button"
+              onClick={() => onChartModeChange("revenue")}
+              className={`rounded-[14px] px-4 py-2 text-[13px] font-bold transition ${
                 chartMode === "revenue"
-                ? "bg-[var(--app-accent)] text-[var(--app-accent-text)]"
-                : "app-muted"
-            }`}
+                  ? "bg-white text-slate-950 shadow-sm"
+                  : "text-slate-400 hover:text-slate-700"
+              }`}
             >
-            Revenue
+              Revenue
             </button>
-        </div>
+          </div>
 
-        <select
+          <select
             value={chartRange}
-            onChange={(e) =>
-            onChartRangeChange(e.target.value as ChartRange)
-            }
-            className="app-input w-full rounded-full px-4 py-2 text-sm font-bold sm:w-auto"
+            onChange={(e) => onChartRangeChange(e.target.value as ChartRange)}
+            className="h-[42px] rounded-[16px] border border-slate-200 bg-white px-4 text-[13px] font-bold text-slate-700 outline-none transition focus:border-indigo-300 focus:ring-4 focus:ring-indigo-500/10"
             disabled={loading}
-        >
+          >
             <option value="24h">Last 24 hours</option>
             <option value="7days">Last 7 days</option>
             <option value="30days">Last 30 days</option>
             <option value="90days">Last 90 days</option>
-        </select>
+          </select>
         </div>
+      </div>
 
-        <div className="h-[260px] min-w-0">
+      <div className="mb-5 grid gap-3 sm:grid-cols-4">
+        {[
+          ["Bookings", loading ? "..." : totalBookingsInChart],
+          ["Revenue", loading ? "..." : `${currency || "$"}${totalRevenueInChart}`],
+          ["Peak day", loading ? "..." : peakPoint.label],
+          ["Mode", chartMode === "bookings" ? "Demand" : "Revenue"],
+        ].map(([label, value]) => (
+          <div
+            key={label}
+            className="rounded-[20px] border border-slate-200 bg-slate-50 p-4"
+          >
+            <p className="text-[10.5px] font-bold uppercase tracking-[0.14em] text-slate-400">
+              {label}
+            </p>
+
+            <p className="mt-2 truncate text-[20px] font-extrabold tracking-[-0.045em] text-slate-950">
+              {value}
+            </p>
+          </div>
+        ))}
+      </div>
+
+      <div className="h-[190px] min-w-0">
         {loading ? (
-            <div className="app-card-dark h-full animate-pulse" />
+          <div className="h-full animate-pulse rounded-[28px] border border-slate-200 bg-slate-50" />
         ) : hasChartData ? (
-            <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={chartData}>
-                <defs>
+              <defs>
                 <linearGradient id="areaGlow" x1="0" y1="0" x2="0" y2="1">
-                    <stop
-                    offset="0%"
-                    stopColor="var(--app-accent)"
-                    stopOpacity={0.7}
-                    />
-                    <stop
-                    offset="100%"
-                    stopColor="var(--app-accent)"
-                    stopOpacity={0}
-                    />
+                  <stop offset="0%" stopColor="#4f46e5" stopOpacity={0.35} />
+                  <stop offset="100%" stopColor="#4f46e5" stopOpacity={0} />
                 </linearGradient>
-                </defs>
+              </defs>
 
-                <CartesianGrid
+              <CartesianGrid
                 vertical={false}
-                stroke="var(--app-border)"
+                stroke="rgba(15,23,42,0.08)"
                 strokeDasharray="4 8"
-                />
+              />
 
-                <XAxis
+              <XAxis
                 dataKey="label"
                 axisLine={false}
                 tickLine={false}
-                stroke="var(--app-muted)"
-                />
+                stroke="rgba(15,23,42,0.42)"
+                fontSize={12}
+              />
 
-                <YAxis
+              <YAxis
                 axisLine={false}
                 tickLine={false}
-                stroke="var(--app-muted)"
+                stroke="rgba(15,23,42,0.42)"
+                fontSize={12}
                 width={32}
                 allowDecimals={false}
-                />
+              />
 
-                <Tooltip
+              <Tooltip
                 animationDuration={200}
-                cursor={{
-                    stroke: "var(--app-accent)",
-                    strokeOpacity: 0.25,
+                contentStyle={{
+                  border: "1px solid rgba(15,23,42,0.08)",
+                  borderRadius: "18px",
+                  boxShadow: "0 18px 45px rgba(15,23,42,0.12)",
+                  fontSize: "13px",
+                  fontWeight: 700,
                 }}
-                />
+                cursor={{
+                  stroke: "#4f46e5",
+                  strokeOpacity: 0.2,
+                }}
+              />
 
-                <Area
+              <Area
                 type="monotone"
                 dataKey={chartMode}
-                stroke="var(--app-accent)"
-                strokeWidth={4}
+                stroke="#4f46e5"
+                strokeWidth={3}
                 fill="url(#areaGlow)"
                 dot={false}
                 activeDot={{
-                    r: 6,
-                    strokeWidth: 2,
-                    stroke: "white",
+                  r: 6,
+                  strokeWidth: 2,
+                  stroke: "white",
+                  fill: "#4f46e5",
                 }}
-                />
+              />
             </AreaChart>
-            </ResponsiveContainer>
+          </ResponsiveContainer>
         ) : (
-            <div className="app-card-dark flex h-full items-center justify-center rounded-[28px]">
+          <div className="flex h-full items-center justify-center rounded-[28px] border border-slate-200 bg-slate-50">
             <div className="text-center">
-                <p className="font-bold">No booking analytics yet</p>
-
-                <p className="app-muted mt-1 text-sm">
+              <p className="font-bold text-slate-950">No booking analytics yet</p>
+              <p className="mt-1 text-sm font-medium text-slate-500">
                 Appointment trends will appear once bookings are added.
-                </p>
+              </p>
             </div>
-            </div>
+          </div>
         )}
-        </div>
+      </div>
     </div>
   );
 }

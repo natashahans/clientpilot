@@ -28,30 +28,37 @@ export default function RecentRevenueActivity({
   currency,
 }: RecentRevenueActivityProps) {
   return (
-    <div className="app-card p-5 sm:p-7">
+    <div className="rounded-[34px] border border-slate-200 bg-white p-5 shadow-sm sm:p-7">
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h3 className="app-section-title">Recent Revenue Activity</h3>
+          <h3 className="text-[24px] font-extrabold tracking-[-0.04em] text-slate-950">
+            Recent Revenue Activity
+          </h3>
 
-          <p className="app-muted mt-1 text-sm">
+          <p className="mt-1 text-[13.5px] font-medium text-slate-500">
             Latest appointments generating revenue.
           </p>
         </div>
 
-        <Clock className="h-5 w-5 text-[var(--app-accent)]" />
+        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-indigo-50 ring-1 ring-indigo-100">
+          <Clock className="h-5 w-5 text-[#4f46e5]" />
+        </div>
       </div>
 
       {loading ? (
         <div className="space-y-3">
           {[1, 2, 3].map((item) => (
-            <div key={item} className="app-card-dark h-[88px] animate-pulse" />
+            <div
+              key={item}
+              className="h-[88px] animate-pulse rounded-[24px] border border-slate-200 bg-slate-50"
+            />
           ))}
         </div>
       ) : appointments.length === 0 ? (
-        <div className="app-card-dark p-6 text-center">
-          <p className="font-bold">No revenue activity yet</p>
+        <div className="rounded-[24px] border border-slate-200 bg-slate-50 p-6 text-center">
+          <p className="font-bold text-slate-950">No revenue activity yet</p>
 
-          <p className="app-muted mt-1 text-sm">
+          <p className="mt-1 text-sm font-medium text-slate-500">
             Priced appointments will appear here once added.
           </p>
         </div>
@@ -61,24 +68,29 @@ export default function RecentRevenueActivity({
             <Link
               key={appointment.id}
               href={`/appointments/${appointment.id}`}
-              className="app-card-dark grid gap-4 px-5 py-4 transition hover:-translate-y-1 hover:bg-white/[0.06] md:grid-cols-[1.2fr_1fr_0.8fr] md:items-center"
+              className="grid gap-4 rounded-[24px] border border-slate-200 bg-slate-50 px-5 py-4 transition hover:-translate-y-1 hover:bg-white hover:shadow-[0_16px_40px_rgba(15,23,42,0.08)] md:grid-cols-[1.2fr_1fr_0.8fr] md:items-center"
             >
               <div>
-                <p className="font-bold">{appointment.client_name}</p>
-                <p className="app-muted mt-1 text-sm">{appointment.service}</p>
+                <p className="text-[14px] font-bold text-slate-950">
+                  {appointment.client_name}
+                </p>
+
+                <p className="mt-1 text-[13px] font-medium text-slate-500">
+                  {appointment.service}
+                </p>
               </div>
 
               <div>
-                <p className="text-sm font-bold text-[var(--app-accent)]">
+                <p className="text-[13px] font-bold text-[#4f46e5]">
                   {formatTimeWithTimezone(appointment.appointment_at, timezone)}
                 </p>
 
-                <p className="app-muted mt-1 text-xs">
+                <p className="mt-1 text-[12px] font-medium text-slate-400">
                   {formatDateWithTimezone(appointment.appointment_at, timezone)}
                 </p>
               </div>
 
-              <p className="text-xl font-black text-[var(--app-accent)] md:text-right">
+              <p className="text-[20px] font-extrabold tracking-[-0.04em] text-[#4f46e5] md:text-right">
                 {formatPrice(
                   appointment.service_price?.toString() || "0",
                   currency

@@ -36,6 +36,18 @@ type SearchResult = {
   path: string;
 };
 
+function ClientPilotMark() {
+  return (
+    <div className="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-[#4f46e5] shadow-[0_10px_30px_rgba(79,70,229,0.22)]">
+      <div className="absolute left-2 top-2 h-3 w-3 rounded-full border-2 border-white" />
+      <div className="absolute bottom-2 right-2 h-3 w-3 rounded-full border-2 border-white" />
+      <div className="absolute left-[17px] top-[17px] h-2 w-2 rounded-full bg-white" />
+      <div className="absolute left-[13px] top-[14px] h-[2px] w-[15px] rotate-45 rounded-full bg-white/85" />
+      <div className="absolute bottom-[14px] right-[13px] h-[2px] w-[15px] rotate-45 rounded-full bg-white/85" />
+    </div>
+  );
+}
+
 export default function DashboardLayout({
   children,
 }: {
@@ -43,6 +55,7 @@ export default function DashboardLayout({
 }) {
   const pathname = usePathname();
   const router = useRouter();
+
   const [searchTerm, setSearchTerm] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [activeSearchIndex, setActiveSearchIndex] = useState(0);
@@ -50,7 +63,10 @@ export default function DashboardLayout({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [userEmail, setUserEmail] = useState("");
-  const [user, setUser] = useState<Awaited<ReturnType<typeof supabase.auth.getUser>>["data"]["user"]>(null);
+  const [user, setUser] = useState<
+    Awaited<ReturnType<typeof supabase.auth.getUser>>["data"]["user"]
+  >(null);
+
   const profileRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -66,7 +82,6 @@ export default function DashboardLayout({
 
       setUserEmail(user.email || "");
       setUser(user);
-
       setCheckingAuth(false);
     }
 
@@ -151,7 +166,9 @@ export default function DashboardLayout({
           .map((appointment) => ({
             id: appointment.id,
             title: appointment.client_name,
-            subtitle: `${appointment.service} at ${appointment.time || "No time"}`,
+            subtitle: `${appointment.service} at ${
+              appointment.time || "No time"
+            }`,
             type: "Appointment" as const,
             path: `/appointments/${appointment.id}`,
           })) || [];
@@ -186,8 +203,8 @@ export default function DashboardLayout({
 
   if (checkingAuth) {
     return (
-      <div className="app-bg flex min-h-screen items-center justify-center">
-        <div className="app-card px-6 py-4 text-sm font-bold">
+      <div className="flex min-h-screen items-center justify-center bg-[#f7f8fc]">
+        <div className="rounded-2xl border border-slate-200 bg-white px-6 py-4 text-sm font-semibold text-slate-900 shadow-sm">
           Loading workspace...
         </div>
       </div>
@@ -195,19 +212,21 @@ export default function DashboardLayout({
   }
 
   const SidebarContent = (
-    <>
-      <div className="mb-12">
-        <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--app-accent)] text-lg font-black text-[var(--app-accent-text)]">
-          CP
-        </div>
+    <div className="flex h-full flex-col">
+      <div className="mb-9 flex items-center gap-3">
+        <ClientPilotMark />
 
-        <h1 className="text-2xl font-black tracking-tight">ClientPilot</h1>
-        <p className="mt-1 text-sm app-muted">
-          Service business command center
-        </p>
+        <div>
+          <h1 className="text-[20px] font-extrabold tracking-[-0.04em] text-slate-950">
+            ClientPilot
+          </h1>
+          <p className="mt-0.5 text-[12px] font-medium text-slate-400">
+            Service CRM
+          </p>
+        </div>
       </div>
 
-      <nav className="space-y-2">
+      <nav className="space-y-1.5">
         {navItems.map(({ name, icon: Icon, path }) => {
           const isActive =
             path === "/" ? pathname === "/" : pathname.startsWith(path);
@@ -222,236 +241,258 @@ export default function DashboardLayout({
                 setActiveSearchIndex(0);
                 setMobileMenuOpen(false);
               }}
-              className={`flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold transition-colors duration-200 ${
+              className={`group flex items-center gap-3 rounded-[18px] px-4 py-3 text-[13.5px] font-semibold transition-all duration-200 ${
                 isActive
-                  ? "!bg-[var(--app-accent)] !text-[var(--app-accent-text)] hover:!bg-[var(--app-accent)] hover:!text-[var(--app-accent-text)] focus:!bg-[var(--app-accent)] focus:!text-[var(--app-accent-text)]"
-                  : "text-white/45 hover:bg-white/10 hover:text-white"
+                  ? "bg-[#4f46e5] text-white shadow-[0_12px_30px_rgba(79,70,229,0.22)]"
+                  : "text-slate-500 hover:bg-white hover:text-slate-950 hover:shadow-sm"
               }`}
             >
-              <Icon className="h-[18px] w-[18px]" strokeWidth={2.3} />
+              <Icon
+                className={`h-[18px] w-[18px] ${
+                  isActive ? "text-white" : "text-slate-400 group-hover:text-[#4f46e5]"
+                }`}
+                strokeWidth={2.3}
+              />
               {name}
             </Link>
           );
         })}
       </nav>
-    </>
+
+      <div className="mt-auto rounded-[24px] border border-indigo-100 bg-indigo-50/70 p-4">
+        <p className="text-[13px] font-bold text-slate-950">Quick tip</p>
+        <p className="mt-1 text-[12.5px] leading-5 text-slate-500">
+          Use global search to jump between clients, bookings and services.
+        </p>
+      </div>
+    </div>
   );
-  
+
   return (
     <WorkspaceProvider>
-      <div className="app-bg min-h-screen">
-      <div className="flex min-h-screen">
-        {mobileMenuOpen && (
-          <div
-            onClick={() => setMobileMenuOpen(false)}
-            className="fixed inset-0 z-40 bg-black/70 backdrop-blur-sm lg:hidden"
-          />
-        )}
-
-        <aside
-          className={`fixed left-0 top-0 z-50 h-full w-[280px] border-r app-border bg-[var(--app-card)] px-6 py-7 transition-transform duration-300 lg:hidden ${
-            mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
-          }`}
-        >
-          <div className="mb-8 flex items-center justify-between">
-            <p className="text-lg font-black">ClientPilot</p>
-
-            <button
+      <div className="min-h-screen bg-[#f7f8fc] text-slate-950">
+        <div className="flex min-h-screen">
+          {mobileMenuOpen && (
+            <div
               onClick={() => setMobileMenuOpen(false)}
-              className="flex h-10 w-10 items-center justify-center rounded-2xl border app-border bg-white/[0.06]"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          </div>
+              className="fixed inset-0 z-40 bg-slate-950/40 backdrop-blur-sm lg:hidden"
+            />
+          )}
 
-          {SidebarContent}
-        </aside>
+          <aside
+            className={`fixed left-0 top-0 z-50 h-full w-[286px] border-r border-slate-200/70 bg-[#f7f8fc] px-5 py-6 transition-transform duration-300 lg:hidden ${
+              mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+            }`}
+          >
+            <div className="mb-7 flex items-center justify-between">
+              <p className="text-lg font-extrabold tracking-[-0.04em]">
+                Menu
+              </p>
 
-        <aside className="hidden w-[280px] shrink-0 border-r app-border bg-[var(--app-card)] px-6 py-7 lg:block">
-          {SidebarContent}
-        </aside>
-
-        <main className="app-shell-bg min-w-0 flex-1 overflow-hidden">
-          <div className="flex items-center justify-between border-b app-border px-4 py-4 lg:hidden">
-            <div>
-              <p className="text-lg font-black">ClientPilot</p>
-              <p className="text-xs app-muted">Workspace dashboard</p>
+              <button
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-500 shadow-sm"
+              >
+                <X className="h-4 w-4" />
+              </button>
             </div>
 
-            <button
-              onClick={() => setMobileMenuOpen(true)}
-              className="flex items-center gap-2 rounded-2xl border app-border bg-white/[0.06] px-4 py-2 text-sm font-bold"
-            >
-              <Menu className="h-4 w-4" />
-              Menu
-            </button>
-          </div>
-          <div className="border-b app-border px-4 py-5 lg:px-8">
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-              <div className="relative w-full lg:w-[420px]">
-                <div className="flex items-center gap-3 rounded-full border app-border bg-white/[0.06] px-5 py-3 text-white/40 transition-all duration-200 focus-within:border-[var(--app-accent)]/40 focus-within:shadow-lg focus-within:shadow-[var(--app-accent)]/10">
-                  <Search className="h-4 w-4" />
-                  <input
-                    value={searchTerm}
-                    onChange={(e) => {
-                      setSearchTerm(e.target.value);
-                      setActiveSearchIndex(0);
-                    }}
+            {SidebarContent}
+          </aside>
 
-                    onKeyDown={(e) => {
-                      if (!searchTerm || results.length === 0) return;
+          <aside className="hidden w-[286px] shrink-0 border-r border-slate-200/70 bg-[#f7f8fc] px-5 py-6 lg:block">
+            {SidebarContent}
+          </aside>
 
-                      if (e.key === "ArrowDown") {
-                        e.preventDefault();
-                        setActiveSearchIndex((index) =>
-                          index === results.length - 1 ? 0 : index + 1
-                        );
-                      }
+          <main className="min-w-0 flex-1 bg-[#f7f8fc]">
+            <div className="sticky top-0 z-30 border-b border-slate-200/70 bg-[#f7f8fc]/85 px-4 py-4 backdrop-blur-xl lg:px-8">
+              <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                <div className="flex items-center justify-between gap-3 lg:hidden">
+                  <div className="flex items-center gap-3">
+                    <ClientPilotMark />
+                    <div>
+                      <p className="text-lg font-extrabold tracking-[-0.04em]">
+                        ClientPilot
+                      </p>
+                      <p className="text-xs font-medium text-slate-400">
+                        Workspace
+                      </p>
+                    </div>
+                  </div>
 
-                      if (e.key === "ArrowUp") {
-                        e.preventDefault();
-                        setActiveSearchIndex((index) =>
-                          index === 0 ? results.length - 1 : index - 1
-                        );
-                      }
-
-                      if (e.key === "Enter") {
-                        e.preventDefault();
-
-                        router.push(results[activeSearchIndex].path);
-                        setSearchTerm("");
-                        setResults([]);
-                        setActiveSearchIndex(0);
-                      }
-
-                      if (e.key === "Escape") {
-                        e.preventDefault();
-
-                        setSearchTerm("");
-                        setResults([]);
-                        setActiveSearchIndex(0);
-                      }
-                    }}                    
-
-                    placeholder="Search clients, bookings, services..."
-                    className="w-full bg-transparent text-sm text-[var(--app-text)] outline-none placeholder:text-white/40"
-                  />
+                  <button
+                    onClick={() => setMobileMenuOpen(true)}
+                    className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-700 shadow-sm"
+                  >
+                    <Menu className="h-4 w-4" />
+                    Menu
+                  </button>
                 </div>
 
-                {searchTerm && (
-                  <div className="absolute left-0 top-14 z-50 w-full rounded-[24px] border app-border bg-[var(--app-surface)] p-3 shadow-2xl shadow-black/50">
-                    {results.length > 0 ? (
-                      <div className="space-y-2">
-                        {results.map((result, index) => (
-                          <Link
-                            key={`${result.type}-${result.id}`}
-                            href={result.path}
-                            onClick={() => {
-                              setSearchTerm("");
-                              setMobileMenuOpen(false);
-                            }}
-                            className={`block rounded-2xl px-4 py-3 transition ${
-                              activeSearchIndex === index
-                                ? "bg-[var(--app-accent)] text-[var(--app-accent-text)]"
-                                : ""
-                            }`}
-                            onMouseEnter={() => setActiveSearchIndex(index)}
-                          >
-                            <div className="flex items-center justify-between">
-                              <div>
-                                <p className="font-bold">{result.title}</p>
-                                <p className="text-sm app-muted">
-                                  {result.subtitle}
-                                </p>
-                              </div>
+                <div className="relative w-full lg:w-[460px]">
+                  <div className="flex h-[52px] items-center gap-3 rounded-[20px] border border-slate-200 bg-white px-4 text-slate-400 shadow-sm transition-all duration-200 focus-within:border-indigo-300 focus-within:ring-4 focus-within:ring-indigo-500/10">
+                    <Search className="h-4 w-4" />
 
-                              <span className="rounded-full bg-[var(--app-accent)] px-3 py-1 text-xs font-bold text-[var(--app-accent-text)]">
-                                {result.type}
-                              </span>
-                            </div>
-                          </Link>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="px-4 py-3 text-sm app-muted">
-                        No results found.
-                      </p>
-                    )}
-                  </div>
-                )}
-              </div>
+                    <input
+                      value={searchTerm}
+                      onChange={(e) => {
+                        setSearchTerm(e.target.value);
+                        setActiveSearchIndex(0);
+                      }}
+                      onKeyDown={(e) => {
+                        if (!searchTerm || results.length === 0) return;
 
-              <div className="flex w-full items-center justify-between gap-3 lg:w-auto lg:justify-start">
-                <Link
-                  href="/appointments"
-                  className="app-button-primary px-5 py-3"
-                >
-                  Manage Bookings
-                </Link>
+                        if (e.key === "ArrowDown") {
+                          e.preventDefault();
+                          setActiveSearchIndex((index) =>
+                            index === results.length - 1 ? 0 : index + 1
+                          );
+                        }
 
-                <div ref={profileRef} className="relative">
-                  <button
-                    onClick={() => setProfileOpen(!profileOpen)}
-                    className="flex cursor-pointer items-center gap-3 rounded-full border app-border bg-white/[0.04] px-3 py-2 transition-all duration-200 hover:bg-white/[0.08] focus:outline-none focus:ring-2 focus:ring-[var(--app-accent)]/25"
-                  >
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-[var(--app-accent)] to-[#9D7CFF] text-sm font-black text-white">
-                      {(user?.user_metadata?.full_name ||
-                        user?.user_metadata?.name ||
-                        user?.email ||
-                        "U")[0].toUpperCase()}
-                    </div>
+                        if (e.key === "ArrowUp") {
+                          e.preventDefault();
+                          setActiveSearchIndex((index) =>
+                            index === 0 ? results.length - 1 : index - 1
+                          );
+                        }
 
-                    <ChevronDown
-                      className={`h-4 w-4 text-white/45 transition-transform ${
-                        profileOpen ? "rotate-180" : ""
-                      }`}
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          router.push(results[activeSearchIndex].path);
+                          setSearchTerm("");
+                          setResults([]);
+                          setActiveSearchIndex(0);
+                        }
+
+                        if (e.key === "Escape") {
+                          e.preventDefault();
+                          setSearchTerm("");
+                          setResults([]);
+                          setActiveSearchIndex(0);
+                        }
+                      }}
+                      placeholder="Search clients, bookings, services..."
+                      className="w-full bg-transparent text-[13.5px] font-medium text-slate-900 outline-none placeholder:text-slate-400"
                     />
-                  </button>
+                  </div>
 
-                  {profileOpen && (
-                    <div className="absolute right-0 top-14 z-50 w-[320px] rounded-[28px] border app-border bg-[var(--app-surface)] p-3 shadow-2xl shadow-black/20">
-                      <div className="flex items-start gap-4 rounded-[22px] px-4 py-4">
-                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[var(--app-accent)] to-[#9D7CFF] text-base font-black text-white">
-                          {userEmail.charAt(0).toUpperCase() || "N"}
+                  {searchTerm && (
+                    <div className="absolute left-0 top-14 z-50 w-full rounded-[24px] border border-slate-200 bg-white p-2 shadow-[0_24px_70px_rgba(15,23,42,0.16)]">
+                      {results.length > 0 ? (
+                        <div className="space-y-1.5">
+                          {results.map((result, index) => (
+                            <Link
+                              key={`${result.type}-${result.id}`}
+                              href={result.path}
+                              onClick={() => {
+                                setSearchTerm("");
+                                setMobileMenuOpen(false);
+                                setActiveSearchIndex(0);
+                              }}
+                              onMouseEnter={() => setActiveSearchIndex(index)}
+                              className={`block rounded-[18px] px-4 py-3 transition ${
+                                activeSearchIndex === index
+                                  ? "bg-indigo-50"
+                                  : "hover:bg-slate-50"
+                              }`}
+                            >
+                              <div className="flex items-center justify-between gap-4">
+                                <div className="min-w-0">
+                                  <p className="truncate text-[13.5px] font-bold text-slate-950">
+                                    {result.title}
+                                  </p>
+                                  <p className="mt-0.5 truncate text-[12.5px] font-medium text-slate-400">
+                                    {result.subtitle}
+                                  </p>
+                                </div>
+
+                                <span className="shrink-0 rounded-full bg-indigo-50 px-3 py-1 text-[11px] font-bold text-[#4f46e5] ring-1 ring-indigo-100">
+                                  {result.type}
+                                </span>
+                              </div>
+                            </Link>
+                          ))}
                         </div>
-
-                        <div className="min-w-0 flex-1">
-                          <p className="text-base font-black leading-tight">
-                            {user?.user_metadata?.full_name ||
-                              user?.user_metadata?.name ||
-                              user?.email?.split("@")[0] ||
-                              "User"}
-                          </p>
-
-                          <p className="mt-1 break-all text-sm app-muted">
-                            {userEmail || "No email found"}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="my-1 h-px bg-white/10" />
-
-                      <button
-                        onClick={async () => {
-                          await supabase.auth.signOut();
-                          window.location.href = "/login";
-                        }}
-                        className="flex w-full cursor-pointer items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-bold text-red-500 transition hover:bg-red-500/10"
-                      >
-                        <LogOut className="h-4 w-4" />
-                        Logout
-                      </button>
+                      ) : (
+                        <p className="px-4 py-3 text-[13px] font-medium text-slate-400">
+                          No results found.
+                        </p>
+                      )}
                     </div>
                   )}
                 </div>
+
+                <div className="flex w-full items-center justify-between gap-3 lg:w-auto lg:justify-start">
+                  <Link
+                    href="/appointments"
+                    className="flex h-[52px] items-center justify-center rounded-[18px] bg-[#4f46e5] px-5 text-[13.5px] font-bold text-white shadow-[0_10px_30px_rgba(79,70,229,0.22)] transition hover:-translate-y-0.5 hover:bg-[#4338ca]"
+                  >
+                    Manage Bookings
+                  </Link>
+
+                  <div ref={profileRef} className="relative">
+                    <button
+                      onClick={() => setProfileOpen(!profileOpen)}
+                      className="flex h-[52px] cursor-pointer items-center gap-3 rounded-[18px] border border-slate-200 bg-white px-2.5 pl-3 shadow-sm transition hover:bg-slate-50 focus:outline-none focus:ring-4 focus:ring-indigo-500/10"
+                    >
+                      <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-[#4f46e5] to-[#8b5cf6] text-sm font-extrabold text-white">
+                        {(user?.user_metadata?.full_name ||
+                          user?.user_metadata?.name ||
+                          user?.email ||
+                          "U")[0].toUpperCase()}
+                      </div>
+
+                      <ChevronDown
+                        className={`h-4 w-4 text-slate-400 transition-transform ${
+                          profileOpen ? "rotate-180" : ""
+                        }`}
+                      />
+                    </button>
+
+                    {profileOpen && (
+                      <div className="absolute right-0 top-14 z-50 w-[320px] rounded-[26px] border border-slate-200 bg-white p-3 shadow-[0_24px_70px_rgba(15,23,42,0.16)]">
+                        <div className="flex items-start gap-4 rounded-[22px] px-4 py-4">
+                          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#4f46e5] to-[#8b5cf6] text-base font-extrabold text-white">
+                            {userEmail.charAt(0).toUpperCase() || "N"}
+                          </div>
+
+                          <div className="min-w-0 flex-1">
+                            <p className="text-[15px] font-extrabold leading-tight text-slate-950">
+                              {user?.user_metadata?.full_name ||
+                                user?.user_metadata?.name ||
+                                user?.email?.split("@")[0] ||
+                                "User"}
+                            </p>
+
+                            <p className="mt-1 break-all text-[13px] font-medium text-slate-400">
+                              {userEmail || "No email found"}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="my-1 h-px bg-slate-100" />
+
+                        <button
+                          onClick={async () => {
+                            await supabase.auth.signOut();
+                            window.location.href = "/login";
+                          }}
+                          className="flex w-full cursor-pointer items-center gap-3 rounded-[18px] px-4 py-3 text-left text-[13.5px] font-bold text-red-500 transition hover:bg-red-50"
+                        >
+                          <LogOut className="h-4 w-4" />
+                          Logout
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
 
-          <div className="p-4 lg:p-8">{children}</div>
-        </main>
+            <div className="px-4 py-6 lg:px-8 lg:py-8">{children}</div>
+          </main>
+        </div>
       </div>
-    </div>
-  </WorkspaceProvider>
-);
+    </WorkspaceProvider>
+  );
 }
