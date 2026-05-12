@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { useWorkspace } from "@/context/workspace-context";
 import {
@@ -27,9 +27,11 @@ export default function AppointmentDetailsPage() {
   const params = useParams();
   const appointmentId = Number(params.id);
   const { workspaceSettings } = useWorkspace();
+  const router = useRouter();
 
   const [appointment, setAppointment] = useState<Appointment | null>(null);
   const [loading, setLoading] = useState(true);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     async function fetchAppointmentDetails() {
@@ -62,6 +64,29 @@ export default function AppointmentDetailsPage() {
 
     fetchAppointmentDetails();
   }, [appointmentId]);
+
+async function deleteAppointment() {
+  if (!appointment) return;
+
+  const confirmed = window.confirm("Delete this appointment permanently?");
+
+  if (!confirmed) return;
+
+  setDeleting(true);
+
+  const { error } = await supabase
+    .from("appointments")
+    .delete()
+    .eq("id", appointment.id);
+
+  if (error) {
+    console.log("DELETE APPOINTMENT ERROR:", error);
+    setDeleting(false);
+    return;
+  }
+
+  router.push("/appointments");
+}
 
   if (loading) {
     return (
@@ -110,9 +135,19 @@ export default function AppointmentDetailsPage() {
           </p>
         </div>
 
-        <Link href="/appointments" className="app-button-primary px-5 py-3">
-          Manage Appointment
+        <div className="flex gap-3">
+        <Link href="/appointments" className="app-button-secondary px-5 py-3">
+            Edit in List
         </Link>
+
+        <button
+            onClick={deleteAppointment}
+            disabled={deleting}
+            className="rounded-full border border-red-400/20 bg-red-500/10 px-5 py-3 text-sm font-semibold text-red-300 transition hover:bg-red-500/20 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+            {deleting ? "Deleting..." : "Delete"}
+        </button>
+        </div>
       </div>
 
       <div className="grid gap-5 md:grid-cols-3">
