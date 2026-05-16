@@ -279,7 +279,7 @@ export default function LoginPage() {
                   setAuthMessage("");
                   setShowPassword(false);
                 }}
-                className="group w-full cursor-pointer py-2 text-center text-[13.5px] font-medium text-slate-500 transition hover:text-slate-900"
+                className="group w-full cursor-pointer py-2 text-center text-[13.5px] font-semibold text-slate-700 transition"
               >
                 {isLogin
                   ? "Don’t have an account? "
