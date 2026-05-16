@@ -73,22 +73,38 @@ export default function DashboardLayout({
   const profileRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
+    let mounted = true;
+
     async function checkUser() {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+      try {
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
 
-      if (!user) {
-        router.replace("/login");
-        return;
+        if (!mounted) return;
+
+        if (!session?.user) {
+          router.replace("/login");
+          return;
+        }
+
+        setUserEmail(session.user.email || "");
+        setUser(session.user);
+        setCheckingAuth(false);
+      } catch (error) {
+        console.log("DASHBOARD SESSION CHECK ERROR:", error);
+
+        if (mounted) {
+          router.replace("/login");
+        }
       }
-
-      setUserEmail(user.email || "");
-      setUser(user);
-      setCheckingAuth(false);
     }
 
     checkUser();
+
+    return () => {
+      mounted = false;
+    };
   }, [router]);
 
   useEffect(() => {

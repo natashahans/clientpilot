@@ -33,7 +33,7 @@ function ClientPilotLogo() {
 export default function LoginPage() {
   const router = useRouter();
   const [isLogin, setIsLogin] = useState(true);
-  const [checkingAuth, setCheckingAuth] = useState(true);
+  const [checkingAuth, setCheckingAuth] = useState(false);
   const [authMessage, setAuthMessage] = useState("");
   const [authError, setAuthError] = useState("");
 
@@ -44,26 +44,38 @@ export default function LoginPage() {
   });
 
   useEffect(() => {
+    let mounted = true;
+
     async function redirectLoggedInUser() {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+      try {
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
 
-      if (user) {
-        router.replace("/");
+        if (!mounted) return;
+
+        if (session?.user) {
+          router.replace("/");
+        }
+      } catch (error) {
+        console.log("LOGIN SESSION CHECK ERROR:", error);
       }
-
-      setCheckingAuth(false);
     }
 
     redirectLoggedInUser();
+
+    return () => {
+      mounted = false;
+    };
   }, [router]);
 
   async function handleGoogleLogin() {
+    setAuthError("");
+
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: "http://localhost:3000",
+        redirectTo: `${window.location.origin}`,
       },
     });
 

@@ -13,7 +13,11 @@ export function middleware(request: NextRequest) {
 
   const hasSupabaseCookie = request.cookies
     .getAll()
-    .some((cookie) => cookie.name.includes("supabase-auth-token"));
+    .some(
+      (cookie) =>
+        cookie.name.includes("supabase-auth-token") ||
+        cookie.name.startsWith("sb-")
+    );
 
   if (isDashboardPage && !hasSupabaseCookie) {
     return NextResponse.redirect(new URL("/login", request.url));
