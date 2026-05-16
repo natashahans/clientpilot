@@ -8,6 +8,8 @@ import {
   BarChart3,
   CalendarDays,
   CheckCircle2,
+  Eye,
+  EyeOff,
   Mail,
   Users,
 } from "lucide-react";
@@ -36,6 +38,7 @@ export default function LoginPage() {
   const [checkingAuth, setCheckingAuth] = useState(false);
   const [authMessage, setAuthMessage] = useState("");
   const [authError, setAuthError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const [form, setForm] = useState({
     name: "",
@@ -160,8 +163,9 @@ export default function LoginPage() {
             </div>
 
             <button
+              type="button"
               onClick={handleGoogleLogin}
-              className="mt-7 flex h-[54px] w-full items-center justify-center gap-3 rounded-2xl border border-slate-200 bg-white text-[13.5px] font-semibold text-slate-800 shadow-sm transition hover:border-indigo-200 hover:bg-slate-50 sm:mt-8"
+              className="mt-7 flex h-[54px] w-full cursor-pointer items-center justify-center gap-3 rounded-2xl border border-slate-200 bg-white text-[13.5px] font-semibold text-slate-800 shadow-sm transition hover:-translate-y-0.5 hover:border-indigo-200 hover:bg-slate-50 hover:shadow-md sm:mt-8"
             >
               <span className="text-lg font-extrabold text-[#4285F4]">G</span>
               Continue with Google
@@ -233,20 +237,35 @@ export default function LoginPage() {
                   Password
                 </span>
 
-                <input
-                  type="password"
-                  placeholder="Enter your password"
-                  value={form.password}
-                  onChange={(e) =>
-                    setForm({ ...form, password: e.target.value })
-                  }
-                  className="h-[54px] w-full rounded-[18px] border border-slate-200 bg-white px-4 text-[13.5px] font-medium outline-none transition placeholder:text-slate-300 focus:border-indigo-300 focus:ring-4 focus:ring-indigo-500/10"
-                />
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Enter your password"
+                    value={form.password}
+                    onChange={(e) =>
+                      setForm({ ...form, password: e.target.value })
+                    }
+                    className="h-[54px] w-full rounded-[18px] border border-slate-200 bg-white px-4 pr-12 text-[13.5px] font-medium outline-none transition placeholder:text-slate-300 focus:border-indigo-300 focus:ring-4 focus:ring-indigo-500/10"
+                  />
+
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    className="absolute right-3 top-1/2 flex h-9 w-9 -translate-y-1/2 cursor-pointer items-center justify-center rounded-xl text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
+                </div>
               </label>
 
               <button
                 type="submit"
-                className="mt-7 flex h-[52px] w-full items-center justify-center gap-2 rounded-2xl bg-[#4f46e5] text-[13.5px] font-bold text-white shadow-[0_10px_30px_rgba(79,70,229,0.22)] transition hover:-translate-y-0.5 hover:bg-[#4338ca]"
+                className="mt-7 flex h-[52px] w-full cursor-pointer items-center justify-center gap-2 rounded-2xl bg-[#4f46e5] text-[13.5px] font-bold text-white shadow-[0_10px_30px_rgba(79,70,229,0.22)] transition hover:-translate-y-0.5 hover:bg-[#4338ca] hover:shadow-[0_14px_35px_rgba(79,70,229,0.28)]"
               >
                 {isLogin ? "Log In" : "Create Account"}
                 <ArrowRight className="h-4 w-4" />
@@ -258,14 +277,15 @@ export default function LoginPage() {
                   setIsLogin(!isLogin);
                   setAuthError("");
                   setAuthMessage("");
+                  setShowPassword(false);
                 }}
-                className="w-full text-center text-[13.5px] font-medium text-slate-500 transition hover:text-slate-900"
+                className="group w-full cursor-pointer py-2 text-center text-[13.5px] font-medium text-slate-500 transition hover:text-slate-900"
               >
                 {isLogin
                   ? "Don’t have an account? "
                   : "Already have an account? "}
 
-                <span className="font-bold text-[#4f46e5]">
+                <span className="font-bold text-[#4f46e5] transition group-hover:text-[#4338ca] group-hover:underline group-hover:underline-offset-4">
                   {isLogin ? "Register Now." : "Login"}
                 </span>
               </button>
@@ -280,13 +300,9 @@ export default function LoginPage() {
         <section className="hidden h-full p-5 lg:block xl:p-6">
           <div className="relative flex min-h-[calc(100vh-48px)] overflow-hidden rounded-[30px] bg-gradient-to-br from-[#5652f4] via-[#4f46e5] to-[#4338ca] p-10 text-white shadow-2xl shadow-indigo-500/20 xl:rounded-[34px] xl:p-14">
             <div className="absolute inset-0 overflow-hidden">
-              {/* top glow */}
               <div className="absolute left-[-140px] top-[-140px] h-[360px] w-[360px] rounded-full bg-white/[0.045] blur-3xl" />
-              {/* bottom glow */}
               <div className="absolute bottom-[-180px] right-[-120px] h-[420px] w-[420px] rounded-full bg-black/[0.12] blur-3xl" />
-              {/* center smooth radial */}
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.06),transparent_58%)]" />
-              {/* subtle lines */}
               <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.015)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.015)_1px,transparent_1px)] bg-[size:120px_120px]" />
             </div>
 
